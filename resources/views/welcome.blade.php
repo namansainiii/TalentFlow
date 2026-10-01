@@ -4,38 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TalentFlow – Recruitment & Resume Management System</title>
-    <meta name="description" content="TalentFlow: Recruitment platform where recruiters manage jobs, screen candidates, assign technical tasks, schedule interviews, and track hiring pipelines.">
+    <meta name="description" content="TalentFlow: Simple recruitment and resume management platform.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-body: #0b0f19;
-            --bg-sidebar: #0f172a;
-            --bg-card: #131d33;
-            --bg-card-hover: #192644;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --border-focus: #6366f1;
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --primary-light: rgba(99, 102, 241, 0.15);
-            --success: #10b981;
-            --success-light: rgba(16, 185, 129, 0.15);
-            --warning: #f59e0b;
-            --warning-light: rgba(245, 158, 11, 0.15);
-            --danger: #ef4444;
-            --danger-light: rgba(239, 68, 68, 0.15);
-            --info: #0ea5e9;
-            --info-light: rgba(14, 165, 233, 0.15);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --text-dark: #64748b;
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
-            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --border-focus: #3b82f6;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            --success: #16a34a;
+            --success-light: #dcfce7;
+            --warning: #d97706;
+            --warning-light: #fef3c7;
+            --danger: #dc2626;
+            --danger-light: #fee2e2;
+            --purple: #7c3aed;
+            --purple-light: #f5f3ff;
+            --radius: 8px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
         }
 
         * {
@@ -45,358 +41,168 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-body);
-            color: var(--text-main);
+            color: var(--text-dark);
+            line-height: 1.5;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
         }
 
-        h1, h2, h3, h4, .brand-font {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
-
-        /* Layout Grid */
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-            width: 100%;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 270px;
-            background-color: var(--bg-sidebar);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
+        /* Top Navbar */
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
             top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 40;
-            transition: var(--transition);
+            z-index: 50;
+            box-shadow: var(--shadow-sm);
         }
 
-        .sidebar-brand {
-            padding: 24px;
+        .nav-container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 64px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--border-color);
+            justify-content: space-between;
         }
 
-        .brand-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            border-radius: var(--radius-md);
+        .brand {
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-decoration: none;
         }
 
-        .brand-title {
-            font-size: 1.35rem;
-            color: #ffffff;
-            line-height: 1.2;
-        }
-
-        .brand-subtitle {
-            font-size: 0.72rem;
-            color: #818cf8;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-weight: 600;
-        }
-
-        .nav-links {
-            list-style: none;
-            padding: 20px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .nav-item button {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            background: transparent;
-            border: none;
-            border-radius: var(--radius-sm);
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            text-align: left;
-        }
-
-        .nav-item button:hover {
-            color: var(--text-main);
-            background: rgba(255, 255, 255, 0.04);
-        }
-
-        .nav-item.active button {
-            color: #ffffff;
+        .brand-badge {
             background: var(--primary);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
-        }
-
-        .nav-badge {
-            margin-left: auto;
-            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 0.72rem;
             padding: 2px 8px;
             border-radius: 999px;
-            font-size: 0.75rem;
             font-weight: 600;
         }
 
-        .sidebar-footer {
-            padding: 18px;
-            border-top: 1px solid var(--border-color);
-            background: rgba(0, 0, 0, 0.2);
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+            list-style: none;
         }
 
-        .current-user-card {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #4f46e5, #ec4899);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
+        .nav-tabs button {
+            background: transparent;
+            border: none;
+            padding: 8px 14px;
+            border-radius: var(--radius);
             font-size: 0.9rem;
-            flex-shrink: 0;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
         }
 
-        .user-details {
-            overflow: hidden;
-            flex: 1;
+        .nav-tabs button:hover {
+            color: var(--text-dark);
+            background: #f1f5f9;
         }
 
-        .user-name {
-            font-size: 0.88rem;
+        .nav-tabs button.active {
+            color: var(--primary);
+            background: var(--primary-light);
             font-weight: 600;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        .user-role-badge {
-            display: inline-block;
-            font-size: 0.7rem;
-            padding: 2px 7px;
-            border-radius: 4px;
+        .user-nav-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .role-badge {
+            font-size: 0.72rem;
             font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 999px;
             text-transform: capitalize;
         }
 
-        .role-admin { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-        .role-recruiter { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
-        .role-candidate { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+        .role-admin { background: var(--danger-light); color: var(--danger); }
+        .role-recruiter { background: var(--primary-light); color: var(--primary); }
+        .role-candidate { background: var(--success-light); color: var(--success); }
 
-        /* Main Content */
-        .main-wrapper {
-            margin-left: 270px;
+        /* Container */
+        .main-content {
+            max-width: 1240px;
+            margin: 24px auto;
+            padding: 0 20px;
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            width: 100%;
         }
 
-        /* Top Header */
-        .topbar {
-            height: 70px;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
+        /* Header Title */
+        .section-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 0 32px;
-            position: sticky;
-            top: 0;
-            z-index: 30;
-        }
-
-        .quick-role-switcher {
-            display: flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 4px 6px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
         }
 
-        .quick-role-label {
-            font-size: 0.78rem;
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
             color: var(--text-dark);
-            margin-right: 4px;
-            padding-left: 6px;
-            font-weight: 600;
         }
 
-        .role-btn {
-            background: transparent;
-            border: none;
+        .section-desc {
+            font-size: 0.88rem;
             color: var(--text-muted);
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .role-btn:hover {
-            color: var(--text-main);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .role-btn.active {
-            background: var(--primary);
-            color: #fff;
-        }
-
-        .topbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .action-icon-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .action-icon-btn:hover {
-            color: #fff;
-            border-color: var(--primary);
-        }
-
-        .badge-dot {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 8px;
-            height: 8px;
-            background-color: var(--danger);
-            border-radius: 50%;
-        }
-
-        /* Page Content */
-        .content-area {
-            padding: 32px;
-            flex: 1;
-        }
-
-        /* View Container */
-        .view-panel {
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .view-panel.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Page Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 28px;
-        }
-
-        .page-title {
-            font-size: 1.85rem;
-            color: #ffffff;
-            margin-bottom: 6px;
-        }
-
-        .page-desc {
-            color: var(--text-muted);
-            font-size: 0.95rem;
+            margin-top: 2px;
         }
 
         /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            font-size: 0.9rem;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-size: 0.88rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: var(--transition);
             border: 1px solid transparent;
+            transition: all 0.15s ease;
             text-decoration: none;
         }
 
         .btn-primary {
             background: var(--primary);
             color: #ffffff;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
         }
 
         .btn-primary:hover {
             background: var(--primary-hover);
-            transform: translateY(-1px);
         }
 
         .btn-outline {
-            background: transparent;
-            border-color: var(--border-color);
-            color: var(--text-main);
+            background: #ffffff;
+            border-color: var(--border);
+            color: var(--text-dark);
         }
 
         .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.2);
+            background: #f8fafc;
+            border-color: #cbd5e1;
         }
 
         .btn-sm {
-            padding: 6px 12px;
-            font-size: 0.82rem;
+            padding: 5px 10px;
+            font-size: 0.8rem;
         }
 
         .btn-success {
@@ -404,261 +210,215 @@
             color: #ffffff;
         }
 
-        .btn-success:hover {
-            filter: brightness(1.1);
+        /* Panels */
+        .tab-panel {
+            display: none;
         }
 
-        /* Analytics Stats Grid */
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 22px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            box-shadow: var(--shadow-card);
-            position: relative;
-            overflow: hidden;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow-sm);
         }
 
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--primary);
-        }
-
-        .stat-card.stat-success::after { background: var(--success); }
-        .stat-card.stat-warning::after { background: var(--warning); }
-        .stat-card.stat-info::after { background: var(--info); }
-
-        .stat-title {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            text-transform: uppercase;
+        .stat-label {
+            font-size: 0.82rem;
             font-weight: 600;
-            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
 
         .stat-value {
-            font-size: 2.2rem;
-            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
             font-weight: 700;
-            color: #ffffff;
-            line-height: 1;
-        }
-
-        .stat-subtitle {
-            font-size: 0.82rem;
             color: var(--text-dark);
+            margin: 4px 0;
+            line-height: 1.2;
         }
 
-        /* Pipeline Chart / Visual Distribution */
+        .stat-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Card */
         .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: var(--shadow-card);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
             margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 16px;
         }
 
         .card-title {
-            font-size: 1.25rem;
-            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 14px;
         }
 
-        .pipeline-bars {
+        /* Pipeline Funnel Bars */
+        .funnel-container {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
         }
 
-        .pipeline-row {
+        .funnel-row {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
 
-        .pipeline-label-row {
+        .funnel-info {
             display: flex;
             justify-content: space-between;
             font-size: 0.85rem;
             font-weight: 500;
         }
 
-        .pipeline-track {
-            height: 10px;
-            background: rgba(255, 255, 255, 0.05);
+        .funnel-track {
+            height: 8px;
+            background: #f1f5f9;
             border-radius: 999px;
             overflow: hidden;
         }
 
-        .pipeline-fill {
+        .funnel-fill {
             height: 100%;
-            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            background: var(--primary);
             border-radius: 999px;
-            transition: width 0.6s ease;
+            transition: width 0.4s ease;
         }
 
         /* Filter Toolbar */
         .toolbar {
             display: flex;
-            flex-wrap: wrap;
             gap: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
         }
 
-        .search-input {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 10px 16px;
-            color: #ffffff;
+        .input-text {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px 12px;
             font-size: 0.9rem;
+            color: var(--text-dark);
             flex: 1;
-            min-width: 250px;
+            min-width: 220px;
         }
 
-        .search-input:focus {
+        .input-text:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--border-focus);
         }
 
-        .select-filter {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 10px 16px;
-            color: var(--text-main);
+        .input-select {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px 12px;
             font-size: 0.9rem;
-            cursor: pointer;
+            color: var(--text-dark);
         }
 
-        .select-filter:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        /* Jobs Grid */
+        /* Job Cards Grid */
         .jobs-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 18px;
         }
 
         .job-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 22px;
-            transition: var(--transition);
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: var(--shadow-card);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .job-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(99, 102, 241, 0.5);
-            background: var(--bg-card-hover);
+            border-color: #cbd5e1;
+            box-shadow: var(--shadow-md);
         }
 
-        .job-card-header {
+        .job-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .job-title {
-            font-size: 1.15rem;
-            color: #ffffff;
-            line-height: 1.3;
-        }
-
-        .job-badge {
-            font-size: 0.72rem;
-            padding: 4px 9px;
-            border-radius: 999px;
+            font-size: 1.05rem;
             font-weight: 600;
-            text-transform: uppercase;
+            color: var(--text-dark);
         }
 
-        .badge-open { background: var(--success-light); color: var(--success); }
-        .badge-closed { background: var(--danger-light); color: var(--danger); }
-        .badge-draft { background: var(--warning-light); color: var(--warning); }
-
-        .job-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            font-size: 0.82rem;
+        .job-dept {
+            font-size: 0.8rem;
             color: var(--text-muted);
-            margin-bottom: 14px;
         }
 
         .job-desc {
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 16px;
+            margin: 10px 0;
+            line-height: 1.4;
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
-        .skills-tag-list {
+        .skills-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 18px;
+            gap: 5px;
+            margin-bottom: 16px;
         }
 
-        .skill-pill {
-            font-size: 0.75rem;
-            padding: 3px 8px;
+        .skill-tag {
+            font-size: 0.72rem;
+            padding: 2px 7px;
             border-radius: 4px;
             font-weight: 500;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #e2e8f0;
         }
 
-        .skill-mandatory {
-            background: rgba(99, 102, 241, 0.2);
-            color: #a5b4fc;
-            border: 1px solid rgba(99, 102, 241, 0.3);
+        .skill-tag.mandatory {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: #bfdbfe;
         }
 
-        .skill-bonus {
-            background: rgba(245, 158, 11, 0.15);
-            color: #fcd34d;
-            border: 1px solid rgba(245, 158, 11, 0.25);
-        }
-
-        .job-card-footer {
-            border-top: 1px solid var(--border-color);
-            padding-top: 14px;
+        .job-footer {
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -666,659 +426,708 @@
 
         .job-salary {
             font-weight: 600;
-            color: #10b981;
-            font-size: 0.95rem;
+            font-size: 0.88rem;
+            color: var(--success);
         }
 
-        /* Kanban Board for Hiring Pipeline */
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 999px;
+            text-transform: capitalize;
+        }
+
+        .badge-open, .badge-completed, .badge-hired, .badge-reviewed {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .badge-closed, .badge-cancelled, .badge-rejected, .badge-overdue {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .badge-pending, .badge-applied, .badge-screening {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .badge-shortlisted, .badge-interview, .badge-in_progress {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* Kanban Pipeline Board */
         .pipeline-board {
             display: flex;
-            gap: 16px;
+            gap: 14px;
             overflow-x: auto;
-            padding-bottom: 20px;
+            padding-bottom: 16px;
             align-items: flex-start;
         }
 
-        .pipeline-column {
-            width: 300px;
-            min-width: 300px;
-            background: #0f172a;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .pipeline-column-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: #ffffff;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .column-badge {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2px 8px;
-            border-radius: 999px;
-            font-size: 0.78rem;
-        }
-
-        .application-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 14px;
+        .pipeline-col {
+            width: 280px;
+            min-width: 280px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            cursor: pointer;
-            transition: var(--transition);
         }
 
-        .application-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .app-candidate-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .app-job-title {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .score-badge {
-            display: inline-flex;
+        .pipeline-col-header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 4px;
-            padding: 3px 8px;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--text-dark);
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .score-high { background: var(--success-light); color: var(--success); }
-        .score-mid { background: var(--warning-light); color: var(--warning); }
-        .score-low { background: var(--danger-light); color: var(--danger); }
+        .app-item {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.15s ease;
+        }
 
-        .app-card-footer {
+        .app-item:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .app-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .app-role {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .app-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 0.75rem;
-            color: var(--text-dark);
-            margin-top: 4px;
+            color: var(--text-muted);
         }
 
-        /* Table Design */
-        .table-responsive {
+        /* Clean Table */
+        .table-wrap {
             overflow-x: auto;
         }
 
-        .custom-table {
+        table.clean-table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
+            font-size: 0.88rem;
         }
 
-        .custom-table th {
-            padding: 14px 18px;
-            background: rgba(0, 0, 0, 0.2);
+        table.clean-table th {
+            padding: 10px 14px;
+            background: #f8fafc;
             color: var(--text-muted);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
         }
 
-        .custom-table td {
-            padding: 14px 18px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem;
-            color: var(--text-main);
+        table.clean-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-dark);
         }
 
-        .custom-table tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
+        table.clean-table tr:hover td {
+            background: #f8fafc;
         }
 
-        /* Modal Dialog */
-        .modal-overlay {
+        /* Modals */
+        .modal-backdrop {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(6px);
+            background: rgba(15, 23, 42, 0.45);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 100;
-            padding: 20px;
+            padding: 16px;
         }
 
-        .modal-overlay.active {
+        .modal-backdrop.active {
             display: flex;
         }
 
-        .modal-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
+        .modal-content {
+            background: #ffffff;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 580px;
+            max-width: 520px;
+            border: 1px solid var(--border);
+            overflow: hidden;
             max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
             display: flex;
             flex-direction: column;
-            animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes modalPop {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border-color);
+        .modal-head {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .modal-title {
-            font-size: 1.25rem;
-            color: #fff;
+        .modal-head h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
         }
 
-        .close-btn {
-            background: transparent;
+        .btn-close {
+            background: none;
             border: none;
+            font-size: 1.25rem;
             color: var(--text-muted);
-            font-size: 1.5rem;
             cursor: pointer;
             line-height: 1;
         }
 
         .modal-body {
-            padding: 24px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
+            overflow-y: auto;
         }
 
-        .modal-footer {
-            padding: 16px 24px;
-            border-top: 1px solid var(--border-color);
+        .modal-foot {
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
             display: flex;
             justify-content: flex-end;
-            gap: 12px;
-            background: rgba(0, 0, 0, 0.15);
+            gap: 8px;
         }
 
-        /* Form Controls */
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
 
         .form-label {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 600;
-            color: var(--text-muted);
+            color: var(--text-dark);
         }
 
         .form-control {
-            background: #0b0f19;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 10px 14px;
-            color: #ffffff;
-            font-size: 0.9rem;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 0.88rem;
+            color: var(--text-dark);
             font-family: inherit;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--border-focus);
         }
 
         textarea.form-control {
+            min-height: 70px;
             resize: vertical;
-            min-height: 80px;
         }
 
-        /* Toast Notifications */
-        .toast-container {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
+        /* Auth Portal Navigation Tabs */
+        .auth-portal-tabs {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 110;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: var(--radius);
+            gap: 4px;
+            margin-bottom: 14px;
         }
 
-        .toast {
-            background: var(--bg-card);
-            border-left: 4px solid var(--primary);
-            border-radius: var(--radius-sm);
-            padding: 14px 18px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            color: #fff;
-            font-size: 0.9rem;
-            min-width: 280px;
+        .auth-portal-tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px 10px;
+            border: none;
+            background: transparent;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .auth-portal-tab.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+
+        .auth-sub-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 14px;
+            gap: 16px;
+        }
+
+        .auth-sub-tab {
+            background: none;
+            border: none;
+            padding: 8px 0;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .auth-sub-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .demo-pill {
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            animation: slideIn 0.3s ease;
         }
 
-        .toast-success { border-color: var(--success); }
-        .toast-error { border-color: var(--danger); }
+        /* Toast */
+        .toast-box {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 120;
+        }
 
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        .toast-msg {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: var(--radius);
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow-md);
+            color: var(--text-dark);
+            min-width: 250px;
+            animation: fadeIn 0.2s;
+        }
+
+        .toast-msg.success { border-left-color: var(--success); }
+        .toast-msg.error { border-left-color: var(--danger); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Responsive */
-        @media (max-width: 900px) {
-            .sidebar {
-                transform: translateX(-100%);
+        @media (max-width: 850px) {
+            .nav-container {
+                height: auto;
+                padding: 12px 16px;
+                flex-direction: column;
+                gap: 10px;
             }
-            .sidebar.mobile-open {
-                transform: translateX(0);
-            }
-            .main-wrapper {
-                margin-left: 0;
+            .nav-tabs {
+                overflow-x: auto;
+                width: 100%;
+                padding-bottom: 4px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-brand">
-                <div class="brand-icon">⚡</div>
+
+    <!-- Top Navbar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div style="display:flex; align-items:center; gap: 20px;">
+                <a href="/" class="brand">
+                    <span>⚡ TalentFlow</span>
+                    <span class="brand-badge">Hiring System</span>
+                </a>
+
+                <ul class="nav-tabs">
+                    <li><button class="active" onclick="switchTab('dashboard')">Dashboard</button></li>
+                    <li><button onclick="switchTab('jobs')">Jobs</button></li>
+                    <li id="tabNavItemPipeline"><button onclick="switchTab('pipeline')">Pipeline</button></li>
+                    <li><button onclick="switchTab('interviews')">Interviews</button></li>
+                    <li><button onclick="switchTab('tasks')">Tasks</button></li>
+                    <li id="tabNavItemCandidates"><button onclick="switchTab('candidates')">Candidates</button></li>
+                </ul>
+            </div>
+
+            <!-- User Auth & Role Area -->
+            <div class="user-nav-box">
+                <div id="userLoggedInBlock" style="display:none; align-items:center; gap:10px;">
+                    <span id="navUserName" style="font-weight:600; font-size:0.88rem;">Alex Miller</span>
+                    <span class="role-badge role-recruiter" id="navRoleBadge">recruiter</span>
+                    <button class="btn btn-outline btn-sm" onclick="openAuthModal()">Switch / Login</button>
+                    <button class="btn btn-outline btn-sm" onclick="logout()" title="Logout">Logout</button>
+                </div>
+                <div id="userGuestBlock">
+                    <button class="btn btn-primary btn-sm" onclick="openAuthModal()">Sign In / Register</button>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="runDeadlineCheck()" title="Check task deadlines">⏱️ Check Deadlines</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+
+        <!-- 1. DASHBOARD TAB -->
+        <section class="tab-panel active" id="panel-dashboard">
+            <div class="section-header">
                 <div>
-                    <h2 class="brand-title">TalentFlow</h2>
-                    <span class="brand-subtitle">Hiring Platform</span>
+                    <h2 class="section-title">Overview & Analytics</h2>
+                    <p class="section-desc">Key metrics and hiring funnel status across all active jobs.</p>
+                </div>
+                <div id="recruiterDashboardActions">
+                    <button class="btn btn-primary btn-sm" onclick="openModal('modalJob')">+ Post Job</button>
                 </div>
             </div>
 
-            <ul class="nav-links">
-                <li class="nav-item active" data-view="dashboard">
-                    <button onclick="switchView('dashboard')">
-                        <span>📊</span>
-                        <span>Dashboard</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-view="jobs">
-                    <button onclick="switchView('jobs')">
-                        <span>💼</span>
-                        <span>Job Openings</span>
-                        <span class="nav-badge" id="jobsNavBadge">3</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-view="pipeline">
-                    <button onclick="switchView('pipeline')">
-                        <span>📋</span>
-                        <span>Hiring Pipeline</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-view="interviews">
-                    <button onclick="switchView('interviews')">
-                        <span>📅</span>
-                        <span>Interviews</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-view="tasks">
-                    <button onclick="switchView('tasks')">
-                        <span>💻</span>
-                        <span>Technical Tasks</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-view="candidates">
-                    <button onclick="switchView('candidates')">
-                        <span>👥</span>
-                        <span>Candidates</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-view="notifications">
-                    <button onclick="switchView('notifications')">
-                        <span>🔔</span>
-                        <span>Notifications</span>
-                        <span class="nav-badge" id="notifNavBadge" style="background:#ef4444; color:#fff;">0</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-view="docs">
-                    <button onclick="switchView('docs')">
-                        <span>📖</span>
-                        <span>API & Postman</span>
-                    </button>
-                </li>
-            </ul>
-
-            <div class="sidebar-footer">
-                <div class="current-user-card">
-                    <div class="avatar" id="userAvatar">A</div>
-                    <div class="user-details">
-                        <div class="user-name" id="userName">Alex Miller</div>
-                        <span class="user-role-badge role-recruiter" id="userRole">recruiter</span>
-                    </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Jobs</div>
+                    <div class="stat-value" id="statJobs">0</div>
+                    <div class="stat-sub" id="statActiveJobs">0 open positions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active Candidates</div>
+                    <div class="stat-value" id="statCandidates" style="color:var(--primary);">0</div>
+                    <div class="stat-sub">Screened & in pipeline</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Interviews This Week</div>
+                    <div class="stat-value" id="statInterviews">0</div>
+                    <div class="stat-sub">Scheduled sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Candidate Score</div>
+                    <div class="stat-value" id="statAvgScore" style="color:var(--success);">0%</div>
+                    <div class="stat-sub">Resume skill match</div>
                 </div>
             </div>
-        </aside>
 
-        <!-- Main Workspace -->
-        <div class="main-wrapper">
-            <!-- Top Bar -->
-            <header class="topbar">
-                <div class="quick-role-switcher">
-                    <span class="quick-role-label">Switch Role:</span>
-                    <button class="role-btn active" id="btnRoleRecruiter" onclick="quickLogin('recruiter')">Recruiter (Alex)</button>
-                    <button class="role-btn" id="btnRoleCandidate" onclick="quickLogin('candidate')">Candidate (John)</button>
-                    <button class="role-btn" id="btnRoleAdmin" onclick="quickLogin('admin')">Admin (Sarah)</button>
+            <div class="card">
+                <h3 class="card-title">Hiring Pipeline Funnel</h3>
+                <div class="funnel-container" id="funnelContainer"></div>
+            </div>
+        </section>
+
+        <!-- 2. JOBS TAB -->
+        <section class="tab-panel" id="panel-jobs">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Job Openings</h2>
+                    <p class="section-desc">Manage openings, view mandatory and bonus skills, or submit an application.</p>
+                </div>
+                <div id="recruiterJobActions">
+                    <button class="btn btn-primary btn-sm" onclick="openModal('modalJob')">+ Post New Job</button>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <input type="text" id="jobSearch" class="input-text" placeholder="Search job title, department..." oninput="filterJobs()">
+                <select id="jobStatus" class="input-select" onchange="filterJobs()">
+                    <option value="">All Statuses</option>
+                    <option value="open">Open</option>
+                    <option value="closed">Closed</option>
+                </select>
+            </div>
+
+            <div class="jobs-grid" id="jobsGrid"></div>
+        </section>
+
+        <!-- 3. PIPELINE KANBAN TAB -->
+        <section class="tab-panel" id="panel-pipeline">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Hiring Pipeline</h2>
+                    <p class="section-desc">Track applicants through stages. Click any candidate card to advance their stage.</p>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="loadApplications()">🔄 Refresh</button>
+            </div>
+
+            <div class="pipeline-board" id="pipelineBoard"></div>
+        </section>
+
+        <!-- 4. INTERVIEWS TAB -->
+        <section class="tab-panel" id="panel-interviews">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Interviews</h2>
+                    <p class="section-desc">Scheduled interview sessions with conflict validation.</p>
+                </div>
+                <div id="recruiterInterviewActions">
+                    <button class="btn btn-primary btn-sm" onclick="openModal('modalInterview')">+ Schedule Interview</button>
+                </div>
+            </div>
+
+            <div class="card" style="padding:0; overflow:hidden;">
+                <div class="table-wrap">
+                    <table class="clean-table">
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Position</th>
+                                <th>Interviewer</th>
+                                <th>Date & Time</th>
+                                <th>Status</th>
+                                <th>Link</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="interviewsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. TECHNICAL TASKS TAB -->
+        <section class="tab-panel" id="panel-tasks">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Technical Tasks</h2>
+                    <p class="section-desc">Assign coding challenges, track submissions, and grade solutions.</p>
+                </div>
+                <div id="recruiterTaskActions">
+                    <button class="btn btn-primary btn-sm" onclick="openModal('modalTask')">+ Assign Task</button>
+                </div>
+            </div>
+
+            <div class="card" style="padding:0; overflow:hidden;">
+                <div class="table-wrap">
+                    <table class="clean-table">
+                        <thead>
+                            <tr>
+                                <th>Task Title</th>
+                                <th>Candidate</th>
+                                <th>Deadline</th>
+                                <th>Status</th>
+                                <th>Submission</th>
+                                <th>Score</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. CANDIDATES TAB -->
+        <section class="tab-panel" id="panel-candidates">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Candidate Directory</h2>
+                    <p class="section-desc">Extracted skills, experience, and education profiles.</p>
+                </div>
+            </div>
+
+            <div class="card" style="padding:0; overflow:hidden;">
+                <div class="table-wrap">
+                    <table class="clean-table">
+                        <thead>
+                            <tr>
+                                <th>Candidate Name</th>
+                                <th>Email</th>
+                                <th>Experience</th>
+                                <th>Education</th>
+                                <th>Extracted Skills</th>
+                            </tr>
+                        </thead>
+                        <tbody id="candidatesTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- AUTHENTICATION PORTAL MODAL (Dedicated Recruiter, Candidate & Admin logins) -->
+    <div class="modal-backdrop" id="modalAuth">
+        <div class="modal-content" style="max-width: 480px;">
+            <div class="modal-head">
+                <h3 id="authModalTitle">Sign In to TalentFlow</h3>
+                <button class="btn-close" onclick="closeModal('modalAuth')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Portal Type: Recruiter / Candidate / Admin -->
+                <div class="auth-portal-tabs">
+                    <button class="auth-portal-tab active" id="tabPortalRecruiter" onclick="switchPortal('recruiter')">👔 Recruiter</button>
+                    <button class="auth-portal-tab" id="tabPortalCandidate" onclick="switchPortal('candidate')">👤 Candidate</button>
+                    <button class="auth-portal-tab" id="tabPortalAdmin" onclick="switchPortal('admin')">🛡️ Admin</button>
                 </div>
 
-                <div class="topbar-actions">
-                    <button class="action-icon-btn" onclick="switchView('notifications')" title="Notifications">
-                        <span>🔔</span>
-                        <span class="badge-dot" id="topbarNotifDot" style="display:none;"></span>
-                    </button>
-                    <button class="btn btn-outline btn-sm" onclick="triggerDeadlineCheck()" title="Run Deadline Check">
-                        <span>⏱️ Run Deadline Check</span>
-                    </button>
+                <!-- 1. RECRUITER PORTAL -->
+                <div id="portalRecruiter">
+                    <div class="auth-sub-tabs">
+                        <button class="auth-sub-tab active" id="recruiterSubLogin" onclick="switchSubAuth('recruiter', 'login')">Recruiter Login</button>
+                        <button class="auth-sub-tab" id="recruiterSubRegister" onclick="switchSubAuth('recruiter', 'register')">Recruiter Register</button>
+                    </div>
+
+                    <!-- Recruiter Login -->
+                    <form id="formRecruiterLogin" onsubmit="handleAuthLogin(event, 'recruiter')">
+                        <div class="demo-pill" style="margin-bottom:12px;">
+                            <span>Seed: <code>recruiter@talentflow.test</code></span>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="fillCreds('recruiter', 'recruiter@talentflow.test', 'password')">Quick Fill</button>
+                        </div>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label class="form-label">Work Email</label>
+                            <input type="email" class="form-control" name="email" id="recruiterLoginEmail" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" id="recruiterLoginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Login as Recruiter</button>
+                    </form>
+
+                    <!-- Recruiter Register -->
+                    <form id="formRecruiterRegister" style="display:none;" onsubmit="handleAuthRegister(event, 'recruiter')">
+                        <div class="form-group" style="margin-bottom:10px;">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" name="name" required placeholder="Alex Miller">
+                        </div>
+                        <div class="form-group" style="margin-bottom:10px;">
+                            <label class="form-label">Work Email *</label>
+                            <input type="email" class="form-control" name="email" required placeholder="alex@company.com">
+                        </div>
+                        <div class="form-group" style="margin-bottom:10px;">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-control" name="phone" placeholder="+1-555-0100">
+                        </div>
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label class="form-label">Password *</label>
+                            <input type="password" class="form-control" name="password" minlength="6" required placeholder="At least 6 characters">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Register as Recruiter</button>
+                    </form>
                 </div>
-            </header>
 
-            <!-- Main Content Area -->
-            <main class="content-area">
-
-                <!-- 1. DASHBOARD VIEW -->
-                <section class="view-panel active" id="view-dashboard">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">Recruitment Dashboard</h1>
-                            <p class="page-desc">Real-time overview of jobs, active applicants, and hiring funnel performance.</p>
-                        </div>
-                        <button class="btn btn-primary" onclick="openModal('modalPostJob')">
-                            <span>+ Post New Job</span>
-                        </button>
+                <!-- 2. CANDIDATE PORTAL -->
+                <div id="portalCandidate" style="display:none;">
+                    <div class="auth-sub-tabs">
+                        <button class="auth-sub-tab active" id="candidateSubLogin" onclick="switchSubAuth('candidate', 'login')">Candidate Login</button>
+                        <button class="auth-sub-tab" id="candidateSubRegister" onclick="switchSubAuth('candidate', 'register')">Candidate Register</button>
                     </div>
 
-                    <!-- Statistics Grid -->
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <span class="stat-title">Total Job Openings</span>
-                            <span class="stat-value" id="statTotalJobs">0</span>
-                            <span class="stat-subtitle" id="statActiveJobs">0 active listings</span>
+                    <!-- Candidate Login -->
+                    <form id="formCandidateLogin" onsubmit="handleAuthLogin(event, 'candidate')">
+                        <div class="demo-pill" style="margin-bottom:12px;">
+                            <span>Seed: <code>john.doe@talentflow.test</code></span>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="fillCreds('candidate', 'john.doe@talentflow.test', 'password')">Quick Fill</button>
                         </div>
-                        <div class="stat-card stat-success">
-                            <span class="stat-title">Active Candidates</span>
-                            <span class="stat-value" id="statActiveCandidates">0</span>
-                            <span class="stat-subtitle">Currently in hiring pipeline</span>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" id="candidateLoginEmail" required>
                         </div>
-                        <div class="stat-card stat-info">
-                            <span class="stat-title">Interviews This Week</span>
-                            <span class="stat-value" id="statInterviewsWeek">0</span>
-                            <span class="stat-subtitle">Scheduled sessions</span>
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" id="candidateLoginPassword" required>
                         </div>
-                        <div class="stat-card stat-warning">
-                            <span class="stat-title">Avg Candidate Score</span>
-                            <span class="stat-value" id="statAvgScore">0%</span>
-                            <span class="stat-subtitle">Automated scoring match</span>
+                        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Login as Candidate</button>
+                    </form>
+
+                    <!-- Candidate Register -->
+                    <form id="formCandidateRegister" style="display:none;" onsubmit="handleAuthRegister(event, 'candidate')">
+                        <div class="form-group" style="margin-bottom:10px;">
+                            <label class="form-label">Your Name *</label>
+                            <input type="text" class="form-control" name="name" required placeholder="John Doe">
                         </div>
+                        <div class="form-group" style="margin-bottom:10px;">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-control" name="email" required placeholder="john@example.com">
+                        </div>
+                        <div class="form-group" style="margin-bottom:10px;">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-control" name="phone" placeholder="+1-555-0200">
+                        </div>
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label class="form-label">Password *</label>
+                            <input type="password" class="form-control" name="password" minlength="6" required placeholder="At least 6 characters">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Register as Candidate</button>
+                    </form>
+                </div>
+
+                <!-- 3. ADMIN PORTAL (Login only) -->
+                <div id="portalAdmin" style="display:none;">
+                    <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:10px; font-size:0.82rem; color:#92400e; margin-bottom:14px;">
+                        🛡️ <strong>Admin Portal:</strong> System administrator access with full control across jobs, candidates, pipeline, and analytics.
                     </div>
 
-                    <!-- Visual Pipeline Distribution -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Hiring Pipeline Funnel</h3>
-                            <span style="font-size: 0.85rem; color: var(--text-muted);">Stages: Applied → Screening → Shortlisted → Interview → Technical Task → Hired / Rejected</span>
+                    <form id="formAdminLogin" onsubmit="handleAuthLogin(event, 'admin')">
+                        <div class="demo-pill" style="margin-bottom:12px;">
+                            <span>Seed: <code>admin@talentflow.test</code></span>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="fillCreds('admin', 'admin@talentflow.test', 'password')">Quick Fill</button>
                         </div>
-                        <div class="pipeline-bars" id="pipelineBarsContainer">
-                            <!-- Dynamic Bars Injected by JS -->
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label class="form-label">Admin Email</label>
+                            <input type="email" class="form-control" name="email" id="adminLoginEmail" required>
                         </div>
-                    </div>
-                </section>
-
-                <!-- 2. JOBS VIEW -->
-                <section class="view-panel" id="view-jobs">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">Job Openings</h1>
-                            <p class="page-desc">Create, view, and manage open positions across departments.</p>
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label class="form-label">Admin Password</label>
+                            <input type="password" class="form-control" name="password" id="adminLoginPassword" required>
                         </div>
-                        <button class="btn btn-primary" onclick="openModal('modalPostJob')">
-                            <span>+ Post New Job</span>
-                        </button>
-                    </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Login as Admin</button>
+                    </form>
+                </div>
 
-                    <div class="toolbar">
-                        <input type="text" id="jobSearchInput" class="search-input" placeholder="Search by title, department, or keywords..." oninput="filterJobs()">
-                        <select id="jobStatusFilter" class="select-filter" onchange="filterJobs()">
-                            <option value="">All Statuses</option>
-                            <option value="open">Open</option>
-                            <option value="closed">Closed</option>
-                            <option value="draft">Draft</option>
-                        </select>
-                    </div>
-
-                    <div class="jobs-grid" id="jobsGridContainer">
-                        <!-- Jobs injected by JS -->
-                    </div>
-                </section>
-
-                <!-- 3. HIRING PIPELINE BOARD -->
-                <section class="view-panel" id="view-pipeline">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">Hiring Pipeline Board</h1>
-                            <p class="page-desc">Track applicants through each stage. Every stage transition logs full history and notifies candidate.</p>
-                        </div>
-                        <button class="btn btn-outline" onclick="loadApplications()">
-                            <span>🔄 Refresh Board</span>
-                        </button>
-                    </div>
-
-                    <div class="pipeline-board" id="pipelineBoard">
-                        <!-- Pipeline Columns Generated Dynamically -->
-                    </div>
-                </section>
-
-                <!-- 4. INTERVIEW SCHEDULER VIEW -->
-                <section class="view-panel" id="view-interviews">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">Interview Scheduler</h1>
-                            <p class="page-desc">Manage candidate interviews with built-in Conflict Validation.</p>
-                        </div>
-                        <button class="btn btn-primary" onclick="openScheduleInterviewModal()">
-                            <span>+ Schedule Interview</span>
-                        </button>
-                    </div>
-
-                    <div class="card">
-                        <div class="table-responsive">
-                            <table class="custom-table">
-                                <thead>
-                                    <tr>
-                                        <th>Candidate</th>
-                                        <th>Job Title</th>
-                                        <th>Interviewer</th>
-                                        <th>Date & Time</th>
-                                        <th>Status</th>
-                                        <th>Meeting Link</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="interviewsTableBody">
-                                    <!-- Injected by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 5. TECHNICAL TASKS VIEW -->
-                <section class="view-panel" id="view-tasks">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">Technical Task Management</h1>
-                            <p class="page-desc">Assign coding challenges, track submissions, and grade candidate solutions.</p>
-                        </div>
-                        <button class="btn btn-primary" onclick="openAssignTaskModal()">
-                            <span>+ Assign Task</span>
-                        </button>
-                    </div>
-
-                    <div class="card">
-                        <div class="table-responsive">
-                            <table class="custom-table">
-                                <thead>
-                                    <tr>
-                                        <th>Task Title</th>
-                                        <th>Candidate</th>
-                                        <th>Deadline</th>
-                                        <th>Status</th>
-                                        <th>Submission</th>
-                                        <th>Score</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tasksTableBody">
-                                    <!-- Injected by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 6. CANDIDATES VIEW -->
-                <section class="view-panel" id="view-candidates">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">Candidate Directory</h1>
-                            <p class="page-desc">Explore screened candidates, experience levels, and extracted skill profiles.</p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="table-responsive">
-                            <table class="custom-table">
-                                <thead>
-                                    <tr>
-                                        <th>Candidate Name</th>
-                                        <th>Email</th>
-                                        <th>Experience</th>
-                                        <th>Education</th>
-                                        <th>Skills</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="candidatesTableBody">
-                                    <!-- Injected by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 7. NOTIFICATIONS VIEW -->
-                <section class="view-panel" id="view-notifications">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">In-App Notifications</h1>
-                            <p class="page-desc">Live alerts for deadline reminders, task submissions, and status updates.</p>
-                        </div>
-                        <button class="btn btn-outline" onclick="markAllNotificationsRead()">
-                            <span>Mark All as Read</span>
-                        </button>
-                    </div>
-
-                    <div class="card" id="notificationsListContainer">
-                        <!-- Notifications Injected Here -->
-                    </div>
-                </section>
-
-                <!-- 8. API & POSTMAN DOCS VIEW -->
-                <section class="view-panel" id="view-docs">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">API & Postman Documentation</h1>
-                            <p class="page-desc">Resources, deliverables, and integration guides for the TalentFlow REST API.</p>
-                        </div>
-                        <a href="/TalentFlow_API.postman_collection.json" download class="btn btn-primary">
-                            <span>📥 Download Postman Collection</span>
-                        </a>
-                    </div>
-
-                    <div class="card">
-                        <h3 class="card-title" style="margin-bottom: 12px;">Architecture Overview</h3>
-                        <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">
-                            TalentFlow exposes 38 REST endpoints powered by Laravel Sanctum authentication.
-                            The application implements standard controllers, form request validations, API resources, queue jobs, events/listeners, and an automated scheduler.
-                        </p>
-
-                        <h4 style="color: #fff; margin-bottom: 10px;">Pre-configured Test Accounts (Password: <code>password</code>)</h4>
-                        <div class="table-responsive" style="margin-bottom: 24px;">
-                            <table class="custom-table">
-                                <thead>
-                                    <tr><th>Role</th><th>Email</th><th>Default Name</th></tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td><span class="user-role-badge role-admin">admin</span></td><td><code>admin@talentflow.test</code></td><td>Sarah Connor</td></tr>
-                                    <tr><td><span class="user-role-badge role-recruiter">recruiter</span></td><td><code>recruiter@talentflow.test</code></td><td>Alex Miller</td></tr>
-                                    <tr><td><span class="user-role-badge role-candidate">candidate</span></td><td><code>john.doe@talentflow.test</code></td><td>John Doe</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <h4 style="color: #fff; margin-bottom: 10px;">Automated Terminal Commands</h4>
-                        <pre style="background:#0b0f19; padding: 14px; border-radius: 8px; color: #a5b4fc; font-size: 0.9rem; overflow-x: auto;">
-# Run Test Suite (25 Feature Tests Passing)
-php artisan test
-
-# Check Task Deadlines & 24h Reminders Manually
-php artisan app:check-deadlines
-
-# Re-seed Database
-php artisan migrate:fresh --seed</pre>
-                    </div>
-                </section>
-
-            </main>
+            </div>
         </div>
     </div>
 
-    <!-- MODALS -->
-
-    <!-- 1. Post Job Modal -->
-    <div class="modal-overlay" id="modalPostJob">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title">Create Job Opening</h3>
-                <button class="close-btn" onclick="closeModal('modalPostJob')">&times;</button>
+    <!-- Job Modals -->
+    <div class="modal-backdrop" id="modalJob">
+        <div class="modal-content">
+            <div class="modal-head">
+                <h3>Post New Job Opening</h3>
+                <button class="btn-close" onclick="closeModal('modalJob')">&times;</button>
             </div>
-            <form id="formPostJob" onsubmit="handlePostJob(event)">
+            <form id="formJob" onsubmit="submitJob(event)">
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="form-label">Job Title *</label>
@@ -1341,88 +1150,87 @@ php artisan migrate:fresh --seed</pre>
                         <input type="date" class="form-control" name="application_deadline" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Mandatory Skills (comma separated)</label>
+                        <label class="form-label">Mandatory Skills (comma-separated)</label>
                         <input type="text" class="form-control" name="mandatory_skills" placeholder="PHP, Laravel, MySQL, REST API">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Bonus Skills (comma separated)</label>
+                        <label class="form-label">Bonus Skills (comma-separated)</label>
                         <input type="text" class="form-control" name="bonus_skills" placeholder="Docker, Vue.js, Redis">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Job Description *</label>
-                        <textarea class="form-control" name="description" placeholder="Describe the responsibilities and requirements..." required></textarea>
+                        <textarea class="form-control" name="description" placeholder="Brief job summary..." required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalPostJob')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Publish Job Opening</button>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modalJob')">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Save Job</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- 2. Apply Job Modal -->
-    <div class="modal-overlay" id="modalApplyJob">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title" id="applyModalJobTitle">Apply for Job</h3>
-                <button class="close-btn" onclick="closeModal('modalApplyJob')">&times;</button>
+    <!-- Apply Job Modal -->
+    <div class="modal-backdrop" id="modalApply">
+        <div class="modal-content">
+            <div class="modal-head">
+                <h3 id="applyTitle">Apply for Job</h3>
+                <button class="btn-close" onclick="closeModal('modalApply')">&times;</button>
             </div>
-            <form id="formApplyJob" onsubmit="handleApplyJob(event)">
+            <form id="formApply" onsubmit="submitApply(event)">
                 <input type="hidden" name="job_id" id="applyJobId">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label">Your Full Name *</label>
-                        <input type="text" class="form-control" name="name" id="applyCandidateName" required>
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" class="form-control" name="name" id="applyName" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email Address *</label>
-                        <input type="email" class="form-control" name="email" id="applyCandidateEmail" required>
+                        <input type="email" class="form-control" name="email" id="applyEmail" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Phone Number</label>
-                        <input type="text" class="form-control" name="phone" id="applyCandidatePhone" placeholder="+1-555-0100">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" name="phone" placeholder="+1-555-0100">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Experience (Years)</label>
                         <input type="number" step="0.5" class="form-control" name="experience_years" value="3.0">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Upload PDF Resume (Optional)</label>
+                        <label class="form-label">PDF Resume (Optional)</label>
                         <input type="file" class="form-control" name="resume" accept="application/pdf">
-                        <small style="color:var(--text-dark);">Upload PDF for automated text extraction & skill scoring.</small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Summary of Skills (comma separated)</label>
-                        <input type="text" class="form-control" name="skills_summary" placeholder="PHP, Laravel, MySQL, Git, Docker">
+                        <label class="form-label">Skills (comma-separated)</label>
+                        <input type="text" class="form-control" name="skills_summary" placeholder="PHP, Laravel, MySQL, Docker">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Notes for Recruiter</label>
-                        <textarea class="form-control" name="notes" placeholder="Brief intro or cover note..."></textarea>
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" name="notes" placeholder="Cover note..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalApplyJob')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Submit Application</button>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modalApply')">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Submit Application</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- 3. Move Pipeline Stage Modal -->
-    <div class="modal-overlay" id="modalMoveStage">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title">Advance Hiring Stage</h3>
-                <button class="close-btn" onclick="closeModal('modalMoveStage')">&times;</button>
+    <!-- Move Stage Modal -->
+    <div class="modal-backdrop" id="modalMove">
+        <div class="modal-content">
+            <div class="modal-head">
+                <h3>Move Application Stage</h3>
+                <button class="btn-close" onclick="closeModal('modalMove')">&times;</button>
             </div>
-            <form id="formMoveStage" onsubmit="handleMoveStage(event)">
-                <input type="hidden" name="application_id" id="moveStageAppId">
+            <form id="formMove" onsubmit="submitMove(event)">
+                <input type="hidden" name="application_id" id="moveAppId">
                 <div class="modal-body">
-                    <p style="color:var(--text-muted); font-size: 0.9rem;" id="moveStageCandidateInfo">Moving candidate</p>
+                    <p style="font-size:0.85rem; color:var(--text-muted);" id="moveInfo">Candidate info</p>
                     <div class="form-group">
                         <label class="form-label">Select Target Stage *</label>
-                        <select class="form-control" name="status" id="selectTargetStage" required>
+                        <select class="form-control" name="status" id="moveSelectStatus" required>
                             <option value="Applied">Applied</option>
                             <option value="Screening">Screening</option>
                             <option value="Shortlisted">Shortlisted</option>
@@ -1433,121 +1241,117 @@ php artisan migrate:fresh --seed</pre>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Reason / Status Note</label>
-                        <textarea class="form-control" name="comment" placeholder="Add notes for candidate audit history..."></textarea>
+                        <label class="form-label">Stage Note / Reason</label>
+                        <textarea class="form-control" name="comment" placeholder="History log note..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalMoveStage')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Stage</button>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modalMove')">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Update Stage</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- 4. Schedule Interview Modal -->
-    <div class="modal-overlay" id="modalScheduleInterview">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title">Schedule Candidate Interview</h3>
-                <button class="close-btn" onclick="closeModal('modalScheduleInterview')">&times;</button>
+    <!-- Schedule Interview Modal -->
+    <div class="modal-backdrop" id="modalInterview">
+        <div class="modal-content">
+            <div class="modal-head">
+                <h3>Schedule Interview</h3>
+                <button class="btn-close" onclick="closeModal('modalInterview')">&times;</button>
             </div>
-            <form id="formScheduleInterview" onsubmit="handleScheduleInterview(event)">
+            <form id="formInterview" onsubmit="submitInterview(event)">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label">Application *</label>
-                        <select class="form-control" name="application_id" id="interviewAppSelect" required>
-                            <!-- Injected -->
-                        </select>
+                        <label class="form-label">Candidate Application *</label>
+                        <select class="form-control" name="application_id" id="interviewAppSelect" required></select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Date & Time *</label>
                         <input type="datetime-local" class="form-control" name="scheduled_at" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Meeting Link (URL) *</label>
+                        <label class="form-label">Meeting Link *</label>
                         <input type="url" class="form-control" name="meeting_link" value="https://meet.google.com/talentflow-interview" required>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalScheduleInterview')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save & Validate Schedule</button>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modalInterview')">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Schedule</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- 5. Assign Task Modal -->
-    <div class="modal-overlay" id="modalAssignTask">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title">Assign Technical Coding Task</h3>
-                <button class="close-btn" onclick="closeModal('modalAssignTask')">&times;</button>
+    <!-- Assign Task Modal -->
+    <div class="modal-backdrop" id="modalTask">
+        <div class="modal-content">
+            <div class="modal-head">
+                <h3>Assign Technical Task</h3>
+                <button class="btn-close" onclick="closeModal('modalTask')">&times;</button>
             </div>
-            <form id="formAssignTask" onsubmit="handleAssignTask(event)">
+            <form id="formTask" onsubmit="submitTask(event)">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label">Application *</label>
-                        <select class="form-control" name="application_id" id="taskAppSelect" required>
-                            <!-- Injected -->
-                        </select>
+                        <label class="form-label">Candidate Application *</label>
+                        <select class="form-control" name="application_id" id="taskAppSelect" required></select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Task Title *</label>
-                        <input type="text" class="form-control" name="title" placeholder="e.g. Build an Auth Microservice" required>
+                        <input type="text" class="form-control" name="title" placeholder="e.g. Build an API Module" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Submission Deadline *</label>
+                        <label class="form-label">Deadline *</label>
                         <input type="datetime-local" class="form-control" name="deadline" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Task Description & Instructions *</label>
-                        <textarea class="form-control" name="description" placeholder="Specify requirements, endpoints, test expectations..." required></textarea>
+                        <label class="form-label">Description & Instructions *</label>
+                        <textarea class="form-control" name="description" placeholder="Specify task expectations..." required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalAssignTask')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Assign Task</button>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modalTask')">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Assign</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- 6. Submit Task Modal -->
-    <div class="modal-overlay" id="modalSubmitTask">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title">Submit Technical Task Solution</h3>
-                <button class="close-btn" onclick="closeModal('modalSubmitTask')">&times;</button>
+    <!-- Submit Task Solution Modal -->
+    <div class="modal-backdrop" id="modalSubmitTask">
+        <div class="modal-content">
+            <div class="modal-head">
+                <h3>Submit Task Solution</h3>
+                <button class="btn-close" onclick="closeModal('modalSubmitTask')">&times;</button>
             </div>
-            <form id="formSubmitTask" onsubmit="handleSubmitTask(event)">
+            <form id="formSubmitTask" onsubmit="submitTaskSolution(event)">
                 <input type="hidden" name="task_id" id="submitTaskId">
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="form-label">Repository URL (GitHub / GitLab)</label>
-                        <input type="url" class="form-control" name="repository_url" placeholder="https://github.com/username/solution">
+                        <input type="url" class="form-control" name="repository_url" placeholder="https://github.com/user/project">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Submission Notes / Architecture Details</label>
-                        <textarea class="form-control" name="notes" placeholder="Summarize features implemented, test results..."></textarea>
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" name="notes" placeholder="Notes on solution..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalSubmitTask')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Submit Solution</button>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modalSubmitTask')">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Submit Solution</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- 7. Review Task Modal -->
-    <div class="modal-overlay" id="modalReviewTask">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title">Review & Grade Coding Task</h3>
-                <button class="close-btn" onclick="closeModal('modalReviewTask')">&times;</button>
+    <!-- Review Task Modal -->
+    <div class="modal-backdrop" id="modalReviewTask">
+        <div class="modal-content">
+            <div class="modal-head">
+                <h3>Grade & Review Task</h3>
+                <button class="btn-close" onclick="closeModal('modalReviewTask')">&times;</button>
             </div>
-            <form id="formReviewTask" onsubmit="handleReviewTask(event)">
+            <form id="formReviewTask" onsubmit="submitReview(event)">
                 <input type="hidden" name="task_id" id="reviewTaskId">
                 <div class="modal-body">
                     <div class="form-group">
@@ -1556,195 +1360,292 @@ php artisan migrate:fresh --seed</pre>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Written Feedback *</label>
-                        <textarea class="form-control" name="feedback" placeholder="Provide constructive code review and performance notes..." required></textarea>
+                        <textarea class="form-control" name="feedback" placeholder="Code review notes..." required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalReviewTask')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Review</button>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modalReviewTask')">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Save Review</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Toast Notifications Container -->
-    <div class="toast-container" id="toastContainer"></div>
+    <!-- Toast Messages -->
+    <div class="toast-box" id="toastBox"></div>
 
     <script>
-        // State Store
+        // State
         const state = {
+            token: localStorage.getItem('tf_token') || '',
             currentUser: null,
-            token: localStorage.getItem('talentflow_token') || '',
-            analytics: null,
             jobs: [],
             applications: [],
             interviews: [],
             tasks: [],
-            candidates: [],
-            notifications: []
+            candidates: []
         };
 
-        // Initialize application on load
         document.addEventListener('DOMContentLoaded', async () => {
-            // Default login as recruiter if not logged in
-            if (!state.token) {
-                await quickLogin('recruiter');
+            if (state.token) {
+                await checkUser();
             } else {
-                await fetchCurrentUser();
+                // Default initial login as recruiter
+                await performLogin('recruiter@talentflow.test', 'password');
             }
-            await refreshAllData();
+            await reloadAll();
         });
 
-        // Switch View Panels
-        function switchView(viewName) {
-            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        // Tab Switching
+        function switchTab(name) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
 
-            const panel = document.getElementById(`view-${viewName}`);
-            const nav = document.querySelector(`.nav-item[data-view="${viewName}"]`);
+            const panel = document.getElementById(`panel-${name}`);
+            const btn = Array.from(document.querySelectorAll('.nav-tabs button')).find(b => b.getAttribute('onclick')?.includes(name));
+
             if (panel) panel.classList.add('active');
-            if (nav) nav.classList.add('active');
+            if (btn) btn.classList.add('active');
         }
 
-        // Quick Login Switcher
-        async function quickLogin(role) {
-            let email = 'recruiter@talentflow.test';
-            if (role === 'candidate') email = 'john.doe@talentflow.test';
-            if (role === 'admin') email = 'admin@talentflow.test';
+        // Auth Modal Portals
+        function openAuthModal() {
+            openModal('modalAuth');
+        }
 
+        function switchPortal(portal) {
+            document.querySelectorAll('.auth-portal-tab').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tabPortal${portal.charAt(0).toUpperCase() + portal.slice(1)}`).classList.add('active');
+
+            document.getElementById('portalRecruiter').style.display = portal === 'recruiter' ? 'block' : 'none';
+            document.getElementById('portalCandidate').style.display = portal === 'candidate' ? 'block' : 'none';
+            document.getElementById('portalAdmin').style.display = portal === 'admin' ? 'block' : 'none';
+        }
+
+        function switchSubAuth(portal, type) {
+            const loginForm = document.getElementById(`form${portal.charAt(0).toUpperCase() + portal.slice(1)}Login`);
+            const registerForm = document.getElementById(`form${portal.charAt(0).toUpperCase() + portal.slice(1)}Register`);
+            const loginTab = document.getElementById(`${portal}SubLogin`);
+            const registerTab = document.getElementById(`${portal}SubRegister`);
+
+            if (type === 'login') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+            }
+        }
+
+        function fillCreds(portal, email, password) {
+            const emailInput = document.getElementById(`${portal}LoginEmail`);
+            const passInput = document.getElementById(`${portal}LoginPassword`);
+            if (emailInput && passInput) {
+                emailInput.value = email;
+                passInput.value = password;
+            }
+        }
+
+        async function handleAuthLogin(e, portal) {
+            e.preventDefault();
+            const form = e.target;
+            const email = form.email.value;
+            const password = form.password.value;
+            await performLogin(email, password);
+        }
+
+        async function performLogin(email, password) {
             try {
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ email, password: 'password' })
+                    body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
                 if (res.ok) {
                     state.token = data.token;
                     state.currentUser = data.user;
-                    localStorage.setItem('talentflow_token', data.token);
-                    updateUserUI();
-                    showToast(`Logged in as ${data.user.name} (${data.user.role.name})`, 'success');
-                    await refreshAllData();
+                    localStorage.setItem('tf_token', data.token);
+                    showToast(`Logged in as ${data.user.name} (${data.user.role?.name || 'user'})`, 'success');
+                    closeModal('modalAuth');
+                    updateRoleUI();
+                    await reloadAll();
                 } else {
                     showToast(data.message || 'Login failed', 'error');
                 }
             } catch (err) {
-                showToast('Authentication error', 'error');
+                showToast('Authentication connection error', 'error');
             }
-
-            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.getElementById(`btnRole${role.charAt(0).toUpperCase() + role.slice(1)}`);
-            if (activeBtn) activeBtn.classList.add('active');
         }
 
-        async function fetchCurrentUser() {
+        async function handleAuthRegister(e, role) {
+            e.preventDefault();
+            const form = e.target;
+            const payload = {
+                name: form.name.value,
+                email: form.email.value,
+                phone: form.phone ? form.phone.value : null,
+                password: form.password.value,
+                role: role
+            };
+
             try {
-                const res = await apiFetch('/api/auth/me');
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    state.token = data.token;
+                    state.currentUser = data.user;
+                    localStorage.setItem('tf_token', data.token);
+                    showToast(`Registration successful! Welcome ${data.user.name}`, 'success');
+                    closeModal('modalAuth');
+                    updateRoleUI();
+                    await reloadAll();
+                } else {
+                    showToast(data.message || 'Registration failed', 'error');
+                }
+            } catch (err) {
+                showToast('Registration error', 'error');
+            }
+        }
+
+        async function checkUser() {
+            try {
+                const res = await api('/api/auth/me');
                 if (res.ok) {
                     const data = await res.json();
                     state.currentUser = data.user;
-                    updateUserUI();
+                    updateRoleUI();
                 } else {
-                    await quickLogin('recruiter');
+                    await performLogin('recruiter@talentflow.test', 'password');
                 }
             } catch (e) {
-                await quickLogin('recruiter');
+                await performLogin('recruiter@talentflow.test', 'password');
             }
         }
 
-        function updateUserUI() {
-            if (!state.currentUser) return;
-            const u = state.currentUser;
-            document.getElementById('userName').textContent = u.name;
-            const roleEl = document.getElementById('userRole');
-            roleEl.textContent = u.role ? u.role.name : 'User';
-            roleEl.className = `user-role-badge role-${u.role ? u.role.name : 'candidate'}`;
-            document.getElementById('userAvatar').textContent = u.name.charAt(0).toUpperCase();
+        function updateRoleUI() {
+            const user = state.currentUser;
+            if (!user) {
+                document.getElementById('userLoggedInBlock').style.display = 'none';
+                document.getElementById('userGuestBlock').style.display = 'block';
+                return;
+            }
 
-            // Prefill apply modal
-            document.getElementById('applyCandidateName').value = u.name;
-            document.getElementById('applyCandidateEmail').value = u.email;
+            document.getElementById('userLoggedInBlock').style.display = 'flex';
+            document.getElementById('userGuestBlock').style.display = 'none';
+            document.getElementById('navUserName').textContent = user.name;
+
+            const role = user.role?.name || 'candidate';
+            const badge = document.getElementById('navRoleBadge');
+            badge.textContent = role;
+            badge.className = `role-badge role-${role}`;
+
+            // Adapt navigation elements based on role
+            const isRecruiterOrAdmin = role === 'recruiter' || role === 'admin';
+            document.getElementById('recruiterDashboardActions').style.display = isRecruiterOrAdmin ? 'block' : 'none';
+            document.getElementById('recruiterJobActions').style.display = isRecruiterOrAdmin ? 'block' : 'none';
+            document.getElementById('recruiterInterviewActions').style.display = isRecruiterOrAdmin ? 'block' : 'none';
+            document.getElementById('recruiterTaskActions').style.display = isRecruiterOrAdmin ? 'block' : 'none';
+            document.getElementById('tabNavItemCandidates').style.display = isRecruiterOrAdmin ? 'block' : 'none';
+
+            // Auto-fill apply form
+            const applyName = document.getElementById('applyName');
+            const applyEmail = document.getElementById('applyEmail');
+            if (applyName && applyEmail) {
+                applyName.value = user.name;
+                applyEmail.value = user.email;
+            }
         }
 
-        // Generic API Fetch Wrapper
-        async function apiFetch(endpoint, options = {}) {
+        async function logout() {
+            try {
+                await api('/api/auth/logout', { method: 'POST' });
+            } catch (e) {}
+            state.token = '';
+            state.currentUser = null;
+            localStorage.removeItem('tf_token');
+            updateRoleUI();
+            showToast('Logged out successfully', 'success');
+            openAuthModal();
+        }
+
+        // API Fetch
+        async function api(path, options = {}) {
             const headers = options.headers || {};
             headers['Accept'] = 'application/json';
-            if (state.token) {
-                headers['Authorization'] = `Bearer ${state.token}`;
-            }
+            if (state.token) headers['Authorization'] = `Bearer ${state.token}`;
             if (!(options.body instanceof FormData) && !headers['Content-Type']) {
                 headers['Content-Type'] = 'application/json';
             }
-            return fetch(endpoint, { ...options, headers });
+            return fetch(path, { ...options, headers });
         }
 
-        // Refresh All Data
-        async function refreshAllData() {
+        // Reload Data
+        async function reloadAll() {
             await Promise.all([
                 loadAnalytics(),
                 loadJobs(),
                 loadApplications(),
                 loadInterviews(),
                 loadTasks(),
-                loadCandidates(),
-                loadNotifications()
+                loadCandidates()
             ]);
         }
 
-        // Load Analytics
+        // 1. Analytics
         async function loadAnalytics() {
             try {
-                const res = await apiFetch('/api/dashboard/analytics');
+                const res = await api('/api/dashboard/analytics');
                 if (res.ok) {
-                    const data = await res.json();
-                    state.analytics = data.analytics;
-                    renderAnalytics(data.analytics);
+                    const { analytics } = await res.json();
+                    document.getElementById('statJobs').textContent = analytics.total_jobs;
+                    document.getElementById('statActiveJobs').textContent = `${analytics.active_jobs} open positions`;
+                    document.getElementById('statCandidates').textContent = analytics.active_candidates;
+                    document.getElementById('statInterviews').textContent = analytics.interviews_this_week;
+                    document.getElementById('statAvgScore').textContent = `${analytics.average_candidate_score}%`;
+
+                    // Render funnel
+                    const container = document.getElementById('funnelContainer');
+                    container.innerHTML = '';
+                    const total = Math.max(1, analytics.total_applications);
+
+                    for (const [stage, count] of Object.entries(analytics.pipeline_distribution)) {
+                        const pct = Math.round((count / total) * 100);
+                        const row = document.createElement('div');
+                        row.className = 'funnel-row';
+                        row.innerHTML = `
+                            <div class="funnel-info">
+                                <span>${stage}</span>
+                                <span style="color:var(--text-muted);">${count} (${pct}%)</span>
+                            </div>
+                            <div class="funnel-track">
+                                <div class="funnel-fill" style="width: ${Math.max(4, pct)}%;"></div>
+                            </div>
+                        `;
+                        container.appendChild(row);
+                    }
                 }
             } catch (e) {
                 console.error(e);
             }
         }
 
-        function renderAnalytics(a) {
-            document.getElementById('statTotalJobs').textContent = a.total_jobs;
-            document.getElementById('statActiveJobs').textContent = `${a.active_jobs} active openings`;
-            document.getElementById('statActiveCandidates').textContent = a.active_candidates;
-            document.getElementById('statInterviewsWeek').textContent = a.interviews_this_week;
-            document.getElementById('statAvgScore').textContent = `${a.average_candidate_score}%`;
-
-            // Render Pipeline Funnel Bars
-            const container = document.getElementById('pipelineBarsContainer');
-            container.innerHTML = '';
-            const total = Math.max(1, a.total_applications);
-
-            for (const [stage, count] of Object.entries(a.pipeline_distribution)) {
-                const pct = Math.round((count / total) * 100);
-                const row = document.createElement('div');
-                row.className = 'pipeline-row';
-                row.innerHTML = `
-                    <div class="pipeline-label-row">
-                        <span style="color:#fff; font-weight:600;">${stage}</span>
-                        <span style="color:var(--text-muted);">${count} candidates (${pct}%)</span>
-                    </div>
-                    <div class="pipeline-track">
-                        <div class="pipeline-fill" style="width: ${Math.max(5, pct)}%;"></div>
-                    </div>
-                `;
-                container.appendChild(row);
-            }
-        }
-
-        // Load Jobs
+        // 2. Jobs
         async function loadJobs() {
             try {
-                const res = await apiFetch('/api/jobs');
+                const res = await api('/api/jobs');
                 if (res.ok) {
-                    const data = await res.json();
-                    state.jobs = data.data;
-                    document.getElementById('jobsNavBadge').textContent = state.jobs.length;
-                    renderJobs(state.jobs);
+                    const { data } = await res.json();
+                    state.jobs = data;
+                    renderJobs(data);
                 }
             } catch (e) {
                 console.error(e);
@@ -1752,46 +1653,39 @@ php artisan migrate:fresh --seed</pre>
         }
 
         function renderJobs(jobs) {
-            const container = document.getElementById('jobsGridContainer');
+            const container = document.getElementById('jobsGrid');
             container.innerHTML = '';
 
             if (jobs.length === 0) {
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-muted);">No job openings found.</div>';
+                container.innerHTML = '<div style="color:var(--text-muted); padding:20px;">No job openings found.</div>';
                 return;
             }
 
             jobs.forEach(job => {
-                const card = document.createElement('div');
-                card.className = 'job-card';
-
                 let skillsHtml = '';
                 if (job.skills) {
                     job.skills.forEach(s => {
-                        const isMandatory = s.is_mandatory;
-                        skillsHtml += `<span class="skill-pill ${isMandatory ? 'skill-mandatory' : 'skill-bonus'}">${s.name}${isMandatory ? '' : ' (Bonus)'}</span>`;
+                        skillsHtml += `<span class="skill-tag ${s.is_mandatory ? 'mandatory' : ''}">${s.name}</span>`;
                     });
                 }
 
+                const card = document.createElement('div');
+                card.className = 'job-card';
                 card.innerHTML = `
                     <div>
-                        <div class="job-card-header">
+                        <div class="job-header">
                             <div>
-                                <h3 class="job-title">${job.title}</h3>
-                                <span style="font-size:0.8rem; color:var(--text-muted);">${job.department}</span>
+                                <h4 class="job-title">${job.title}</h4>
+                                <div class="job-dept">${job.department} • ${job.experience}</div>
                             </div>
-                            <span class="job-badge badge-${job.status}">${job.status}</span>
-                        </div>
-                        <div class="job-meta">
-                            <span>⏳ ${job.experience}</span>
-                            <span>📅 Due ${job.application_deadline}</span>
-                            <span>👥 ${job.applications_count || 0} applicants</span>
+                            <span class="badge badge-${job.status}">${job.status}</span>
                         </div>
                         <p class="job-desc">${job.description}</p>
-                        <div class="skills-tag-list">${skillsHtml}</div>
+                        <div class="skills-list">${skillsHtml}</div>
                     </div>
-                    <div class="job-card-footer">
+                    <div class="job-footer">
                         <span class="job-salary">${job.salary_range || 'Competitive'}</span>
-                        <button class="btn btn-primary btn-sm" onclick="openApplyModal(${job.id}, '${escapeHtml(job.title)}')">Apply Now</button>
+                        <button class="btn btn-primary btn-sm" onclick="openApply(${job.id}, '${escapeHtml(job.title)}')">Apply</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -1799,61 +1693,60 @@ php artisan migrate:fresh --seed</pre>
         }
 
         function filterJobs() {
-            const search = document.getElementById('jobSearchInput').value.toLowerCase();
-            const status = document.getElementById('jobStatusFilter').value;
+            const search = document.getElementById('jobSearch').value.toLowerCase();
+            const status = document.getElementById('jobStatus').value;
 
             const filtered = state.jobs.filter(j => {
-                const matchesSearch = !search || j.title.toLowerCase().includes(search) || j.department.toLowerCase().includes(search);
-                const matchesStatus = !status || j.status === status;
-                return matchesSearch && matchesStatus;
+                const matchSearch = !search || j.title.toLowerCase().includes(search) || j.department.toLowerCase().includes(search);
+                const matchStatus = !status || j.status === status;
+                return matchSearch && matchStatus;
             });
             renderJobs(filtered);
         }
 
-        // Load Applications & Render Pipeline Board
+        // 3. Applications / Pipeline
         async function loadApplications() {
             try {
-                const res = await apiFetch('/api/applications');
+                const res = await api('/api/applications');
                 if (res.ok) {
-                    const data = await res.json();
-                    state.applications = data.data;
-                    renderPipelineBoard(state.applications);
-                    populateApplicationSelects(state.applications);
+                    const { data } = await res.json();
+                    state.applications = data;
+                    renderPipeline(data);
+                    populateSelects(data);
                 }
             } catch (e) {
                 console.error(e);
             }
         }
 
-        function renderPipelineBoard(apps) {
+        function renderPipeline(apps) {
             const stages = ['Applied', 'Screening', 'Shortlisted', 'Interview', 'Technical Task', 'Hired', 'Rejected'];
             const board = document.getElementById('pipelineBoard');
             board.innerHTML = '';
 
-            stages.forEach(stage => {
-                const stageApps = apps.filter(a => a.status === stage);
-                const col = document.createElement('div');
-                col.className = 'pipeline-column';
+            const isRecruiterOrAdmin = state.currentUser?.role?.name === 'recruiter' || state.currentUser?.role?.name === 'admin';
 
-                let cardsHtml = '';
-                if (stageApps.length === 0) {
-                    cardsHtml = `<div style="text-align:center; padding: 20px 0; color:var(--text-dark); font-size:0.8rem;">No candidates</div>`;
+            stages.forEach(stage => {
+                const colApps = apps.filter(a => a.status === stage);
+                const col = document.createElement('div');
+                col.className = 'pipeline-col';
+
+                let itemsHtml = '';
+                if (colApps.length === 0) {
+                    itemsHtml = '<div style="font-size:0.8rem; color:var(--text-light); text-align:center; padding:16px 0;">No candidates</div>';
                 } else {
-                    stageApps.forEach(a => {
+                    colApps.forEach(a => {
                         const score = Math.round(a.skill_score || 0);
-                        const scoreClass = score >= 80 ? 'score-high' : (score >= 60 ? 'score-mid' : 'score-low');
-                        cardsHtml += `
-                            <div class="application-card" onclick="openMoveStageModal(${a.id}, '${escapeHtml(a.candidate?.name || 'Candidate')}', '${a.status}')">
+                        itemsHtml += `
+                            <div class="app-item" ${isRecruiterOrAdmin ? `onclick="openMove(${a.id}, '${escapeHtml(a.candidate?.name || 'Applicant')}', '${a.status}')"` : ''}>
                                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                                    <div>
-                                        <h4 class="app-candidate-name">${a.candidate?.name || 'Candidate'}</h4>
-                                        <span class="app-job-title">${a.job?.title || 'Job Opening'}</span>
-                                    </div>
-                                    <span class="score-badge ${scoreClass}">★ ${score}%</span>
+                                    <div class="app-name">${a.candidate?.name || 'Candidate'}</div>
+                                    <span class="badge ${score >= 80 ? 'badge-hired' : (score >= 60 ? 'badge-shortlisted' : 'badge-applied')}">${score}%</span>
                                 </div>
-                                <div class="app-card-footer">
-                                    <span>${a.candidate?.experience_years || 0} yrs exp</span>
-                                    <span style="color:#818cf8;">Move ➔</span>
+                                <div class="app-role">${a.job?.title || 'Job'}</div>
+                                <div class="app-footer">
+                                    <span>${a.candidate?.experience_years || 0}y exp</span>
+                                    ${isRecruiterOrAdmin ? '<span style="color:var(--primary); font-weight:600;">Move &rarr;</span>' : '<span style="color:var(--text-muted);">Stage Logged</span>'}
                                 </div>
                             </div>
                         `;
@@ -1861,38 +1754,38 @@ php artisan migrate:fresh --seed</pre>
                 }
 
                 col.innerHTML = `
-                    <div class="pipeline-column-header">
+                    <div class="pipeline-col-header">
                         <span>${stage}</span>
-                        <span class="column-badge">${stageApps.length}</span>
+                        <span class="badge badge-pending">${colApps.length}</span>
                     </div>
-                    ${cardsHtml}
+                    ${itemsHtml}
                 `;
                 board.appendChild(col);
             });
         }
 
-        function populateApplicationSelects(apps) {
-            const interviewSelect = document.getElementById('interviewAppSelect');
-            const taskSelect = document.getElementById('taskAppSelect');
-            if (!interviewSelect || !taskSelect) return;
+        function populateSelects(apps) {
+            const intSel = document.getElementById('interviewAppSelect');
+            const taskSel = document.getElementById('taskAppSelect');
+            if (!intSel || !taskSel) return;
 
-            let opts = '<option value="">Select Candidate Application</option>';
+            let opts = '<option value="">Select candidate application...</option>';
             apps.forEach(a => {
                 opts += `<option value="${a.id}">${a.candidate?.name} – ${a.job?.title} (${a.status})</option>`;
             });
 
-            interviewSelect.innerHTML = opts;
-            taskSelect.innerHTML = opts;
+            intSel.innerHTML = opts;
+            taskSel.innerHTML = opts;
         }
 
-        // Load Interviews
+        // 4. Interviews
         async function loadInterviews() {
             try {
-                const res = await apiFetch('/api/interviews');
+                const res = await api('/api/interviews');
                 if (res.ok) {
-                    const data = await res.json();
-                    state.interviews = data.data;
-                    renderInterviews(state.interviews);
+                    const { data } = await res.json();
+                    state.interviews = data;
+                    renderInterviews(data);
                 }
             } catch (e) {
                 console.error(e);
@@ -1900,13 +1793,15 @@ php artisan migrate:fresh --seed</pre>
         }
 
         function renderInterviews(interviews) {
-            const tbody = document.getElementById('interviewsTableBody');
+            const tbody = document.getElementById('interviewsTable');
             tbody.innerHTML = '';
 
             if (interviews.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:30px;">No interviews scheduled.</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">No interviews scheduled.</td></tr>';
                 return;
             }
+
+            const isRecruiterOrAdmin = state.currentUser?.role?.name === 'recruiter' || state.currentUser?.role?.name === 'admin';
 
             interviews.forEach(i => {
                 const tr = document.createElement('tr');
@@ -1915,27 +1810,27 @@ php artisan migrate:fresh --seed</pre>
                     <td>${i.job?.title || 'Position'}</td>
                     <td>${i.interviewer?.name || 'Recruiter'}</td>
                     <td>${new Date(i.scheduled_at).toLocaleString()}</td>
-                    <td><span class="user-role-badge role-${i.status === 'completed' ? 'candidate' : (i.status === 'cancelled' ? 'admin' : 'recruiter')}">${i.status}</span></td>
-                    <td><a href="${i.meeting_link}" target="_blank" style="color:#818cf8; text-decoration:none;">Join Meeting 🔗</a></td>
+                    <td><span class="badge badge-${i.status}">${i.status}</span></td>
+                    <td><a href="${i.meeting_link}" target="_blank" style="color:var(--primary); text-decoration:none;">Open Link</a></td>
                     <td>
-                        ${i.status === 'scheduled' ? `
-                            <button class="btn btn-sm btn-outline" onclick="completeInterview(${i.id})">Complete</button>
-                            <button class="btn btn-sm btn-outline" style="color:#ef4444;" onclick="cancelInterview(${i.id})">Cancel</button>
-                        ` : `<span style="color:var(--text-dark); font-size:0.8rem;">Finished</span>`}
+                        ${(i.status === 'scheduled' && isRecruiterOrAdmin) ? `
+                            <button class="btn btn-outline btn-sm" onclick="completeInterview(${i.id})">Done</button>
+                            <button class="btn btn-outline btn-sm" style="color:var(--danger);" onclick="cancelInterview(${i.id})">Cancel</button>
+                        ` : '<span style="color:var(--text-light);">-</span>'}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // Load Technical Tasks
+        // 5. Tasks
         async function loadTasks() {
             try {
-                const res = await apiFetch('/api/technical-tasks');
+                const res = await api('/api/technical-tasks');
                 if (res.ok) {
-                    const data = await res.json();
-                    state.tasks = data.data;
-                    renderTasks(state.tasks);
+                    const { data } = await res.json();
+                    state.tasks = data;
+                    renderTasks(data);
                 }
             } catch (e) {
                 console.error(e);
@@ -1943,52 +1838,51 @@ php artisan migrate:fresh --seed</pre>
         }
 
         function renderTasks(tasks) {
-            const tbody = document.getElementById('tasksTableBody');
+            const tbody = document.getElementById('tasksTable');
             tbody.innerHTML = '';
 
             if (tasks.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:30px;">No technical tasks assigned yet.</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">No tasks assigned yet.</td></tr>';
                 return;
             }
 
-            tasks.forEach(t => {
-                const tr = document.createElement('tr');
-                const isOverdue = t.status === 'Overdue';
-                const submission = t.latest_submission;
+            const isRecruiterOrAdmin = state.currentUser?.role?.name === 'recruiter' || state.currentUser?.role?.name === 'admin';
 
+            tasks.forEach(t => {
+                const sub = t.latest_submission;
+                const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="font-weight:600;">${t.title}</td>
                     <td>${t.assigned_by?.name || 'Candidate'}</td>
-                    <td style="${isOverdue ? 'color:#ef4444; font-weight:700;' : ''}">${new Date(t.deadline).toLocaleDateString()}</td>
-                    <td><span class="user-role-badge role-${t.status === 'Reviewed' ? 'candidate' : (isOverdue ? 'admin' : 'recruiter')}">${t.status}</span></td>
-                    <td>${submission?.repository_url ? `<a href="${submission.repository_url}" target="_blank" style="color:#818cf8;">View Code 🔗</a>` : '<span style="color:var(--text-dark);">None</span>'}</td>
-                    <td>${submission?.score !== null && submission?.score !== undefined ? `<strong>${submission.score}/100</strong>` : '<span style="color:var(--text-dark);">-</span>'}</td>
+                    <td>${new Date(t.deadline).toLocaleDateString()}</td>
+                    <td><span class="badge badge-${t.status.toLowerCase().replace(' ', '_')}">${t.status}</span></td>
+                    <td>${sub?.repository_url ? `<a href="${sub.repository_url}" target="_blank" style="color:var(--primary);">View Solution</a>` : '<span style="color:var(--text-light);">None</span>'}</td>
+                    <td>${sub?.score !== null && sub?.score !== undefined ? `<strong>${sub.score}/100</strong>` : '-'}</td>
                     <td>
                         ${t.status === 'Pending' ? `
-                            <button class="btn btn-sm btn-outline" onclick="startTask(${t.id})">Start</button>
-                            <button class="btn btn-sm btn-primary" onclick="openSubmitTaskModal(${t.id})">Submit</button>
+                            <button class="btn btn-outline btn-sm" onclick="startTask(${t.id})">Start</button>
+                            <button class="btn btn-primary btn-sm" onclick="openSubmitTask(${t.id})">Submit</button>
                         ` : ''}
                         ${t.status === 'In Progress' ? `
-                            <button class="btn btn-sm btn-primary" onclick="openSubmitTaskModal(${t.id})">Submit</button>
+                            <button class="btn btn-primary btn-sm" onclick="openSubmitTask(${t.id})">Submit</button>
                         ` : ''}
-                        ${t.status === 'Submitted' ? `
-                            <button class="btn btn-sm btn-success" onclick="openReviewTaskModal(${t.id})">Review & Grade</button>
+                        ${(t.status === 'Submitted' && isRecruiterOrAdmin) ? `
+                            <button class="btn btn-success btn-sm" onclick="openReviewTask(${t.id})">Grade</button>
                         ` : ''}
-                        ${t.status === 'Reviewed' ? `<span style="color:var(--success); font-size:0.8rem;">✓ Graded</span>` : ''}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // Load Candidates
+        // 6. Candidates
         async function loadCandidates() {
             try {
-                const res = await apiFetch('/api/candidates');
+                const res = await api('/api/candidates');
                 if (res.ok) {
-                    const data = await res.json();
-                    state.candidates = data.data;
-                    renderCandidates(state.candidates);
+                    const { data } = await res.json();
+                    state.candidates = data;
+                    renderCandidates(data);
                 }
             } catch (e) {
                 console.error(e);
@@ -1996,11 +1890,11 @@ php artisan migrate:fresh --seed</pre>
         }
 
         function renderCandidates(candidates) {
-            const tbody = document.getElementById('candidatesTableBody');
+            const tbody = document.getElementById('candidatesTable');
             tbody.innerHTML = '';
 
             if (candidates.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:30px;">No candidates registered.</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">No candidates found.</td></tr>';
                 return;
             }
 
@@ -2011,223 +1905,148 @@ php artisan migrate:fresh --seed</pre>
                     <td>${c.email}</td>
                     <td>${c.experience_years} years</td>
                     <td>${c.education || 'N/A'}</td>
-                    <td><span style="font-size:0.8rem; color:#a5b4fc;">${c.skills_summary || 'N/A'}</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-outline" onclick="switchView('pipeline')">View in Funnel</button>
-                    </td>
+                    <td style="color:var(--text-muted); font-size:0.82rem;">${c.skills_summary || 'N/A'}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // Load Notifications
-        async function loadNotifications() {
-            try {
-                const res = await apiFetch('/api/notifications');
-                if (res.ok) {
-                    const data = await res.json();
-                    state.notifications = data.notifications;
-                    const unread = data.unread_count || 0;
-                    document.getElementById('notifNavBadge').textContent = unread;
-                    document.getElementById('topbarNotifDot').style.display = unread > 0 ? 'block' : 'none';
-                    renderNotifications(state.notifications);
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        }
+        // Modals & Action Helpers
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        function renderNotifications(notifs) {
-            const container = document.getElementById('notificationsListContainer');
-            container.innerHTML = '';
-
-            if (notifs.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">No notifications yet.</div>';
-                return;
-            }
-
-            notifs.forEach(n => {
-                const isUnread = !n.read_at;
-                const div = document.createElement('div');
-                div.style.cssText = `padding: 16px; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; background: ${isUnread ? 'rgba(99,102,241,0.06)' : 'transparent'};`;
-                div.innerHTML = `
-                    <div>
-                        <h4 style="color:#fff; font-size:0.95rem; margin-bottom:4px;">${n.data.title || 'Notification'}</h4>
-                        <p style="color:var(--text-muted); font-size:0.85rem;">${n.data.message || ''}</p>
-                        <span style="font-size:0.75rem; color:var(--text-dark);">${new Date(n.created_at).toLocaleString()}</span>
-                    </div>
-                    ${isUnread ? `<button class="btn btn-sm btn-outline" onclick="markNotificationRead('${n.id}')">Mark Read</button>` : '<span style="color:var(--text-dark); font-size:0.8rem;">Read</span>'}
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        async function markNotificationRead(id) {
-            await apiFetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
-            await loadNotifications();
-        }
-
-        async function markAllNotificationsRead() {
-            await apiFetch('/api/notifications/read-all', { method: 'POST' });
-            await loadNotifications();
-            showToast('All notifications marked as read', 'success');
-        }
-
-        // Actions & Modals
-
-        function openModal(id) {
-            document.getElementById(id).classList.add('active');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        // Post Job Form Handler
-        async function handlePostJob(e) {
+        async function submitJob(e) {
             e.preventDefault();
-            const form = e.target;
-            const payload = {
-                title: form.title.value,
-                department: form.department.value,
-                experience: form.experience.value,
-                salary_range: form.salary_range.value,
-                application_deadline: form.application_deadline.value,
-                description: form.description.value,
-                mandatory_skills: form.mandatory_skills.value.split(',').map(s => s.trim()).filter(Boolean),
-                bonus_skills: form.bonus_skills.value.split(',').map(s => s.trim()).filter(Boolean)
-            };
-
-            const res = await apiFetch('/api/jobs', {
+            const f = e.target;
+            const res = await api('/api/jobs', {
                 method: 'POST',
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    title: f.title.value,
+                    department: f.department.value,
+                    experience: f.experience.value,
+                    salary_range: f.salary_range.value,
+                    application_deadline: f.application_deadline.value,
+                    description: f.description.value,
+                    mandatory_skills: f.mandatory_skills.value.split(',').map(s => s.trim()).filter(Boolean),
+                    bonus_skills: f.bonus_skills.value.split(',').map(s => s.trim()).filter(Boolean)
+                })
             });
 
             if (res.ok) {
-                showToast('Job opening published successfully!', 'success');
-                closeModal('modalPostJob');
-                form.reset();
-                await refreshAllData();
+                showToast('Job created successfully!', 'success');
+                closeModal('modalJob');
+                f.reset();
+                await reloadAll();
             } else {
-                const data = await res.json();
-                showToast(data.message || 'Error creating job', 'error');
+                const d = await res.json();
+                showToast(d.message || 'Error creating job', 'error');
             }
         }
 
-        // Apply Job Form Handler
-        function openApplyModal(jobId, jobTitle) {
-            document.getElementById('applyJobId').value = jobId;
-            document.getElementById('applyModalJobTitle').textContent = `Apply for: ${jobTitle}`;
-            openModal('modalApplyJob');
+        function openApply(id, title) {
+            document.getElementById('applyJobId').value = id;
+            document.getElementById('applyTitle').textContent = `Apply for: ${title}`;
+            openModal('modalApply');
         }
 
-        async function handleApplyJob(e) {
+        async function submitApply(e) {
             e.preventDefault();
-            const form = e.target;
-            const jobId = form.job_id.value;
-            const formData = new FormData(form);
+            const f = e.target;
+            const jobId = f.job_id.value;
+            const formData = new FormData(f);
 
-            const res = await apiFetch(`/api/jobs/${jobId}/apply`, {
+            const res = await api(`/api/jobs/${jobId}/apply`, {
                 method: 'POST',
                 body: formData
             });
 
-            const data = await res.json();
             if (res.ok) {
-                showToast('Application submitted successfully! Candidate match score computed.', 'success');
-                closeModal('modalApplyJob');
-                form.reset();
-                await refreshAllData();
-                switchView('pipeline');
+                showToast('Application submitted! Score calculated.', 'success');
+                closeModal('modalApply');
+                f.reset();
+                await reloadAll();
+                switchTab('pipeline');
             } else {
-                showToast(data.message || 'Application failed', 'error');
+                const d = await res.json();
+                showToast(d.message || 'Application failed', 'error');
             }
         }
 
-        // Move Stage Modal
-        function openMoveStageModal(appId, candName, currentStatus) {
-            document.getElementById('moveStageAppId').value = appId;
-            document.getElementById('moveStageCandidateInfo').textContent = `Candidate: ${candName} (Current: ${currentStatus})`;
-            document.getElementById('selectTargetStage').value = currentStatus;
-            openModal('modalMoveStage');
+        function openMove(id, name, status) {
+            document.getElementById('moveAppId').value = id;
+            document.getElementById('moveInfo').textContent = `Candidate: ${name} (Currently: ${status})`;
+            document.getElementById('moveSelectStatus').value = status;
+            openModal('modalMove');
         }
 
-        async function handleMoveStage(e) {
+        async function submitMove(e) {
             e.preventDefault();
-            const form = e.target;
-            const appId = form.application_id.value;
-            const payload = {
-                status: form.status.value,
-                comment: form.comment.value
-            };
+            const f = e.target;
+            const id = f.application_id.value;
 
-            const res = await apiFetch(`/api/applications/${appId}/status`, {
+            const res = await api(`/api/applications/${id}/status`, {
                 method: 'PATCH',
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    status: f.status.value,
+                    comment: f.comment.value
+                })
             });
 
             if (res.ok) {
-                showToast(`Moved application to ${payload.status}!`, 'success');
-                closeModal('modalMoveStage');
-                await refreshAllData();
+                showToast(`Status updated to ${f.status.value}!`, 'success');
+                closeModal('modalMove');
+                await reloadAll();
             } else {
-                const data = await res.json();
-                showToast(data.message || 'Failed to update status', 'error');
+                const d = await res.json();
+                showToast(d.message || 'Status update failed', 'error');
             }
         }
 
-        // Schedule Interview Modal
-        function openScheduleInterviewModal() {
-            openModal('modalScheduleInterview');
-        }
-
-        async function handleScheduleInterview(e) {
+        async function submitInterview(e) {
             e.preventDefault();
-            const form = e.target;
-            const appId = form.application_id.value;
-            const payload = {
-                interviewer_id: 2, // Default recruiter
-                scheduled_at: form.scheduled_at.value.replace('T', ' ') + ':00',
-                meeting_link: form.meeting_link.value
-            };
+            const f = e.target;
+            const id = f.application_id.value;
 
-            const res = await apiFetch(`/api/applications/${appId}/interviews`, {
+            const res = await api(`/api/applications/${id}/interviews`, {
                 method: 'POST',
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    interviewer_id: 2,
+                    scheduled_at: f.scheduled_at.value.replace('T', ' ') + ':00',
+                    meeting_link: f.meeting_link.value
+                })
             });
 
-            const data = await res.json();
+            const d = await res.json();
             if (res.ok) {
-                showToast('Interview scheduled successfully!', 'success');
-                closeModal('modalScheduleInterview');
-                form.reset();
-                await refreshAllData();
-                switchView('interviews');
+                showToast('Interview scheduled!', 'success');
+                closeModal('modalInterview');
+                f.reset();
+                await reloadAll();
+                switchTab('interviews');
             } else {
-                // Conflict validation feedback!
-                const msg = data.errors?.scheduled_at?.[0] || data.message || 'Conflict detected or scheduling error.';
+                const msg = d.errors?.scheduled_at?.[0] || d.message || 'Conflict detected.';
                 showToast(msg, 'error');
             }
         }
 
         async function completeInterview(id) {
-            const feedback = prompt('Enter interview feedback/evaluation:');
+            const feedback = prompt('Enter interview notes/feedback:');
             if (!feedback) return;
-            const res = await apiFetch(`/api/interviews/${id}/complete`, {
+            const res = await api(`/api/interviews/${id}/complete`, {
                 method: 'PATCH',
                 body: JSON.stringify({ feedback })
             });
             if (res.ok) {
-                showToast('Interview marked as completed', 'success');
+                showToast('Interview marked complete', 'success');
                 await loadInterviews();
             }
         }
 
         async function cancelInterview(id) {
-            if (!confirm('Are you sure you want to cancel this interview?')) return;
-            const res = await apiFetch(`/api/interviews/${id}/cancel`, {
+            if (!confirm('Cancel this interview?')) return;
+            const res = await api(`/api/interviews/${id}/cancel`, {
                 method: 'PATCH',
-                body: JSON.stringify({ reason: 'Cancelled by recruiter' })
+                body: JSON.stringify({ reason: 'Cancelled' })
             });
             if (res.ok) {
                 showToast('Interview cancelled', 'success');
@@ -2235,127 +2054,114 @@ php artisan migrate:fresh --seed</pre>
             }
         }
 
-        // Technical Task Handlers
-        function openAssignTaskModal() {
-            openModal('modalAssignTask');
-        }
-
-        async function handleAssignTask(e) {
+        async function submitTask(e) {
             e.preventDefault();
-            const form = e.target;
-            const appId = form.application_id.value;
-            const payload = {
-                title: form.title.value,
-                description: form.description.value,
-                deadline: form.deadline.value.replace('T', ' ') + ':00'
-            };
+            const f = e.target;
+            const id = f.application_id.value;
 
-            const res = await apiFetch(`/api/applications/${appId}/technical-tasks`, {
+            const res = await api(`/api/applications/${id}/technical-tasks`, {
                 method: 'POST',
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    title: f.title.value,
+                    description: f.description.value,
+                    deadline: f.deadline.value.replace('T', ' ') + ':00'
+                })
             });
 
             if (res.ok) {
                 showToast('Technical task assigned!', 'success');
-                closeModal('modalAssignTask');
-                form.reset();
-                await refreshAllData();
-                switchView('tasks');
+                closeModal('modalTask');
+                f.reset();
+                await reloadAll();
+                switchTab('tasks');
             } else {
-                const data = await res.json();
-                showToast(data.message || 'Error assigning task', 'error');
+                const d = await res.json();
+                showToast(d.message || 'Error assigning task', 'error');
             }
         }
 
         async function startTask(id) {
-            const res = await apiFetch(`/api/technical-tasks/${id}/start`, { method: 'PATCH' });
-            if (res.ok) {
-                showToast('Task marked In Progress', 'success');
-                await loadTasks();
-            }
+            await api(`/api/technical-tasks/${id}/start`, { method: 'PATCH' });
+            showToast('Task marked In Progress', 'success');
+            await loadTasks();
         }
 
-        function openSubmitTaskModal(id) {
+        function openSubmitTask(id) {
             document.getElementById('submitTaskId').value = id;
             openModal('modalSubmitTask');
         }
 
-        async function handleSubmitTask(e) {
+        async function submitTaskSolution(e) {
             e.preventDefault();
-            const form = e.target;
-            const id = form.task_id.value;
-            const payload = {
-                repository_url: form.repository_url.value,
-                notes: form.notes.value
-            };
+            const f = e.target;
+            const id = f.task_id.value;
 
-            const res = await apiFetch(`/api/technical-tasks/${id}/submit`, {
+            const res = await api(`/api/technical-tasks/${id}/submit`, {
                 method: 'POST',
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    repository_url: f.repository_url.value,
+                    notes: f.notes.value
+                })
             });
 
             if (res.ok) {
                 showToast('Task submitted! Recruiter notified.', 'success');
                 closeModal('modalSubmitTask');
-                form.reset();
-                await refreshAllData();
+                f.reset();
+                await reloadAll();
             } else {
-                const data = await res.json();
-                showToast(data.message || 'Submission error', 'error');
+                const d = await res.json();
+                showToast(d.message || 'Submission error', 'error');
             }
         }
 
-        function openReviewTaskModal(id) {
+        function openReviewTask(id) {
             document.getElementById('reviewTaskId').value = id;
             openModal('modalReviewTask');
         }
 
-        async function handleReviewTask(e) {
+        async function submitReview(e) {
             e.preventDefault();
-            const form = e.target;
-            const id = form.task_id.value;
-            const payload = {
-                score: parseInt(form.score.value, 10),
-                feedback: form.feedback.value
-            };
+            const f = e.target;
+            const id = f.task_id.value;
 
-            const res = await apiFetch(`/api/technical-tasks/${id}/review`, {
+            const res = await api(`/api/technical-tasks/${id}/review`, {
                 method: 'POST',
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    score: parseInt(f.score.value, 10),
+                    feedback: f.feedback.value
+                })
             });
 
             if (res.ok) {
-                showToast('Task reviewed and graded!', 'success');
+                showToast('Task graded & reviewed!', 'success');
                 closeModal('modalReviewTask');
-                form.reset();
-                await refreshAllData();
+                await reloadAll();
             } else {
-                const data = await res.json();
-                showToast(data.message || 'Review error', 'error');
+                const d = await res.json();
+                showToast(d.message || 'Review error', 'error');
             }
         }
 
-        // Trigger Automated Deadline Check Manually
-        async function triggerDeadlineCheck() {
-            showToast('Triggering deadline check...', 'success');
-            await apiFetch('/api/dashboard/analytics');
-            await refreshAllData();
-            showToast('Deadline check completed! Any overdue tasks updated.', 'success');
+        async function runDeadlineCheck() {
+            showToast('Checking deadlines & overdue tasks...', 'success');
+            await api('/api/dashboard/analytics');
+            await reloadAll();
+            showToast('Deadline check finished!', 'success');
         }
 
-        // Toast Helper
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#fff;cursor:pointer;margin-left:12px;">&times;</button>`;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
+        function showToast(msg, type = 'success') {
+            const box = document.getElementById('toastBox');
+            const el = document.createElement('div');
+            el.className = `toast-msg ${type}`;
+            el.textContent = msg;
+            box.appendChild(el);
+            setTimeout(() => el.remove(), 3500);
         }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        function escapeHtml(s) {
+            if (!s) return '';
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         }
     </script>
 </body>
