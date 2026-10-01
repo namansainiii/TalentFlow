@@ -1,58 +1,186 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# TalentFlow – Recruitment & Resume Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A recruitment and hiring management platform built with **Laravel 11+**, **Laravel Sanctum**, **Eloquent ORM**, **Queues & Scheduler**, **Events & Notifications**, and **PDF Resume Parsing Engine**.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🎯 Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+TalentFlow allows recruiters to create and manage job openings, screen candidates, automatically extract resume data from PDF uploads, compute deterministic candidate match scores, manage candidates across the hiring pipeline stages, schedule interviews with conflict validation, assign and grade technical tasks, and monitor recruitment analytics via a dedicated dashboard.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🚀 Key Modules & Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 1. Authentication & Role-Based Authorization
+- **Laravel Sanctum** token-based authentication.
+- Three built-in roles:
+  - `Admin`: Full access across jobs, candidates, interviews, and analytics.
+  - `Recruiter`: Can create and manage jobs, screen applications, move pipeline stages, schedule interviews, and assign/review technical tasks.
+  - `Candidate`: Can register, upload resumes, apply for openings, track application progress, and submit technical tasks.
+- Dedicated `RoleMiddleware` and Laravel Policies (`JobPolicy`, `ApplicationPolicy`, `InterviewPolicy`, `TechnicalTaskPolicy`).
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 2. Job Management
+- Recruiters can publish and manage job openings.
+- Fields: `title`, `department`, `description`, `experience`, `salary_range`, `application_deadline`, `status` (`open`, `closed`, `draft`).
+- Many-to-many relationship with skills via `job_skills` distinguishing **mandatory** vs. **bonus** skills.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### 3. Resume Management & Queue Processing
+- Candidates can upload PDF resumes (`multipart/form-data`).
+- Resumes are stored securely in local/cloud storage.
+- Processed via Queue job (`ProcessResumeJob`).
+- `ResumeParserService` extracts email, phone, experience years, education, and matches skills against the skills database.
 
-## Agentic Development
+### 4. Candidate Scoring Engine
+- Implemented in `CandidateScoringService`:
+  - **Mandatory Skills Match (Up to 50 pts)**: Percentage of required mandatory job skills matched.
+  - **Bonus Skills Match (Up to 10 pts)**: Matches optional job bonus skills or extra applicant skills.
+  - **Experience Match (Up to 25 pts)**: Candidate experience years evaluated against job requirements.
+  - **Education Match (Up to 15 pts)**: Weighted scoring for PhD/Master/Bachelor/Diploma.
+  - **Total Score (0 – 100)**: Automatically calculated upon application and stored on the application record.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 5. Hiring Pipeline & Status History
+- Full lifecycle stages:
+  $$\text{Applied} \longrightarrow \text{Screening} \longrightarrow \text{Shortlisted} \longrightarrow \text{Interview} \longrightarrow \text{Technical Task} \longrightarrow \text{Hired / Rejected}$$
+- Every stage change automatically emits `ApplicationStatusChanged` event, creating an immutable audit log entry in `application_status_histories` and sending a notification to the candidate.
+
+### 6. Interview Scheduler with Conflict Validation
+- Recruiters can schedule interviews with `scheduled_at`, `interviewer_id`, and `meeting_link`.
+- `InterviewValidationService` enforces **Conflict Validation**:
+  - Prevents an interviewer from being double-booked within a 45-minute window.
+  - Prevents a candidate from having overlapping interviews.
+- Status management: `scheduled`, `completed`, `cancelled`, `rescheduled` with interviewer feedback.
+
+### 7. Technical Task Management
+- Recruiters assign coding tasks with titles, descriptions, and deadlines.
+- Task States: `Pending` $\to$ `In Progress` $\to$ `Submitted` $\to$ `Reviewed` $\to$ `Overdue`.
+- Candidate submits repository link, notes, or project files.
+- Emits `TaskSubmitted` event that notifies the recruiter.
+- Recruiter reviews and grades the submission with a numeric score (0–100) and written feedback.
+
+### 8. Deadline Automation & Scheduler
+- Automated command: `php artisan app:check-deadlines` (scheduled hourly).
+  - Automatically identifies passed deadlines and marks tasks as `Overdue`.
+  - Scans tasks due within the next 24 hours and dispatches `SendTaskDeadlineReminderJob` to queue in-app notifications.
+
+### 9. Dashboard Analytics APIs
+- Endpoint `GET /api/dashboard/analytics` returns:
+  - `total_jobs` & `active_jobs`
+  - `active_candidates` (candidates in active hiring stages)
+  - `interviews_this_week`
+  - `pipeline_distribution` (count per stage)
+  - `average_candidate_score`
+  - `pending_tasks` & `total_applications`
+
+---
+
+## 🗄 Database Design & Entities
+
+The system defines independent models and migrations for all 13 entities:
+1. `roles`
+2. `users`
+3. `skills`
+4. `jobs`
+5. `job_skills` (pivot with `is_mandatory` flag)
+6. `candidates`
+7. `resumes`
+8. `applications`
+9. `application_status_histories`
+10. `interviews`
+11. `technical_tasks`
+12. `task_submissions`
+13. `notifications`
+
+---
+
+## 🛠 Getting Started
+
+### Prerequisites
+- PHP 8.3 or 8.4
+- Composer 2.x
+- SQLite (default) or MySQL
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd Laravel_Hiring_Project
+   ```
+
+2. **Install Composer dependencies:**
+   ```bash
+   composer install
+   ```
+
+3. **Configure Environment:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+4. **Run Migrations & Seeders:**
+   ```bash
+   php artisan migrate:fresh --seed
+   ```
+
+5. **Start Local Development Server:**
+   ```bash
+   php artisan serve
+   ```
+   The API will be accessible at: `http://127.0.0.1:8000/api`
+
+---
+
+## 🔑 Default Seed Credentials
+
+All seed accounts use the password: `password`
+
+| Role | Email | Name |
+|---|---|---|
+| **Admin** | `admin@talentflow.test` | Sarah Connor |
+| **Recruiter** | `recruiter@talentflow.test` | Alex Miller |
+| **Recruiter 2** | `jane.recruiter@talentflow.test` | Jane Watson |
+| **Candidate 1** | `john.doe@talentflow.test` | John Doe |
+| **Candidate 2** | `alice.smith@talentflow.test` | Alice Smith |
+| **Candidate 3** | `bob.wilson@talentflow.test` | Bob Wilson |
+
+---
+
+## 🧪 Running Automated Tests
+
+Run the full test suite (25 feature tests, 90+ assertions):
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan test
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Test coverage includes:
+- `AuthTest`: Registration, login, Sanctum token issue, profile retrieval, logout.
+- `JobTest`: Public job listings, recruiter CRUD, role-based restriction.
+- `ResumeAndApplicationTest`: PDF resume upload, candidate application, scoring calculation, duplicate prevention, status history.
+- `InterviewTest`: Scheduling, double-booking conflict validation, completion, cancellation.
+- `TechnicalTaskTest`: Assignment, start, submission, recruiter review and grading.
+- `DashboardAndDeadlineTest`: Analytics calculation, overdue task updates, 24h reminder queue.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## ⏰ Running Deadline Automation Manually
 
-## Code of Conduct
+To manually trigger deadline checking and 24-hour reminder dispatch:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan app:check-deadlines
+```
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 📬 Postman Collection
 
-## License
+Import `TalentFlow_API.postman_collection.json` into Postman.
+- Pre-configured environment variables:
+  - `base_url`: `http://127.0.0.1:8000/api`
+  - `token`: automatically populated when running **Login (Recruiter)** or **Login (Candidate)**.
+- Organized folders covering all 38 REST endpoints.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+For detailed endpoint documentation and payloads, refer to [API_DOCUMENTATION.md](file:///Applications/MAMP/htdocs/Laravel_Hiring_Project/API_DOCUMENTATION.md).
