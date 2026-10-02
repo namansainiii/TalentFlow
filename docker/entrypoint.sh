@@ -70,9 +70,11 @@ if [ ! -f database/database.sqlite ]; then
 fi
 chmod -R 777 database storage bootstrap/cache
 
-# 7. Run database migrations
+# 7. Run database migrations & seed demo accounts
 echo "Running database migrations..."
 php artisan migrate --force || echo "Warning: Migrations encountered an issue. Continuing..."
+echo "Seeding initial roles, demo accounts, and jobs..."
+php artisan db:seed --force || echo "Notice: Seeding completed or skipped."
 
 # 8. Start the server on Render PORT
 PORT="${PORT:-10000}"
