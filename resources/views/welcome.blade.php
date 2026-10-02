@@ -963,6 +963,129 @@
             background: #eff6ff;
             border-color: #93c5fd;
         }
+
+        /* Modern Loading Popup Overlay */
+        .loading-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInOverlay 0.2s ease-out forwards;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .loading-popup-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 32px 36px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(226, 232, 240, 0.8);
+            animation: popInCard 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes popInCard {
+            from {
+                opacity: 0;
+                transform: scale(0.88) translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .loading-spinner-wrapper {
+            position: relative;
+            width: 68px;
+            height: 68px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-spinner-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 4px solid #e2e8f0;
+            border-top-color: #2563eb;
+            border-right-color: #3b82f6;
+            animation: spinRing 0.85s linear infinite;
+        }
+
+        @keyframes spinRing {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-spinner-core {
+            font-size: 1.5rem;
+            animation: pulseCore 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseCore {
+            0%, 100% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; }
+        }
+
+        .loading-popup-title {
+            font-size: 1.18rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+            letter-spacing: -0.01em;
+        }
+
+        .loading-popup-subtitle {
+            font-size: 0.86rem;
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.45;
+        }
+
+        .loading-progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #f1f5f9;
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loading-progress-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 40%;
+            background: linear-gradient(90deg, #2563eb, #38bdf8);
+            border-radius: 999px;
+            animation: progressSlide 1.2s ease-in-out infinite;
+        }
+
+        @keyframes progressSlide {
+            0% { left: -40%; width: 40%; }
+            50% { left: 30%; width: 50%; }
+            100% { left: 100%; width: 40%; }
+        }
     </style>
 </head>
 <body>
@@ -974,12 +1097,11 @@
             <!-- Hero Brand Banner -->
             <div class="gateway-hero">
                 <div class="gateway-brand">
-                    <span>⚡ TalentFlow</span>
-                    <span class="gateway-brand-badge">ATS & Recruitment Portal</span>
+                    <span>TalentFlow</span>
                 </div>
                 <h1 class="gateway-headline">Welcome! Choose your access portal</h1>
                 <p class="gateway-subtitle">
-                    Select how you want to enter: <strong>Recruiter</strong>, <strong>Candidate</strong>, or <strong>Administrator</strong>. You can sign in with pre-seeded demo accounts using Quick Fill, or register a new account.
+                    Select how you want to enter: <strong>Recruiter</strong>, <strong>Candidate</strong>, or <strong>Administrator</strong>. You can sign in with demo accounts using Quick Fill, or register a new account.
                 </p>
             </div>
 
@@ -1125,7 +1247,7 @@
 
                     <div class="gateway-card-body">
                         <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:10px 12px; font-size:0.8rem; color:#92400e; margin-bottom:16px; line-height:1.4;">
-                            🛡️ <strong>Admin Notice:</strong> Admin accounts are provisioned via system seeds. Self-registration is restricted for security.
+                            🛡️ Admin account is provided via system.
                         </div>
 
                         <div class="gateway-quick-fill-box">
@@ -1750,6 +1872,21 @@
         </div>
     </div>
 
+    <!-- Global Loading Popup Overlay -->
+    <div id="loadingPopupOverlay" class="loading-popup-overlay" style="display: none;">
+        <div class="loading-popup-card">
+            <div class="loading-spinner-wrapper">
+                <div class="loading-spinner-ring"></div>
+                <div class="loading-spinner-core">⚡</div>
+            </div>
+            <h3 id="loadingPopupTitle" class="loading-popup-title">Loading...</h3>
+            <p id="loadingPopupSubtitle" class="loading-popup-subtitle">Connecting to database & loading workspace...</p>
+            <div class="loading-progress-bar">
+                <div class="loading-progress-track"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Messages -->
     <div class="toast-box" id="toastBox"></div>
 
@@ -1765,19 +1902,39 @@
             candidates: []
         };
 
+        // Global Loading Popup Controller
+        function showLoading(title = 'Loading...', subtitle = 'Connecting to database & loading workspace...') {
+            const overlay = document.getElementById('loadingPopupOverlay');
+            const titleEl = document.getElementById('loadingPopupTitle');
+            const subEl = document.getElementById('loadingPopupSubtitle');
+            if (titleEl) titleEl.textContent = title;
+            if (subEl) subEl.textContent = subtitle;
+            if (overlay) overlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loadingPopupOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             // First Login Role Gateway is displayed by default immediately
             showAuthGateway();
 
             // Only resume previous workspace if user was actively in workspace and has valid token
             if (localStorage.getItem('tf_in_workspace') === 'true' && state.token) {
-                const valid = await checkUser();
-                if (valid) {
-                    showAppWorkspace();
-                    await reloadAll();
-                } else {
-                    localStorage.removeItem('tf_in_workspace');
-                    showAuthGateway();
+                showLoading('Loading Workspace...', 'Connecting to database & restoring session...');
+                try {
+                    const valid = await checkUser();
+                    if (valid) {
+                        showAppWorkspace();
+                        await reloadAll();
+                    } else {
+                        localStorage.removeItem('tf_in_workspace');
+                        showAuthGateway();
+                    }
+                } finally {
+                    hideLoading();
                 }
             }
         });
@@ -1856,6 +2013,7 @@
                 role: role
             };
 
+            showLoading('Creating Account...', 'Registering profile & connecting to database...');
             try {
                 const res = await fetch('/api/auth/register', {
                     method: 'POST',
@@ -1878,6 +2036,8 @@
                 }
             } catch (err) {
                 showToast('Registration error', 'error');
+            } finally {
+                hideLoading();
             }
         }
 
@@ -1944,6 +2104,7 @@
         }
 
         async function performLogin(email, password) {
+            showLoading('Signing In...', 'Verifying credentials & loading workspace...');
             try {
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
@@ -1967,6 +2128,8 @@
                 }
             } catch (err) {
                 showToast('Authentication connection error', 'error');
+            } finally {
+                hideLoading();
             }
         }
 
@@ -1981,6 +2144,7 @@
                 role: role
             };
 
+            showLoading('Creating Account...', 'Registering profile & connecting to database...');
             try {
                 const res = await fetch('/api/auth/register', {
                     method: 'POST',
@@ -2004,6 +2168,8 @@
                 }
             } catch (err) {
                 showToast('Registration error', 'error');
+            } finally {
+                hideLoading();
             }
         }
 
