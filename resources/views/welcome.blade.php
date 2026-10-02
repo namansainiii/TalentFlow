@@ -1037,7 +1037,7 @@
 <body>
 
     <!-- AUTHENTICATION GATEWAY SCREEN (Initial Landing Screen) -->
-    <div id="authGatewayScreen" class="auth-gateway-screen" style="display:none;">
+    <div id="authGatewayScreen" class="auth-gateway-screen">
         <div class="gateway-container">
             
             <!-- Hero Brand Banner -->
@@ -1857,16 +1857,20 @@
         };
 
         document.addEventListener('DOMContentLoaded', async () => {
-            if (state.token) {
+            // First Login Role Gateway is displayed by default immediately
+            showAuthGateway();
+
+            // Only resume previous workspace if user was actively in workspace and has valid token
+            if (localStorage.getItem('tf_in_workspace') === 'true' && state.token) {
                 const valid = await checkUser();
                 if (valid) {
                     showAppWorkspace();
                     await reloadAll();
-                    return;
+                } else {
+                    localStorage.removeItem('tf_in_workspace');
+                    showAuthGateway();
                 }
             }
-            // By default, display the first login screen (Role Gateway)
-            showAuthGateway();
         });
 
         // Gateway Screen & Workspace Visibility
@@ -1964,6 +1968,7 @@
                     state.token = data.token;
                     state.currentUser = data.user;
                     localStorage.setItem('tf_token', data.token);
+                    localStorage.setItem('tf_in_workspace', 'true');
                     showToast(`Registration successful! Welcome ${data.user.name}`, 'success');
                     showAppWorkspace();
                     updateRoleUI();
@@ -2051,6 +2056,7 @@
                     state.token = data.token;
                     state.currentUser = data.user;
                     localStorage.setItem('tf_token', data.token);
+                    localStorage.setItem('tf_in_workspace', 'true');
                     showToast(`Logged in as ${data.user.name} (${data.user.role?.name || 'user'})`, 'success');
                     closeModal('modalAuth');
                     showAppWorkspace();
@@ -2087,6 +2093,7 @@
                     state.token = data.token;
                     state.currentUser = data.user;
                     localStorage.setItem('tf_token', data.token);
+                    localStorage.setItem('tf_in_workspace', 'true');
                     showToast(`Registration successful! Welcome ${data.user.name}`, 'success');
                     closeModal('modalAuth');
                     showAppWorkspace();
@@ -2156,6 +2163,7 @@
             state.token = '';
             state.currentUser = null;
             localStorage.removeItem('tf_token');
+            localStorage.removeItem('tf_in_workspace');
             updateRoleUI();
             showToast('Logged out successfully', 'success');
             showAuthGateway();
