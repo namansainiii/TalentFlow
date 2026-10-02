@@ -9,7 +9,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Instant check to avoid gateway flash and optimize LCP
+        if (localStorage.getItem('tf_in_workspace') === 'true' && localStorage.getItem('tf_token')) {
+            document.documentElement.classList.add('in-workspace');
+        }
+    </script>
     <style>
+        html.in-workspace #authGatewayScreen {
+            display: none !important;
+        }
+        html.in-workspace #appWorkspace {
+            display: flex !important;
+        }
+
         :root {
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
@@ -1918,29 +1931,24 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // First Login Role Gateway is displayed by default immediately
-            showAuthGateway();
-
-            // Only resume previous workspace if user was actively in workspace and has valid token
             if (localStorage.getItem('tf_in_workspace') === 'true' && state.token) {
+                showAppWorkspace();
                 showLoading('Loading Workspace...', 'Connecting to database & restoring session...');
                 try {
-                    const valid = await checkUser();
-                    if (valid) {
-                        showAppWorkspace();
-                        await reloadAll();
-                    } else {
-                        localStorage.removeItem('tf_in_workspace');
-                        showAuthGateway();
-                    }
+                    await reloadAll();
+                } catch (e) {
+                    console.error(e);
                 } finally {
                     hideLoading();
                 }
+            } else {
+                showAuthGateway();
             }
         });
 
         // Gateway Screen & Workspace Visibility
         function showAuthGateway() {
+            document.documentElement.classList.remove('in-workspace');
             const gateway = document.getElementById('authGatewayScreen');
             const workspace = document.getElementById('appWorkspace');
             if (gateway) gateway.style.display = 'flex';
@@ -1949,6 +1957,7 @@
         }
 
         function showAppWorkspace() {
+            document.documentElement.classList.add('in-workspace');
             const gateway = document.getElementById('authGatewayScreen');
             const workspace = document.getElementById('appWorkspace');
             if (gateway) gateway.style.display = 'none';
@@ -2258,11 +2267,66 @@
             if (!(options.body instanceof FormData) && !headers['Content-Type']) {
                 headers['Content-Type'] = 'application/json';
             }
-            return fetch(path, { ...options, headers });
+            const res = await fetch(path, { ...options, headers });
+            if (res.status === 401 && state.token) {
+                // Token expired or invalid
+                localStorage.removeItem('tf_token');
+                localStorage.removeItem('tf_in_workspace');
+                state.token = '';
+                state.currentUser = null;
+                showAuthGateway();
+            }
+            return res;
         }
 
-        // Reload Data
+        // Unified High-Speed Workspace Reload
         async function reloadAll() {
+            try {
+                const res = await api('/api/workspace/bootstrap');
+                if (res.ok) {
+                    const data = await res.json();
+
+                    if (data.user) {
+                        state.currentUser = data.user;
+                        updateRoleUI();
+                    }
+
+                    if (data.analytics) {
+                        renderAnalytics(data.analytics);
+                    }
+
+                    if (data.jobs) {
+                        state.jobs = data.jobs;
+                        renderJobs(data.jobs);
+                    }
+
+                    if (data.applications) {
+                        state.applications = data.applications;
+                        renderPipeline(data.applications);
+                        populateSelects(data.applications);
+                    }
+
+                    if (data.interviews) {
+                        state.interviews = data.interviews;
+                        renderInterviews(data.interviews);
+                    }
+
+                    if (data.tasks) {
+                        state.tasks = data.tasks;
+                        renderTasks(data.tasks);
+                    }
+
+                    if (data.candidates) {
+                        state.candidates = data.candidates;
+                        renderCandidates(data.candidates);
+                    }
+                    return;
+                }
+            } catch (err) {
+                console.warn('Bootstrap endpoint unavailable, falling back:', err);
+            }
+
+            // Fallback to individual requests if needed
             await Promise.all([
                 loadAnalytics(),
                 loadJobs(),
@@ -2273,38 +2337,50 @@
             ]);
         }
 
-        // 1. Analytics
+        function renderAnalytics(analytics) {
+            if (!analytics) return;
+            const sj = document.getElementById('statJobs');
+            const saj = document.getElementById('statActiveJobs');
+            const sc = document.getElementById('statCandidates');
+            const si = document.getElementById('statInterviews');
+            const sa = document.getElementById('statAvgScore');
+            if (sj) sj.textContent = analytics.total_jobs ?? 0;
+            if (saj) saj.textContent = `${analytics.active_jobs ?? 0} open positions`;
+            if (sc) sc.textContent = analytics.active_candidates ?? 0;
+            if (si) si.textContent = analytics.interviews_this_week ?? 0;
+            if (sa) sa.textContent = `${analytics.average_candidate_score ?? 0}%`;
+
+            const container = document.getElementById('funnelContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            const total = Math.max(1, analytics.total_applications || 1);
+
+            if (analytics.pipeline_distribution) {
+                for (const [stage, count] of Object.entries(analytics.pipeline_distribution)) {
+                    const pct = Math.round((count / total) * 100);
+                    const row = document.createElement('div');
+                    row.className = 'funnel-row';
+                    row.innerHTML = `
+                        <div class="funnel-info">
+                            <span>${stage}</span>
+                            <span style="color:var(--text-muted);">${count} (${pct}%)</span>
+                        </div>
+                        <div class="funnel-track">
+                            <div class="funnel-fill" style="width: ${Math.max(4, pct)}%;"></div>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                }
+            }
+        }
+
+        // 1. Analytics (Individual Fallback)
         async function loadAnalytics() {
             try {
                 const res = await api('/api/dashboard/analytics');
                 if (res.ok) {
                     const { analytics } = await res.json();
-                    document.getElementById('statJobs').textContent = analytics.total_jobs;
-                    document.getElementById('statActiveJobs').textContent = `${analytics.active_jobs} open positions`;
-                    document.getElementById('statCandidates').textContent = analytics.active_candidates;
-                    document.getElementById('statInterviews').textContent = analytics.interviews_this_week;
-                    document.getElementById('statAvgScore').textContent = `${analytics.average_candidate_score}%`;
-
-                    // Render funnel
-                    const container = document.getElementById('funnelContainer');
-                    container.innerHTML = '';
-                    const total = Math.max(1, analytics.total_applications);
-
-                    for (const [stage, count] of Object.entries(analytics.pipeline_distribution)) {
-                        const pct = Math.round((count / total) * 100);
-                        const row = document.createElement('div');
-                        row.className = 'funnel-row';
-                        row.innerHTML = `
-                            <div class="funnel-info">
-                                <span>${stage}</span>
-                                <span style="color:var(--text-muted);">${count} (${pct}%)</span>
-                            </div>
-                            <div class="funnel-track">
-                                <div class="funnel-fill" style="width: ${Math.max(4, pct)}%;"></div>
-                            </div>
-                        `;
-                        container.appendChild(row);
-                    }
+                    renderAnalytics(analytics);
                 }
             } catch (e) {
                 console.error(e);

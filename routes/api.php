@@ -10,6 +10,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\TechnicalTaskController;
+use App\Http\Controllers\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +32,9 @@ Route::get('/skills', [SkillController::class, 'index']);
 
 // Protected Routes (Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
+
+    // High-speed workspace bootstrap
+    Route::get('/workspace/bootstrap', [WorkspaceController::class, 'bootstrap']);
 
     // Auth endpoints
     Route::prefix('auth')->group(function () {
