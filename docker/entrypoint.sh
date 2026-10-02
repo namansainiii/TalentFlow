@@ -9,37 +9,72 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-# 2. Ensure APP_KEY exists
-if [ -n "$APP_KEY" ]; then
-    echo "APP_KEY provided via environment."
-    # Write the environment APP_KEY into .env as well so artisan commands and web server have it
-    sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env || true
+# 2. Sync all Render environment variables into .env so php artisan serve child process has them
+echo "Syncing environment variables into .env..."
+php -r '
+$env = [];
+if (file_exists(".env")) {
+    $lines = file(".env", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $trimmed = trim($line);
+        if (str_starts_with($trimmed, "#") || !str_contains($line, "=")) continue;
+        [$k, $v] = explode("=", $line, 2);
+        $env[trim($k)] = trim($v);
+    }
+}
+
+// Ingest environment variables passed by Render
+foreach (array_merge($_ENV, $_SERVER) as $k => $v) {
+    if (is_string($v) && (
+        str_starts_with($k, "APP_") ||
+        str_starts_with($k, "DB_") ||
+        str_starts_with($k, "DATABASE_") ||
+        str_starts_with($k, "SESSION_") ||
+        str_starts_with($k, "CACHE_") ||
+        str_starts_with($k, "QUEUE_") ||
+        str_starts_with($k, "MAIL_") ||
+        str_starts_with($k, "LOG_")
+    )) {
+        $env[$k] = $v;
+    }
+}
+
+$output = "";
+foreach ($env as $k => $v) {
+    $output .= "{$k}={$v}\n";
+}
+file_put_contents(".env", $output);
+'
+
+# 3. Ensure APP_KEY exists in .env
+CURRENT_KEY=$(grep -E "^APP_KEY=" .env | cut -d '=' -f2-)
+if [ -z "$CURRENT_KEY" ]; then
+    echo "Generating missing APP_KEY..."
+    php artisan key:generate --force
 else
-    # Check if .env has a key, otherwise generate one
-    CURRENT_KEY=$(grep -E "^APP_KEY=" .env | cut -d '=' -f2-)
-    if [ -z "$CURRENT_KEY" ]; then
-        echo "No APP_KEY found. Generating application key..."
-        php artisan key:generate --force
-    else
-        echo "Found existing APP_KEY in .env."
-    fi
+    echo "APP_KEY is present."
 fi
 
-# 3. Create storage link
+# 4. Clear any stale caches
+php artisan config:clear || true
+php artisan cache:clear || true
+php artisan view:clear || true
+
+# 5. Create storage link
 php artisan storage:link || true
 
-# 4. Prepare SQLite fallback if used
+# 6. Prepare SQLite fallback if used
 mkdir -p database
 if [ ! -f database/database.sqlite ]; then
     touch database/database.sqlite
 fi
 chmod -R 777 database storage bootstrap/cache
 
-# 5. Run database migrations
+# 7. Run database migrations
 echo "Running database migrations..."
 php artisan migrate --force || echo "Warning: Migrations encountered an issue. Continuing..."
 
-# 6. Start the PHP server on the assigned PORT
+# 8. Start the server on Render PORT
 PORT="${PORT:-10000}"
 echo "=== Starting server on 0.0.0.0:${PORT} ==="
 exec php artisan serve --host=0.0.0.0 --port="${PORT}"
