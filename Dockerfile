@@ -18,7 +18,7 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 RUN mkdir -p storage/framework/{sessions,views,cache} database \
-    && chmod -R 775 storage bootstrap/cache
+    && chmod -R 777 storage bootstrap/cache database
 
 EXPOSE 10000
 

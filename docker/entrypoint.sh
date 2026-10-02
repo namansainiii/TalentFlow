@@ -33,10 +33,11 @@ mkdir -p database
 if [ ! -f database/database.sqlite ]; then
     touch database/database.sqlite
 fi
+chmod -R 777 database storage bootstrap/cache
 
-# 5. Run database migrations (non-blocking if DB is temporarily unreachable)
+# 5. Run database migrations
 echo "Running database migrations..."
-php artisan migrate --force || echo "Warning: Migrations failed or database not reachable yet. Continuing startup..."
+php artisan migrate --force || echo "Warning: Migrations encountered an issue. Continuing..."
 
 # 6. Start the PHP server on the assigned PORT
 PORT="${PORT:-10000}"
