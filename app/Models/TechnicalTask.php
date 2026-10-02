@@ -13,9 +13,13 @@ class TechnicalTask extends Model
     use HasFactory;
 
     public const STATUS_PENDING = 'Pending';
+
     public const STATUS_IN_PROGRESS = 'In Progress';
+
     public const STATUS_SUBMITTED = 'Submitted';
+
     public const STATUS_REVIEWED = 'Reviewed';
+
     public const STATUS_OVERDUE = 'Overdue';
 
     public static array $statuses = [

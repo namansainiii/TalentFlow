@@ -12,6 +12,7 @@ class TaskSubmittedNotification extends Notification
     use Queueable;
 
     public TechnicalTask $task;
+
     public TaskSubmission $submission;
 
     public function __construct(TechnicalTask $task, TaskSubmission $submission)
@@ -34,7 +35,7 @@ class TaskSubmittedNotification extends Notification
             'task_id' => $this->task->id,
             'submission_id' => $this->submission->id,
             'title' => 'Technical Task Submitted',
-            'message' => $candidateName . ' has submitted the task "' . $this->task->title . '". Ready for review.',
+            'message' => $candidateName.' has submitted the task "'.$this->task->title.'". Ready for review.',
             'repository_url' => $this->submission->repository_url,
             'submitted_at' => $this->submission->submitted_at->toISOString(),
         ];

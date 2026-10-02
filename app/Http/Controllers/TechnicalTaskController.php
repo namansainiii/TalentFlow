@@ -26,7 +26,7 @@ class TechnicalTaskController extends Controller
         $query = TechnicalTask::with(['assignedByUser', 'submissions', 'latestSubmission', 'application.candidate', 'application.job']);
 
         // Candidate can only view their tasks
-        if ($user->isCandidate() && !$user->isRecruiter()) {
+        if ($user->isCandidate() && ! $user->isRecruiter()) {
             if ($user->candidate) {
                 $query->whereHas('application', function ($q) use ($user) {
                     $q->where('candidate_id', $user->candidate->id);
@@ -74,8 +74,17 @@ class TechnicalTaskController extends Controller
     /**
      * View task details.
      */
-    public function show(TechnicalTask $task): JsonResponse
+    public function show(Request $request, TechnicalTask $task): JsonResponse
     {
+        $user = $request->user();
+        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
+            if (! $user->candidate || $user->candidate->id !== $task->application?->candidate_id) {
+                return response()->json([
+                    'message' => 'Forbidden: You do not have access to this task.',
+                ], 403);
+            }
+        }
+
         $task->load(['assignedByUser', 'submissions', 'latestSubmission', 'application.candidate', 'application.job']);
 
         return response()->json([
@@ -86,8 +95,17 @@ class TechnicalTaskController extends Controller
     /**
      * Candidate marks task as In Progress.
      */
-    public function start(TechnicalTask $task): JsonResponse
+    public function start(Request $request, TechnicalTask $task): JsonResponse
     {
+        $user = $request->user();
+        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
+            if (! $user->candidate || $user->candidate->id !== $task->application?->candidate_id) {
+                return response()->json([
+                    'message' => 'Forbidden: You do not have access to this task.',
+                ], 403);
+            }
+        }
+
         if ($task->status === TechnicalTask::STATUS_PENDING) {
             $task->update([
                 'status' => TechnicalTask::STATUS_IN_PROGRESS,
@@ -105,6 +123,15 @@ class TechnicalTaskController extends Controller
      */
     public function submit(SubmitTechnicalTaskRequest $request, TechnicalTask $task): JsonResponse
     {
+        $user = $request->user();
+        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
+            if (! $user->candidate || $user->candidate->id !== $task->application?->candidate_id) {
+                return response()->json([
+                    'message' => 'Forbidden: You do not have access to this task.',
+                ], 403);
+            }
+        }
+
         $filePath = null;
         if ($request->hasFile('file')) {
             $filePath = $request->file('file')->store('task_submissions', 'local');
@@ -139,7 +166,7 @@ class TechnicalTaskController extends Controller
     {
         $submission = $task->latestSubmission;
 
-        if (!$submission) {
+        if (! $submission) {
             return response()->json([
                 'message' => 'No submission found for this task yet.',
             ], 422);

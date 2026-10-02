@@ -12,11 +12,17 @@ class Application extends Model
     use HasFactory;
 
     public const STATUS_APPLIED = 'Applied';
+
     public const STATUS_SCREENING = 'Screening';
+
     public const STATUS_SHORTLISTED = 'Shortlisted';
+
     public const STATUS_INTERVIEW = 'Interview';
+
     public const STATUS_TECHNICAL_TASK = 'Technical Task';
+
     public const STATUS_HIRED = 'Hired';
+
     public const STATUS_REJECTED = 'Rejected';
 
     public static array $statuses = [

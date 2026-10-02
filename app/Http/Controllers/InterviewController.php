@@ -24,7 +24,7 @@ class InterviewController extends Controller
         $query = Interview::with(['interviewer', 'application.candidate', 'application.job']);
 
         // Candidate can only view their interviews
-        if ($user->isCandidate() && !$user->isRecruiter()) {
+        if ($user->isCandidate() && ! $user->isRecruiter()) {
             if ($user->candidate) {
                 $query->whereHas('application', function ($q) use ($user) {
                     $q->where('candidate_id', $user->candidate->id);
@@ -94,8 +94,17 @@ class InterviewController extends Controller
     /**
      * Show interview details.
      */
-    public function show(Interview $interview): JsonResponse
+    public function show(Request $request, Interview $interview): JsonResponse
     {
+        $user = $request->user();
+        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
+            if (! $user->candidate || $user->candidate->id !== $interview->application?->candidate_id) {
+                return response()->json([
+                    'message' => 'Forbidden: You do not have access to this interview.',
+                ], 403);
+            }
+        }
+
         $interview->load(['interviewer', 'application.candidate', 'application.job']);
 
         return response()->json([

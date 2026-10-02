@@ -13,6 +13,7 @@ class TaskSubmitted
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public TechnicalTask $task;
+
     public TaskSubmission $submission;
 
     public function __construct(TechnicalTask $task, TaskSubmission $submission)

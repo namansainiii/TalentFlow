@@ -19,8 +19,11 @@ class ResumeAndApplicationTest extends TestCase
     use RefreshDatabase;
 
     protected User $recruiter;
+
     protected User $candidateUser;
+
     protected Candidate $candidate;
+
     protected Job $job;
 
     protected function setUp(): void
@@ -181,5 +184,54 @@ class ResumeAndApplicationTest extends TestCase
 
         $historyResponse->assertStatus(200)
             ->assertJsonCount(2, 'histories');
+    }
+
+    public function test_candidate_cannot_view_another_candidates_application_or_resume(): void
+    {
+        $otherCandidateRole = Role::where('name', 'candidate')->first();
+        $otherUser = User::create([
+            'role_id' => $otherCandidateRole->id,
+            'name' => 'Other Person',
+            'email' => 'other@candidate.com',
+            'password' => 'secret123',
+        ]);
+        $otherCandidate = Candidate::create([
+            'user_id' => $otherUser->id,
+            'name' => 'Other Person',
+            'email' => 'other@candidate.com',
+        ]);
+        $otherResume = Resume::create([
+            'candidate_id' => $otherCandidate->id,
+            'file_path' => 'resumes/other.pdf',
+            'file_name' => 'other.pdf',
+            'file_size' => 100,
+            'status' => 'uploaded',
+        ]);
+        $otherApplication = Application::create([
+            'job_id' => $this->job->id,
+            'candidate_id' => $otherCandidate->id,
+            'resume_id' => $otherResume->id,
+            'status' => 'Applied',
+            'skill_score' => 70.0,
+        ]);
+
+        // Attempt viewing other candidate's application
+        $appResponse = $this->actingAs($this->candidateUser, 'sanctum')
+            ->getJson("/api/applications/{$otherApplication->id}");
+        $appResponse->assertStatus(403);
+
+        // Attempt viewing other candidate's resume
+        $resumeResponse = $this->actingAs($this->candidateUser, 'sanctum')
+            ->getJson("/api/resumes/{$otherResume->id}");
+        $resumeResponse->assertStatus(403);
+
+        // Recruiter can view both without restriction
+        $recruiterAppResponse = $this->actingAs($this->recruiter, 'sanctum')
+            ->getJson("/api/applications/{$otherApplication->id}");
+        $recruiterAppResponse->assertStatus(200);
+
+        $recruiterResumeResponse = $this->actingAs($this->recruiter, 'sanctum')
+            ->getJson("/api/resumes/{$otherResume->id}");
+        $recruiterResumeResponse->assertStatus(200);
     }
 }

@@ -57,7 +57,7 @@ class ApplicationController extends Controller
         if ($request->filled('skills_summary')) {
             $candidateUpdates['skills_summary'] = $request->skills_summary;
         }
-        if (!empty($candidateUpdates)) {
+        if (! empty($candidateUpdates)) {
             $candidate->update($candidateUpdates);
         }
 
@@ -89,7 +89,7 @@ class ApplicationController extends Controller
             // Parse immediately to extract details
             $parser->parseResume($newResume);
             $resumeId = $newResume->id;
-        } elseif (!$resumeId && $candidate->latestResume) {
+        } elseif (! $resumeId && $candidate->latestResume) {
             $resumeId = $candidate->latestResume->id;
         }
 
@@ -129,7 +129,7 @@ class ApplicationController extends Controller
         $query = Application::with(['job', 'candidate', 'resume']);
 
         // Candidates only see their own applications
-        if ($user->isCandidate() && !$user->isRecruiter()) {
+        if ($user->isCandidate() && ! $user->isRecruiter()) {
             if ($user->candidate) {
                 $query->where('candidate_id', $user->candidate->id);
             } else {
@@ -157,8 +157,17 @@ class ApplicationController extends Controller
     /**
      * View application details.
      */
-    public function show(Application $application): JsonResponse
+    public function show(Request $request, Application $application): JsonResponse
     {
+        $user = $request->user();
+        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
+            if (! $user->candidate || $user->candidate->id !== $application->candidate_id) {
+                return response()->json([
+                    'message' => 'Forbidden: You do not have access to this application.',
+                ], 403);
+            }
+        }
+
         $application->load([
             'job',
             'candidate',

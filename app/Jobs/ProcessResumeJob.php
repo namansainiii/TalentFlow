@@ -46,7 +46,7 @@ class ProcessResumeJob implements ShouldQueue
                 }
             }
         } catch (\Throwable $e) {
-            Log::error('Resume parsing failed: ' . $e->getMessage(), ['resume_id' => $this->resume->id]);
+            Log::error('Resume parsing failed: '.$e->getMessage(), ['resume_id' => $this->resume->id]);
             $this->resume->update(['status' => 'failed']);
         }
     }

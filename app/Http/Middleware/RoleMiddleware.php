@@ -15,7 +15,7 @@ class RoleMiddleware
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
@@ -26,7 +26,7 @@ class RoleMiddleware
 
         $userRole = $user->role?->name;
 
-        if (!in_array($userRole, $roles)) {
+        if (! in_array($userRole, $roles)) {
             return response()->json([
                 'message' => 'Forbidden: You do not have the required role to perform this action.',
             ], 403);

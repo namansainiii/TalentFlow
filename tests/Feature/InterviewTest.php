@@ -17,7 +17,9 @@ class InterviewTest extends TestCase
     use RefreshDatabase;
 
     protected User $recruiter;
+
     protected User $candidateUser;
+
     protected Application $application;
 
     protected function setUp(): void
@@ -154,5 +156,40 @@ class InterviewTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonPath('interview.status', 'cancelled');
+    }
+
+    public function test_candidate_cannot_view_another_candidates_interview(): void
+    {
+        $otherRole = Role::where('name', 'candidate')->first();
+        $otherUser = User::create([
+            'role_id' => $otherRole->id,
+            'name' => 'Stranger Candidate',
+            'email' => 'stranger@test.com',
+            'password' => 'secret123',
+        ]);
+        $otherCandidate = Candidate::create([
+            'user_id' => $otherUser->id,
+            'name' => 'Stranger Candidate',
+            'email' => 'stranger@test.com',
+        ]);
+        $job = Job::first();
+        $otherApp = Application::create([
+            'job_id' => $job->id,
+            'candidate_id' => $otherCandidate->id,
+            'status' => 'Interview',
+            'skill_score' => 80.0,
+        ]);
+        $otherInterview = Interview::create([
+            'application_id' => $otherApp->id,
+            'interviewer_id' => $this->recruiter->id,
+            'scheduled_at' => Carbon::tomorrow()->setTime(11, 0),
+            'meeting_link' => 'https://meet.google.com/private',
+            'status' => 'scheduled',
+        ]);
+
+        $response = $this->actingAs($this->candidateUser, 'sanctum')
+            ->getJson("/api/interviews/{$otherInterview->id}");
+
+        $response->assertStatus(403);
     }
 }

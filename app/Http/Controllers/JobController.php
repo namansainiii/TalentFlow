@@ -35,8 +35,8 @@ class JobController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('department', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('department', 'like', "%{$search}%");
             });
         }
 
@@ -63,23 +63,12 @@ class JobController extends Controller
             'status' => $request->status ?? 'open',
         ]);
 
-        // Attach mandatory skills
-        if ($request->filled('mandatory_skills')) {
-            foreach ($request->mandatory_skills as $skillName) {
-                $skill = Skill::firstOrCreate(['name' => trim($skillName)]);
-                $job->skills()->attach($skill->id, ['is_mandatory' => true]);
-            }
-        }
-
-        // Attach bonus skills
-        if ($request->filled('bonus_skills')) {
-            foreach ($request->bonus_skills as $skillName) {
-                $skill = Skill::firstOrCreate(['name' => trim($skillName)]);
-                // Only attach if not already mandatory
-                if (!$job->skills()->where('skill_id', $skill->id)->exists()) {
-                    $job->skills()->attach($skill->id, ['is_mandatory' => false]);
-                }
-            }
+        if ($request->filled('mandatory_skills') || $request->filled('bonus_skills')) {
+            $this->syncSkills(
+                $job,
+                $request->input('mandatory_skills', []),
+                $request->input('bonus_skills', [])
+            );
         }
 
         return response()->json([
@@ -116,31 +105,45 @@ class JobController extends Controller
         ]));
 
         if ($request->has('mandatory_skills') || $request->has('bonus_skills')) {
-            $syncData = [];
-
-            if ($request->filled('mandatory_skills')) {
-                foreach ($request->mandatory_skills as $skillName) {
-                    $skill = Skill::firstOrCreate(['name' => trim($skillName)]);
-                    $syncData[$skill->id] = ['is_mandatory' => true];
-                }
-            }
-
-            if ($request->filled('bonus_skills')) {
-                foreach ($request->bonus_skills as $skillName) {
-                    $skill = Skill::firstOrCreate(['name' => trim($skillName)]);
-                    if (!isset($syncData[$skill->id])) {
-                        $syncData[$skill->id] = ['is_mandatory' => false];
-                    }
-                }
-            }
-
-            $job->skills()->sync($syncData);
+            $this->syncSkills(
+                $job,
+                $request->input('mandatory_skills', []),
+                $request->input('bonus_skills', [])
+            );
         }
 
         return response()->json([
             'message' => 'Job updated successfully',
             'job' => new JobResource($job->load(['recruiter', 'skills'])),
         ]);
+    }
+
+    /**
+     * Sync mandatory and bonus skills to a job.
+     */
+    private function syncSkills(Job $job, array $mandatorySkills = [], array $bonusSkills = []): void
+    {
+        $syncData = [];
+
+        foreach ($mandatorySkills as $skillName) {
+            $name = trim($skillName);
+            if ($name !== '') {
+                $skill = Skill::firstOrCreate(['name' => $name]);
+                $syncData[$skill->id] = ['is_mandatory' => true];
+            }
+        }
+
+        foreach ($bonusSkills as $skillName) {
+            $name = trim($skillName);
+            if ($name !== '') {
+                $skill = Skill::firstOrCreate(['name' => $name]);
+                if (! isset($syncData[$skill->id])) {
+                    $syncData[$skill->id] = ['is_mandatory' => false];
+                }
+            }
+        }
+
+        $job->skills()->sync($syncData);
     }
 
     /**

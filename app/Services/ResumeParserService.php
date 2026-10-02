@@ -19,7 +19,7 @@ class ResumeParserService
         $text = '';
         if (file_exists($filePath)) {
             try {
-                $parser = new Parser();
+                $parser = new Parser;
                 $pdf = $parser->parseFile($filePath);
                 $text = $pdf->getText();
             } catch (\Throwable $e) {
@@ -41,19 +41,19 @@ class ResumeParserService
         $candidate = $resume->candidate;
         if ($candidate) {
             $updates = [];
-            if (empty($candidate->phone) && !empty($extractedData['phone'])) {
+            if (empty($candidate->phone) && ! empty($extractedData['phone'])) {
                 $updates['phone'] = $extractedData['phone'];
             }
-            if ($candidate->experience_years == 0 && !empty($extractedData['experience_years'])) {
+            if ($candidate->experience_years == 0 && ! empty($extractedData['experience_years'])) {
                 $updates['experience_years'] = $extractedData['experience_years'];
             }
-            if (empty($candidate->education) && !empty($extractedData['education'])) {
+            if (empty($candidate->education) && ! empty($extractedData['education'])) {
                 $updates['education'] = $extractedData['education'];
             }
-            if (!empty($extractedData['skills'])) {
+            if (! empty($extractedData['skills'])) {
                 $updates['skills_summary'] = implode(', ', $extractedData['skills']);
             }
-            if (!empty($updates)) {
+            if (! empty($updates)) {
                 $candidate->update($updates);
             }
         }
@@ -96,7 +96,7 @@ class ResumeParserService
         foreach ($skills as $skill) {
             // Case-insensitive word boundary match
             $escaped = preg_quote($skill, '/');
-            if (preg_match('/\b' . $escaped . '\b/i', $text)) {
+            if (preg_match('/\b'.$escaped.'\b/i', $text)) {
                 $foundSkills[] = $skill;
             }
         }

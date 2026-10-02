@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Job;
 use App\Models\Role;
-use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,6 +13,7 @@ class JobTest extends TestCase
     use RefreshDatabase;
 
     protected User $recruiter;
+
     protected User $candidate;
 
     protected function setUp(): void

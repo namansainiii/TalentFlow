@@ -13,129 +13,75 @@ use App\Models\Candidate;
 use App\Models\Interview;
 use App\Models\Job;
 use App\Models\TechnicalTask;
+use App\Services\AnalyticsService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
 class WorkspaceController extends Controller
 {
     /**
-     * High-speed unified bootstrap endpoint for workspace.
-     * Caches the raw JSON response to achieve sub-10ms delivery on cached reads.
+     * Bootstrap workspace data for the authenticated user.
      */
-    public function bootstrap(Request $request): Response
+    public function bootstrap(Request $request, AnalyticsService $analyticsService): JsonResponse
     {
-        $user = $request->user()->loadMissing('role', 'candidate');
-        $cacheKey = "workspace_raw_json_{$user->id}";
+        $user = $request->user()->loadMissing(['role', 'candidate']);
+        $isCandidate = $user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin();
+        $candidateId = $user->candidate?->id ?? 0;
 
+        $cacheKey = "workspace_bootstrap_{$user->id}";
         if ($request->boolean('fresh')) {
             Cache::forget($cacheKey);
         }
 
-        $json = Cache::remember($cacheKey, 60, function () use ($user) {
-            $isCandidate = $user->isCandidate() && !$user->isRecruiter() && !$user->isAdmin();
-            $candidateId = $user->candidate?->id;
+        $data = Cache::remember($cacheKey, 15, function () use ($user, $isCandidate, $candidateId, $analyticsService) {
+            // 1. Jobs
+            $jobs = Job::with(['skills', 'recruiter.role'])
+                ->withCount('applications')
+                ->latest()
+                ->get();
 
-            // 1. Fetch core models with direct relations
-            $jobs = Job::with(['skills', 'recruiter.role'])->latest()->get();
-            $jobsById = $jobs->keyBy('id');
-
-            $candidatesQuery = Candidate::with('latestResume');
-            if ($isCandidate && $candidateId) {
+            // 2. Candidates
+            $candidatesQuery = Candidate::with(['latestResume', 'applications.job']);
+            if ($isCandidate) {
                 $candidatesQuery->where('id', $candidateId);
             }
             $candidates = $candidatesQuery->latest()->get();
-            $candidatesById = $candidates->keyBy('id');
 
-            // 2. Applications
-            $appsQuery = Application::with('resume');
+            // 3. Applications
+            $appsQuery = Application::with([
+                'job.skills',
+                'candidate',
+                'resume',
+            ]);
             if ($isCandidate) {
-                $appsQuery->where('candidate_id', $candidateId ?? 0);
+                $appsQuery->where('candidate_id', $candidateId);
             }
             $applications = $appsQuery->latest()->get();
-            $appsById = $applications->keyBy('id');
 
-            // Link in memory (0 DB roundtrips)
-            foreach ($applications as $app) {
-                if ($j = $jobsById->get($app->job_id)) {
-                    $app->setRelation('job', $j);
-                }
-                if ($c = $candidatesById->get($app->candidate_id)) {
-                    $app->setRelation('candidate', $c);
-                }
-            }
-
-            // 3. Interviews
-            $intQuery = Interview::with('interviewer.role');
+            // 4. Interviews
+            $intQuery = Interview::with(['interviewer.role', 'application.candidate', 'application.job']);
             if ($isCandidate) {
-                $candidateAppIds = $applications->pluck('id')->all();
-                $intQuery->whereIn('application_id', $candidateAppIds ?: [0]);
+                $intQuery->whereHas('application', fn ($q) => $q->where('candidate_id', $candidateId));
             }
-            $interviews = $intQuery->latest()->get();
+            $interviews = $intQuery->latest('scheduled_at')->get();
 
-            // Link in memory (0 DB roundtrips)
-            foreach ($interviews as $interview) {
-                if ($app = $appsById->get($interview->application_id)) {
-                    $interview->setRelation('application', $app);
-                }
-            }
-
-            // 4. Tasks
-            $taskQuery = TechnicalTask::with(['assignedByUser.role', 'latestSubmission']);
+            // 5. Technical Tasks
+            $taskQuery = TechnicalTask::with([
+                'assignedByUser.role',
+                'latestSubmission',
+                'application.candidate',
+                'application.job',
+            ]);
             if ($isCandidate) {
-                $candidateAppIds = $applications->pluck('id')->all();
-                $taskQuery->whereIn('application_id', $candidateAppIds ?: [0]);
+                $taskQuery->whereHas('application', fn ($q) => $q->where('candidate_id', $candidateId));
             }
             $tasks = $taskQuery->latest()->get();
 
-            // Link in memory (0 DB roundtrips)
-            foreach ($tasks as $task) {
-                if ($app = $appsById->get($task->application_id)) {
-                    $task->setRelation('application', $app);
-                }
-            }
+            // 6. Analytics
+            $analytics = $analyticsService->getAnalytics();
 
-            // 5. Analytics (Computed 100% in memory with 0 DB queries)
-            $pipelineDistribution = [];
-            foreach (Application::$statuses as $st) {
-                $pipelineDistribution[$st] = 0;
-            }
-            foreach ($applications as $app) {
-                if (isset($pipelineDistribution[$app->status])) {
-                    $pipelineDistribution[$app->status]++;
-                }
-            }
-
-            $totalApps = $applications->count();
-            $scoredApps = $applications->whereNotNull('skill_score');
-            $avgScore = $scoredApps->count() > 0 ? round((float) $scoredApps->avg('skill_score'), 2) : 0.0;
-
-            $startOfWeek = now()->startOfWeek();
-            $endOfWeek = now()->endOfWeek();
-            $interviewsThisWeek = $interviews->filter(function ($i) use ($startOfWeek, $endOfWeek) {
-                return $i->scheduled_at && $i->scheduled_at->between($startOfWeek, $endOfWeek);
-            })->count();
-
-            $activeCandidatesCount = $applications->filter(function ($a) {
-                return !in_array($a->status, [Application::STATUS_HIRED, Application::STATUS_REJECTED]);
-            })->pluck('candidate_id')->unique()->count();
-
-            $pendingTasks = $tasks->filter(function ($t) {
-                return in_array($t->status, [TechnicalTask::STATUS_PENDING, TechnicalTask::STATUS_IN_PROGRESS]);
-            })->count();
-
-            $analytics = [
-                'total_jobs' => $jobs->count(),
-                'active_jobs' => $jobs->where('status', 'open')->count(),
-                'active_candidates' => $activeCandidatesCount,
-                'interviews_this_week' => $interviewsThisWeek,
-                'pipeline_distribution' => $pipelineDistribution,
-                'average_candidate_score' => $avgScore,
-                'total_applications' => $totalApps,
-                'pending_tasks' => $pendingTasks,
-            ];
-
-            return json_encode([
+            return [
                 'user' => (new UserResource($user))->resolve(),
                 'analytics' => $analytics,
                 'jobs' => JobResource::collection($jobs)->resolve(),
@@ -143,17 +89,9 @@ class WorkspaceController extends Controller
                 'interviews' => InterviewResource::collection($interviews)->resolve(),
                 'tasks' => TechnicalTaskResource::collection($tasks)->resolve(),
                 'candidates' => CandidateResource::collection($candidates)->resolve(),
-            ]);
+            ];
         });
 
-        return response($json, 200, ['Content-Type' => 'application/json']);
-    }
-
-    /**
-     * Clear all workspace bootstrap caches on any mutation.
-     */
-    public static function clearCache(): void
-    {
-        Cache::flush();
+        return response()->json($data);
     }
 }

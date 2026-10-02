@@ -13,9 +13,13 @@ class ApplicationStatusChanged
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Application $application;
+
     public ?string $fromStatus;
+
     public string $toStatus;
+
     public ?User $changedByUser;
+
     public ?string $comment;
 
     public function __construct(

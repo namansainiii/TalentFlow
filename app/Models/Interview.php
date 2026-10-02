@@ -11,8 +11,11 @@ class Interview extends Model
     use HasFactory;
 
     public const STATUS_SCHEDULED = 'scheduled';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_CANCELLED = 'cancelled';
+
     public const STATUS_RESCHEDULED = 'rescheduled';
 
     protected $fillable = [

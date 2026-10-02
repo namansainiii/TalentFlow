@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\Application;
-use App\Models\Job;
 use App\Models\Candidate;
+use App\Models\Job;
 
 class CandidateScoringService
 {
@@ -16,7 +16,7 @@ class CandidateScoringService
         $job = $application->job()->with(['skills'])->first();
         $candidate = $application->candidate;
 
-        if (!$job || !$candidate) {
+        if (! $job || ! $candidate) {
             return 0.0;
         }
 
@@ -83,7 +83,7 @@ class CandidateScoringService
     {
         $skills = [];
 
-        if (!empty($candidate->skills_summary)) {
+        if (! empty($candidate->skills_summary)) {
             $parts = explode(',', $candidate->skills_summary);
             foreach ($parts as $part) {
                 $trimmed = strtolower(trim($part));
@@ -95,7 +95,7 @@ class CandidateScoringService
 
         // Also check attached resume parsed data if available
         $resume = $application->resume ?: $candidate->latestResume;
-        if ($resume && !empty($resume->parsed_data['skills'])) {
+        if ($resume && ! empty($resume->parsed_data['skills'])) {
             foreach ($resume->parsed_data['skills'] as $skillName) {
                 $trimmed = strtolower(trim($skillName));
                 if ($trimmed !== '') {
@@ -115,6 +115,7 @@ class CandidateScoringService
         if (preg_match('/(\d+(?:\.\d+)?)/', $expString, $matches)) {
             return (float) $matches[1];
         }
+
         return 0.0;
     }
 
@@ -123,7 +124,7 @@ class CandidateScoringService
      */
     protected function calculateEducationScore(?string $education): float
     {
-        if (!$education) {
+        if (! $education) {
             return 5.0;
         }
 

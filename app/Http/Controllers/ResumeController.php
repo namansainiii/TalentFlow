@@ -29,7 +29,7 @@ class ResumeController extends Controller
             $candidate = $user->candidate;
         } else {
             $candidate = Candidate::firstOrCreate(
-                ['email' => $request->email ?? ($user?->email ?? 'candidate_' . time() . '@talentflow.test')],
+                ['email' => $request->email ?? ($user?->email ?? 'candidate_'.time().'@talentflow.test')],
                 [
                     'user_id' => $user?->id,
                     'name' => $request->name ?? ($user?->name ?? 'Candidate'),
@@ -64,8 +64,17 @@ class ResumeController extends Controller
     /**
      * View resume details and parsed data.
      */
-    public function show(Resume $resume): JsonResponse
+    public function show(Request $request, Resume $resume): JsonResponse
     {
+        $user = $request->user();
+        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
+            if (! $user->candidate || $user->candidate->id !== $resume->candidate_id) {
+                return response()->json([
+                    'message' => 'Forbidden: You do not have access to this resume.',
+                ], 403);
+            }
+        }
+
         return response()->json([
             'resume' => new ResumeResource($resume),
         ]);
@@ -74,8 +83,17 @@ class ResumeController extends Controller
     /**
      * Manually trigger processing for a resume.
      */
-    public function process(Resume $resume, ResumeParserService $parser, CandidateScoringService $scorer): JsonResponse
+    public function process(Request $request, Resume $resume, ResumeParserService $parser, CandidateScoringService $scorer): JsonResponse
     {
+        $user = $request->user();
+        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
+            if (! $user->candidate || $user->candidate->id !== $resume->candidate_id) {
+                return response()->json([
+                    'message' => 'Forbidden: You do not have access to this resume.',
+                ], 403);
+            }
+        }
+
         $parser->parseResume($resume);
 
         // Recalculate any applications

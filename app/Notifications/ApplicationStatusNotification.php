@@ -11,6 +11,7 @@ class ApplicationStatusNotification extends Notification
     use Queueable;
 
     public Application $application;
+
     public string $toStatus;
 
     public function __construct(Application $application, string $toStatus)
@@ -33,8 +34,8 @@ class ApplicationStatusNotification extends Notification
             'application_id' => $this->application->id,
             'job_title' => $jobTitle,
             'status' => $this->toStatus,
-            'title' => 'Application Status: ' . $this->toStatus,
-            'message' => 'Your application for ' . $jobTitle . ' has been updated to stage: ' . $this->toStatus . '.',
+            'title' => 'Application Status: '.$this->toStatus,
+            'message' => 'Your application for '.$jobTitle.' has been updated to stage: '.$this->toStatus.'.',
         ];
     }
 }

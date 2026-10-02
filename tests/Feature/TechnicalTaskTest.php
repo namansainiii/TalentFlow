@@ -18,7 +18,9 @@ class TechnicalTaskTest extends TestCase
     use RefreshDatabase;
 
     protected User $recruiter;
+
     protected User $candidateUser;
+
     protected Application $application;
 
     protected function setUp(): void
@@ -158,5 +160,53 @@ class TechnicalTaskTest extends TestCase
             'score' => 95,
             'feedback' => 'Exceptional code quality and test coverage.',
         ]);
+    }
+
+    public function test_candidate_cannot_view_or_submit_another_candidates_technical_task(): void
+    {
+        $otherRole = Role::where('name', 'candidate')->first();
+        $otherUser = User::create([
+            'role_id' => $otherRole->id,
+            'name' => 'Stranger Dev',
+            'email' => 'strangerdev@test.com',
+            'password' => 'secret123',
+        ]);
+        $otherCandidate = Candidate::create([
+            'user_id' => $otherUser->id,
+            'name' => 'Stranger Dev',
+            'email' => 'strangerdev@test.com',
+        ]);
+        $job = Job::first();
+        $otherApp = Application::create([
+            'job_id' => $job->id,
+            'candidate_id' => $otherCandidate->id,
+            'status' => 'Technical Task',
+            'skill_score' => 82.0,
+        ]);
+        $otherTask = TechnicalTask::create([
+            'application_id' => $otherApp->id,
+            'assigned_by_user_id' => $this->recruiter->id,
+            'title' => 'Secret Coding Challenge',
+            'description' => 'Confidential prompt',
+            'deadline' => now()->addDays(2),
+            'status' => 'Pending',
+        ]);
+
+        // Attempt viewing
+        $viewResponse = $this->actingAs($this->candidateUser, 'sanctum')
+            ->getJson("/api/technical-tasks/{$otherTask->id}");
+        $viewResponse->assertStatus(403);
+
+        // Attempt starting
+        $startResponse = $this->actingAs($this->candidateUser, 'sanctum')
+            ->patchJson("/api/technical-tasks/{$otherTask->id}/start");
+        $startResponse->assertStatus(403);
+
+        // Attempt submitting
+        $submitResponse = $this->actingAs($this->candidateUser, 'sanctum')
+            ->postJson("/api/technical-tasks/{$otherTask->id}/submit", [
+                'repository_url' => 'https://github.com/hacker/fake-repo',
+            ]);
+        $submitResponse->assertStatus(403);
     }
 }
