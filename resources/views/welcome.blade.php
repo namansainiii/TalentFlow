@@ -830,76 +830,7 @@
             max-width: 720px;
             margin: 0 auto;
             line-height: 1.5;
-        }
-
-        .gateway-quickbar {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 26px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .gateway-quickbar-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.88rem;
-            font-weight: 600;
-            color: #1e293b;
-        }
-
-        .gateway-quickbar-btns {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn-instant {
-            border: 1px solid #cbd5e1;
-            background: #f8fafc;
-            color: #334155;
-            padding: 7px 15px;
-            border-radius: 8px;
-            font-size: 0.83rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.15s ease;
-        }
-
-        .btn-instant:hover {
-            background: #ffffff;
-            border-color: #94a3b8;
-            color: #0f172a;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .btn-instant-admin:hover {
-            border-color: #f87171;
-            color: #dc2626;
-            background: #fff5f5;
-        }
-
-        .btn-instant-recruiter:hover {
-            border-color: #60a5fa;
-            color: #2563eb;
-            background: #f0f7ff;
-        }
-
-        .btn-instant-candidate:hover {
-            border-color: #4ade80;
-            color: #16a34a;
-            background: #f0fdf4;
+            margin-bottom: 28px;
         }
 
         .gateway-grid {
@@ -1052,25 +983,6 @@
                 </p>
             </div>
 
-            <!-- Fast 1-Click Demo Evaluation Bar -->
-            <div class="gateway-quickbar">
-                <div class="gateway-quickbar-title">
-                    <span>🚀 <strong>1-Click Instant Demo Login:</strong></span>
-                    <span style="font-size:0.8rem; color:#64748b;">(Instant login with zero typing)</span>
-                </div>
-                <div class="gateway-quickbar-btns">
-                    <button type="button" class="btn-instant btn-instant-recruiter" onclick="instantLogin('recruiter')">
-                        👔 Instant Recruiter
-                    </button>
-                    <button type="button" class="btn-instant btn-instant-candidate" onclick="instantLogin('candidate')">
-                        👤 Instant Candidate
-                    </button>
-                    <button type="button" class="btn-instant btn-instant-admin" onclick="instantLogin('admin')">
-                        🛡️ Instant Admin
-                    </button>
-                </div>
-            </div>
-
             <!-- 3 Role Portals Grid -->
             <div class="gateway-grid">
 
@@ -1108,8 +1020,7 @@
                                     <label class="form-label">Password</label>
                                     <input type="password" class="form-control" name="password" id="gatewayRecruiterPassword" placeholder="••••••••" required>
                                 </div>
-                                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-bottom:8px;">Sign In as Recruiter</button>
-                                <button type="button" class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="instantLogin('recruiter')">⚡ 1-Click Demo Login</button>
+                                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Sign In as Recruiter</button>
                             </form>
                         </div>
 
@@ -1172,8 +1083,7 @@
                                     <label class="form-label">Password</label>
                                     <input type="password" class="form-control" name="password" id="gatewayCandidatePassword" placeholder="••••••••" required>
                                 </div>
-                                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-bottom:8px;">Sign In as Candidate</button>
-                                <button type="button" class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="instantLogin('candidate')">⚡ 1-Click Demo Login</button>
+                                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Sign In as Candidate</button>
                             </form>
                         </div>
 
@@ -1232,8 +1142,7 @@
                                 <label class="form-label">Admin Password</label>
                                 <input type="password" class="form-control" name="password" id="gatewayAdminPassword" placeholder="••••••••" required>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-bottom:8px;">Sign In as Admin</button>
-                            <button type="button" class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="instantLogin('admin')">⚡ 1-Click Demo Login</button>
+                            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Sign In as Admin</button>
                         </form>
                     </div>
                 </div>
@@ -1925,16 +1834,6 @@
                 const p = document.getElementById('gatewayCandidatePassword');
                 if (e && p) { e.value = 'john.doe@talentflow.test'; p.value = 'password'; }
                 showToast('Candidate credentials populated!', 'success');
-            }
-        }
-
-        async function instantLogin(role) {
-            if (role === 'admin') {
-                await performLogin('admin@talentflow.test', 'password');
-            } else if (role === 'candidate') {
-                await performLogin('john.doe@talentflow.test', 'password');
-            } else {
-                await performLogin('recruiter@talentflow.test', 'password');
             }
         }
 
