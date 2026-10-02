@@ -773,44 +773,513 @@
                 padding-bottom: 4px;
             }
         }
+
+        /* ================= AUTHENTICATION GATEWAY SCREEN ================= */
+        .auth-gateway-screen {
+            min-height: 100vh;
+            width: 100%;
+            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 50%, #e2e8f0 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 40px 20px 60px 20px;
+        }
+
+        .gateway-container {
+            max-width: 1180px;
+            width: 100%;
+        }
+
+        .gateway-hero {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .gateway-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .gateway-brand-badge {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 999px;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+
+        .gateway-headline {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .gateway-subtitle {
+            font-size: 0.95rem;
+            color: #64748b;
+            max-width: 720px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .gateway-quickbar {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 26px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .gateway-quickbar-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .gateway-quickbar-btns {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-instant {
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #334155;
+            padding: 7px 15px;
+            border-radius: 8px;
+            font-size: 0.83rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-instant:hover {
+            background: #ffffff;
+            border-color: #94a3b8;
+            color: #0f172a;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-instant-admin:hover {
+            border-color: #f87171;
+            color: #dc2626;
+            background: #fff5f5;
+        }
+
+        .btn-instant-recruiter:hover {
+            border-color: #60a5fa;
+            color: #2563eb;
+            background: #f0f7ff;
+        }
+
+        .btn-instant-candidate:hover {
+            border-color: #4ade80;
+            color: #16a34a;
+            background: #f0fdf4;
+        }
+
+        .gateway-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 960px) {
+            .gateway-grid {
+                grid-template-columns: 1fr;
+                max-width: 520px;
+                margin: 0 auto;
+            }
+        }
+
+        .gateway-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .gateway-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .gateway-card-header {
+            padding: 20px 22px 16px 22px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .gateway-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .gateway-role-icon {
+            font-size: 1.8rem;
+        }
+
+        .gateway-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .gateway-card-desc {
+            font-size: 0.83rem;
+            color: #64748b;
+            line-height: 1.45;
+        }
+
+        .gateway-card-body {
+            padding: 20px 22px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gateway-mode-tabs {
+            display: flex;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            gap: 4px;
+        }
+
+        .gateway-mode-tab {
+            flex: 1;
+            text-align: center;
+            padding: 7px 10px;
+            border: none;
+            background: transparent;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #64748b;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .gateway-mode-tab.active {
+            background: #ffffff;
+            color: #2563eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .gateway-quick-fill-box {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 9px 12px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gateway-quick-fill-text {
+            font-size: 0.78rem;
+            color: #64748b;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .gateway-quick-fill-btn {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #2563eb;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+        }
+
+        .gateway-quick-fill-btn:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Top Navbar -->
-    <header class="navbar">
-        <div class="nav-container">
-            <div style="display:flex; align-items:center; gap: 20px;">
-                <a href="/" class="brand">
+    <!-- AUTHENTICATION GATEWAY SCREEN (Initial Landing Screen) -->
+    <div id="authGatewayScreen" class="auth-gateway-screen" style="display:none;">
+        <div class="gateway-container">
+            
+            <!-- Hero Brand Banner -->
+            <div class="gateway-hero">
+                <div class="gateway-brand">
                     <span>⚡ TalentFlow</span>
-                    <span class="brand-badge">Hiring System</span>
-                </a>
-
-                <ul class="nav-tabs">
-                    <li><button class="active" onclick="switchTab('dashboard')">Dashboard</button></li>
-                    <li><button onclick="switchTab('jobs')">Jobs</button></li>
-                    <li id="tabNavItemPipeline"><button onclick="switchTab('pipeline')">Pipeline</button></li>
-                    <li><button onclick="switchTab('interviews')">Interviews</button></li>
-                    <li><button onclick="switchTab('tasks')">Tasks</button></li>
-                    <li id="tabNavItemCandidates"><button onclick="switchTab('candidates')">Candidates</button></li>
-                </ul>
+                    <span class="gateway-brand-badge">ATS & Recruitment Portal</span>
+                </div>
+                <h1 class="gateway-headline">Welcome! Choose your access portal</h1>
+                <p class="gateway-subtitle">
+                    Select how you want to enter: <strong>Recruiter</strong>, <strong>Candidate</strong>, or <strong>Administrator</strong>. You can sign in with pre-seeded demo accounts using Quick Fill, or register a new account.
+                </p>
             </div>
 
-            <!-- User Auth & Role Area -->
-            <div class="user-nav-box">
-                <div id="userLoggedInBlock" style="display:none; align-items:center; gap:10px;">
-                    <span id="navUserName" style="font-weight:600; font-size:0.88rem;">Alex Miller</span>
-                    <span class="role-badge role-recruiter" id="navRoleBadge">recruiter</span>
-                    <button class="btn btn-outline btn-sm" onclick="openAuthModal()">Switch / Login</button>
-                    <button class="btn btn-outline btn-sm" onclick="logout()" title="Logout">Logout</button>
+            <!-- Fast 1-Click Demo Evaluation Bar -->
+            <div class="gateway-quickbar">
+                <div class="gateway-quickbar-title">
+                    <span>🚀 <strong>1-Click Instant Demo Login:</strong></span>
+                    <span style="font-size:0.8rem; color:#64748b;">(Instant login with zero typing)</span>
                 </div>
-                <div id="userGuestBlock">
-                    <button class="btn btn-primary btn-sm" onclick="openAuthModal()">Sign In / Register</button>
+                <div class="gateway-quickbar-btns">
+                    <button type="button" class="btn-instant btn-instant-recruiter" onclick="instantLogin('recruiter')">
+                        👔 Instant Recruiter
+                    </button>
+                    <button type="button" class="btn-instant btn-instant-candidate" onclick="instantLogin('candidate')">
+                        👤 Instant Candidate
+                    </button>
+                    <button type="button" class="btn-instant btn-instant-admin" onclick="instantLogin('admin')">
+                        🛡️ Instant Admin
+                    </button>
                 </div>
-                <button class="btn btn-outline btn-sm" onclick="runDeadlineCheck()" title="Check task deadlines">⏱️ Check Deadlines</button>
             </div>
+
+            <!-- 3 Role Portals Grid -->
+            <div class="gateway-grid">
+
+                <!-- 1. RECRUITER PORTAL -->
+                <div class="gateway-card">
+                    <div class="gateway-card-header">
+                        <div class="gateway-card-top">
+                            <span class="gateway-role-icon">👔</span>
+                            <span class="role-badge role-recruiter">Hiring Team</span>
+                        </div>
+                        <h2 class="gateway-card-title">Recruiter Portal</h2>
+                        <p class="gateway-card-desc">Post open jobs, screen applicants, manage Kanban stages, schedule interviews & review tasks.</p>
+                    </div>
+
+                    <div class="gateway-card-body">
+                        <!-- Mode Selector: Login vs Register -->
+                        <div class="gateway-mode-tabs">
+                            <button type="button" class="gateway-mode-tab active" id="gatewayRecruiterTabLogin" onclick="switchGatewayMode('recruiter', 'login')">Sign In</button>
+                            <button type="button" class="gateway-mode-tab" id="gatewayRecruiterTabRegister" onclick="switchGatewayMode('recruiter', 'register')">Register New</button>
+                        </div>
+
+                        <!-- Recruiter Login Form -->
+                        <div id="gatewayRecruiterLoginForm">
+                            <div class="gateway-quick-fill-box">
+                                <span class="gateway-quick-fill-text">Seed: <code>recruiter@talentflow.test</code></span>
+                                <button type="button" class="gateway-quick-fill-btn" onclick="gatewayFill('recruiter')">Quick Fill</button>
+                            </div>
+
+                            <form onsubmit="handleGatewayLogin(event, 'recruiter')">
+                                <div class="form-group" style="margin-bottom:12px;">
+                                    <label class="form-label">Recruiter Email</label>
+                                    <input type="email" class="form-control" name="email" id="gatewayRecruiterEmail" placeholder="recruiter@talentflow.test" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:16px;">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-control" name="password" id="gatewayRecruiterPassword" placeholder="••••••••" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-bottom:8px;">Sign In as Recruiter</button>
+                                <button type="button" class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="instantLogin('recruiter')">⚡ 1-Click Demo Login</button>
+                            </form>
+                        </div>
+
+                        <!-- Recruiter Register Form -->
+                        <div id="gatewayRecruiterRegisterForm" style="display:none;">
+                            <form onsubmit="handleGatewayRegister(event, 'recruiter')">
+                                <div class="form-group" style="margin-bottom:10px;">
+                                    <label class="form-label">Full Name *</label>
+                                    <input type="text" class="form-control" name="name" placeholder="Alex Miller" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:10px;">
+                                    <label class="form-label">Work Email *</label>
+                                    <input type="email" class="form-control" name="email" placeholder="alex@company.com" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:10px;">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="text" class="form-control" name="phone" placeholder="+1-555-0100">
+                                </div>
+                                <div class="form-group" style="margin-bottom:16px;">
+                                    <label class="form-label">Password * (min 6 chars)</label>
+                                    <input type="password" class="form-control" name="password" minlength="6" placeholder="At least 6 characters" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Register Recruiter Account</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. CANDIDATE PORTAL -->
+                <div class="gateway-card">
+                    <div class="gateway-card-header">
+                        <div class="gateway-card-top">
+                            <span class="gateway-role-icon">👤</span>
+                            <span class="role-badge role-candidate">Job Seeker</span>
+                        </div>
+                        <h2 class="gateway-card-title">Candidate Portal</h2>
+                        <p class="gateway-card-desc">Search job listings, submit applications with resume & skills, monitor pipeline status & take tasks.</p>
+                    </div>
+
+                    <div class="gateway-card-body">
+                        <!-- Mode Selector: Login vs Register -->
+                        <div class="gateway-mode-tabs">
+                            <button type="button" class="gateway-mode-tab active" id="gatewayCandidateTabLogin" onclick="switchGatewayMode('candidate', 'login')">Sign In</button>
+                            <button type="button" class="gateway-mode-tab" id="gatewayCandidateTabRegister" onclick="switchGatewayMode('candidate', 'register')">Register New</button>
+                        </div>
+
+                        <!-- Candidate Login Form -->
+                        <div id="gatewayCandidateLoginForm">
+                            <div class="gateway-quick-fill-box">
+                                <span class="gateway-quick-fill-text">Seed: <code>john.doe@talentflow.test</code></span>
+                                <button type="button" class="gateway-quick-fill-btn" onclick="gatewayFill('candidate')">Quick Fill</button>
+                            </div>
+
+                            <form onsubmit="handleGatewayLogin(event, 'candidate')">
+                                <div class="form-group" style="margin-bottom:12px;">
+                                    <label class="form-label">Candidate Email</label>
+                                    <input type="email" class="form-control" name="email" id="gatewayCandidateEmail" placeholder="john.doe@talentflow.test" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:16px;">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-control" name="password" id="gatewayCandidatePassword" placeholder="••••••••" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-bottom:8px;">Sign In as Candidate</button>
+                                <button type="button" class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="instantLogin('candidate')">⚡ 1-Click Demo Login</button>
+                            </form>
+                        </div>
+
+                        <!-- Candidate Register Form -->
+                        <div id="gatewayCandidateRegisterForm" style="display:none;">
+                            <form onsubmit="handleGatewayRegister(event, 'candidate')">
+                                <div class="form-group" style="margin-bottom:10px;">
+                                    <label class="form-label">Your Full Name *</label>
+                                    <input type="text" class="form-control" name="name" placeholder="John Doe" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:10px;">
+                                    <label class="form-label">Personal Email *</label>
+                                    <input type="email" class="form-control" name="email" placeholder="john@example.com" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:10px;">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="text" class="form-control" name="phone" placeholder="+1-555-0200">
+                                </div>
+                                <div class="form-group" style="margin-bottom:16px;">
+                                    <label class="form-label">Password * (min 6 chars)</label>
+                                    <input type="password" class="form-control" name="password" minlength="6" placeholder="At least 6 characters" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Register Candidate Account</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. ADMIN PORTAL -->
+                <div class="gateway-card">
+                    <div class="gateway-card-header">
+                        <div class="gateway-card-top">
+                            <span class="gateway-role-icon">🛡️</span>
+                            <span class="role-badge role-admin">Administrator</span>
+                        </div>
+                        <h2 class="gateway-card-title">Admin Portal</h2>
+                        <p class="gateway-card-desc">Master system configuration, oversee user accounts, view complete database pipeline & analytics.</p>
+                    </div>
+
+                    <div class="gateway-card-body">
+                        <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:10px 12px; font-size:0.8rem; color:#92400e; margin-bottom:16px; line-height:1.4;">
+                            🛡️ <strong>Admin Notice:</strong> Admin accounts are provisioned via system seeds. Self-registration is restricted for security.
+                        </div>
+
+                        <div class="gateway-quick-fill-box">
+                            <span class="gateway-quick-fill-text">Seed: <code>admin@talentflow.test</code></span>
+                            <button type="button" class="gateway-quick-fill-btn" onclick="gatewayFill('admin')">Quick Fill</button>
+                        </div>
+
+                        <form onsubmit="handleGatewayLogin(event, 'admin')">
+                            <div class="form-group" style="margin-bottom:12px;">
+                                <label class="form-label">Admin Email</label>
+                                <input type="email" class="form-control" name="email" id="gatewayAdminEmail" placeholder="admin@talentflow.test" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom:16px;">
+                                <label class="form-label">Admin Password</label>
+                                <input type="password" class="form-control" name="password" id="gatewayAdminPassword" placeholder="••••••••" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-bottom:8px;">Sign In as Admin</button>
+                            <button type="button" class="btn btn-outline btn-sm" style="width:100%; justify-content:center;" onclick="instantLogin('admin')">⚡ 1-Click Demo Login</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
-    </header>
+    </div>
+
+    <!-- MAIN APP WORKSPACE CONTAINER (Hidden until authenticated) -->
+    <div id="appWorkspace" style="display:none; flex-direction:column; min-height:100vh; width:100%;">
+
+        <!-- Top Navbar -->
+        <header class="navbar">
+            <div class="nav-container">
+                <div style="display:flex; align-items:center; gap: 20px;">
+                    <a href="/" class="brand">
+                        <span>⚡ TalentFlow</span>
+                        <span class="brand-badge">Hiring System</span>
+                    </a>
+
+                    <ul class="nav-tabs">
+                        <li><button class="active" onclick="switchTab('dashboard')">Dashboard</button></li>
+                        <li><button onclick="switchTab('jobs')">Jobs</button></li>
+                        <li id="tabNavItemPipeline"><button onclick="switchTab('pipeline')">Pipeline</button></li>
+                        <li><button onclick="switchTab('interviews')">Interviews</button></li>
+                        <li><button onclick="switchTab('tasks')">Tasks</button></li>
+                        <li id="tabNavItemCandidates"><button onclick="switchTab('candidates')">Candidates</button></li>
+                    </ul>
+                </div>
+
+                <!-- User Auth & Role Area -->
+                <div class="user-nav-box">
+                    <div id="userLoggedInBlock" style="display:none; align-items:center; gap:10px;">
+                        <span id="navUserName" style="font-weight:600; font-size:0.88rem;">Alex Miller</span>
+                        <span class="role-badge role-recruiter" id="navRoleBadge">recruiter</span>
+                        <button class="btn btn-outline btn-sm" onclick="switchRole()" title="Switch to another role or persona">🔄 Switch Role</button>
+                        <button class="btn btn-outline btn-sm" onclick="logout()" title="Logout">🚪 Logout</button>
+                    </div>
+                    <div id="userGuestBlock">
+                        <button class="btn btn-primary btn-sm" onclick="showAuthGateway()">Sign In / Register</button>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="runDeadlineCheck()" title="Check task deadlines">⏱️ Check Deadlines</button>
+                </div>
+            </div>
+        </header>
 
     <!-- Main Workspace -->
     <main class="main-content">
@@ -985,6 +1454,7 @@
         </section>
 
     </main>
+    </div> <!-- /#appWorkspace -->
 
     <!-- AUTHENTICATION PORTAL MODAL (Dedicated Recruiter, Candidate & Admin logins) -->
     <div class="modal-backdrop" id="modalAuth">
@@ -1388,13 +1858,124 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             if (state.token) {
-                await checkUser();
+                const valid = await checkUser();
+                if (valid) {
+                    showAppWorkspace();
+                    await reloadAll();
+                    return;
+                }
+            }
+            // By default, display the first login screen (Role Gateway)
+            showAuthGateway();
+        });
+
+        // Gateway Screen & Workspace Visibility
+        function showAuthGateway() {
+            const gateway = document.getElementById('authGatewayScreen');
+            const workspace = document.getElementById('appWorkspace');
+            if (gateway) gateway.style.display = 'flex';
+            if (workspace) workspace.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showAppWorkspace() {
+            const gateway = document.getElementById('authGatewayScreen');
+            const workspace = document.getElementById('appWorkspace');
+            if (gateway) gateway.style.display = 'none';
+            if (workspace) workspace.style.display = 'flex';
+        }
+
+        function switchGatewayMode(role, mode) {
+            const cap = role.charAt(0).toUpperCase() + role.slice(1);
+            const loginForm = document.getElementById(`gateway${cap}LoginForm`);
+            const registerForm = document.getElementById(`gateway${cap}RegisterForm`);
+            const loginTab = document.getElementById(`gateway${cap}TabLogin`);
+            const registerTab = document.getElementById(`gateway${cap}TabRegister`);
+
+            if (mode === 'login') {
+                if (loginForm) loginForm.style.display = 'block';
+                if (registerForm) registerForm.style.display = 'none';
+                if (loginTab) loginTab.classList.add('active');
+                if (registerTab) registerTab.classList.remove('active');
             } else {
-                // Default initial login as recruiter
+                if (loginForm) loginForm.style.display = 'none';
+                if (registerForm) registerForm.style.display = 'block';
+                if (loginTab) loginTab.classList.remove('active');
+                if (registerTab) registerTab.classList.add('active');
+            }
+        }
+
+        function gatewayFill(role) {
+            if (role === 'admin') {
+                const e = document.getElementById('gatewayAdminEmail');
+                const p = document.getElementById('gatewayAdminPassword');
+                if (e && p) { e.value = 'admin@talentflow.test'; p.value = 'password'; }
+                showToast('Admin credentials populated!', 'success');
+            } else if (role === 'recruiter') {
+                const e = document.getElementById('gatewayRecruiterEmail');
+                const p = document.getElementById('gatewayRecruiterPassword');
+                if (e && p) { e.value = 'recruiter@talentflow.test'; p.value = 'password'; }
+                showToast('Recruiter credentials populated!', 'success');
+            } else if (role === 'candidate') {
+                const e = document.getElementById('gatewayCandidateEmail');
+                const p = document.getElementById('gatewayCandidatePassword');
+                if (e && p) { e.value = 'john.doe@talentflow.test'; p.value = 'password'; }
+                showToast('Candidate credentials populated!', 'success');
+            }
+        }
+
+        async function instantLogin(role) {
+            if (role === 'admin') {
+                await performLogin('admin@talentflow.test', 'password');
+            } else if (role === 'candidate') {
+                await performLogin('john.doe@talentflow.test', 'password');
+            } else {
                 await performLogin('recruiter@talentflow.test', 'password');
             }
-            await reloadAll();
-        });
+        }
+
+        async function handleGatewayLogin(e, role) {
+            e.preventDefault();
+            const form = e.target;
+            const email = form.email.value;
+            const password = form.password.value;
+            await performLogin(email, password);
+        }
+
+        async function handleGatewayRegister(e, role) {
+            e.preventDefault();
+            const form = e.target;
+            const payload = {
+                name: form.name.value,
+                email: form.email.value,
+                phone: form.phone ? form.phone.value : null,
+                password: form.password.value,
+                role: role
+            };
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    state.token = data.token;
+                    state.currentUser = data.user;
+                    localStorage.setItem('tf_token', data.token);
+                    showToast(`Registration successful! Welcome ${data.user.name}`, 'success');
+                    showAppWorkspace();
+                    updateRoleUI();
+                    await reloadAll();
+                } else {
+                    const errorMsg = data.errors ? Object.values(data.errors).flat().join(' ') : (data.message || 'Registration failed');
+                    showToast(errorMsg, 'error');
+                }
+            } catch (err) {
+                showToast('Registration error', 'error');
+            }
+        }
 
         // Tab Switching
         function switchTab(name) {
@@ -1472,10 +2053,12 @@
                     localStorage.setItem('tf_token', data.token);
                     showToast(`Logged in as ${data.user.name} (${data.user.role?.name || 'user'})`, 'success');
                     closeModal('modalAuth');
+                    showAppWorkspace();
                     updateRoleUI();
                     await reloadAll();
                 } else {
-                    showToast(data.message || 'Login failed', 'error');
+                    const errorMsg = data.errors ? Object.values(data.errors).flat().join(' ') : (data.message || 'Login failed: Invalid credentials');
+                    showToast(errorMsg, 'error');
                 }
             } catch (err) {
                 showToast('Authentication connection error', 'error');
@@ -1506,10 +2089,12 @@
                     localStorage.setItem('tf_token', data.token);
                     showToast(`Registration successful! Welcome ${data.user.name}`, 'success');
                     closeModal('modalAuth');
+                    showAppWorkspace();
                     updateRoleUI();
                     await reloadAll();
                 } else {
-                    showToast(data.message || 'Registration failed', 'error');
+                    const errorMsg = data.errors ? Object.values(data.errors).flat().join(' ') : (data.message || 'Registration failed');
+                    showToast(errorMsg, 'error');
                 }
             } catch (err) {
                 showToast('Registration error', 'error');
@@ -1523,12 +2108,13 @@
                     const data = await res.json();
                     state.currentUser = data.user;
                     updateRoleUI();
-                } else {
-                    await performLogin('recruiter@talentflow.test', 'password');
+                    return true;
                 }
-            } catch (e) {
-                await performLogin('recruiter@talentflow.test', 'password');
-            }
+            } catch (e) {}
+            state.token = '';
+            state.currentUser = null;
+            localStorage.removeItem('tf_token');
+            return false;
         }
 
         function updateRoleUI() {
@@ -1566,15 +2152,29 @@
         }
 
         async function logout() {
-            try {
-                await api('/api/auth/logout', { method: 'POST' });
-            } catch (e) {}
+            const token = state.token;
             state.token = '';
             state.currentUser = null;
             localStorage.removeItem('tf_token');
             updateRoleUI();
             showToast('Logged out successfully', 'success');
-            openAuthModal();
+            showAuthGateway();
+
+            if (token) {
+                try {
+                    await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                } catch (e) {}
+            }
+        }
+
+        async function switchRole() {
+            await logout();
         }
 
         // API Fetch
