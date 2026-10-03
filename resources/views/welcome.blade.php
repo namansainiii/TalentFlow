@@ -448,6 +448,19 @@
             color: var(--primary);
         }
 
+        .btn-applied {
+            background: #ecfdf5 !important;
+            color: #059669 !important;
+            border: 1px solid #10b981 !important;
+            box-shadow: 0 1px 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .btn-applied:hover {
+            background: #d1fae5 !important;
+            border-color: #059669 !important;
+            transform: translateY(-1px);
+        }
+
         .btn-sm {
             padding: 6px 14px;
             font-size: 0.82rem;
@@ -1468,29 +1481,54 @@
         /* Toast */
         .toast-box {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 24px;
+            right: 24px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            z-index: 120;
+            gap: 10px;
+            z-index: 999999 !important;
+            max-width: 440px;
+            pointer-events: none;
         }
 
         .toast-msg {
             background: #ffffff;
             border: 1px solid var(--border);
-            border-left: 4px solid var(--primary);
+            border-left: 5px solid var(--primary);
             border-radius: var(--radius);
-            padding: 10px 16px;
-            font-size: 0.85rem;
-            box-shadow: var(--shadow-md);
+            padding: 12px 18px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
             color: var(--text-dark);
-            min-width: 250px;
-            animation: fadeIn 0.2s;
+            min-width: 280px;
+            pointer-events: auto;
+            animation: fadeIn 0.25s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .toast-msg.success { border-left-color: var(--success); }
-        .toast-msg.error { border-left-color: var(--danger); }
+        .toast-msg.success {
+            border-left-color: var(--success);
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .toast-msg.error {
+            border-left-color: var(--danger);
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .toast-msg.info {
+            border-left-color: var(--primary);
+            background: #eef2ff;
+            color: #3730a3;
+            border-color: #c7d2fe;
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(4px); }
@@ -2496,7 +2534,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Application Deadline *</label>
-                        <input type="date" class="form-control" name="application_deadline" required>
+                        <input type="date" class="form-control" name="application_deadline" min="{{ date('Y-m-d') }}" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Mandatory Skills (comma-separated)</label>
@@ -3202,6 +3240,10 @@
                         try { renderAnalytics(data.analytics); } catch (e) { console.error('Error rendering analytics:', e); }
                     }
 
+                    if (data.applications) {
+                        state.applications = data.applications;
+                    }
+
                     if (data.jobs) {
                         state.jobs = data.jobs;
                         try { renderJobs(data.jobs); } catch (e) { console.error('Error rendering jobs:', e); }
@@ -3211,7 +3253,6 @@
                     hideLoading();
 
                     if (data.applications) {
-                        state.applications = data.applications;
                         try {
                             renderPipeline(data.applications);
                             populateSelects(data.applications);
@@ -3348,6 +3389,10 @@
                 return;
             }
 
+            const isCandidate = state.currentUser?.role?.name === 'candidate';
+            const isRecruiter = state.currentUser?.role?.name === 'recruiter' || state.currentUser?.role?.name === 'admin';
+            const userApplications = Array.isArray(state.applications) ? state.applications : [];
+
             jobs.forEach(job => {
                 let skillsHtml = '';
                 let skillsArr = [];
@@ -3367,6 +3412,20 @@
                     });
                 }
 
+                // Check if candidate already applied for this job
+                const appliedApp = isCandidate
+                    ? userApplications.find(a => (a.job_id === job.id || (a.job && a.job.id === job.id)))
+                    : null;
+
+                let actionButtonHtml = '';
+                if (isCandidate && appliedApp) {
+                    actionButtonHtml = `<button class="btn btn-sm btn-applied" onclick="switchTab('pipeline')" title="Applied (${escapeHtml(appliedApp.status || 'Applied')}) - Click to view in Pipeline" style="background:#ecfdf5; color:#059669; border:1px solid #10b981; font-weight:700; padding:6px 14px; border-radius:var(--radius-sm); cursor:pointer; display:inline-flex; align-items:center; gap:6px;"><span style="font-size:1.15em; font-weight:800; line-height:1;">✓</span> Applied</button>`;
+                } else if (isRecruiter) {
+                    actionButtonHtml = `<button class="btn btn-outline btn-sm" onclick="switchTab('pipeline')">View in Pipeline</button>`;
+                } else {
+                    actionButtonHtml = `<button class="btn btn-primary btn-sm" onclick="openApply(${job.id}, '${escapeHtml(job.title)}')">Apply Now</button>`;
+                }
+
                 const card = document.createElement('div');
                 card.className = 'job-card';
                 card.innerHTML = `
@@ -3383,7 +3442,7 @@
                     </div>
                     <div class="job-footer">
                         <span class="job-salary">${escapeHtml(job.salary_range || 'Competitive')}</span>
-                        <button class="btn btn-primary btn-sm" onclick="openApply(${job.id}, '${escapeHtml(job.title)}')">Apply Now</button>
+                        ${actionButtonHtml}
                     </div>
                 `;
                 container.appendChild(card);
@@ -3411,6 +3470,9 @@
                     state.applications = data;
                     renderPipeline(data);
                     populateSelects(data);
+                    if (state.jobs && state.jobs.length > 0) {
+                        renderJobs(state.jobs);
+                    }
                 }
             } catch (e) {
                 console.error(e);
@@ -4045,7 +4107,8 @@
                 await reloadAll();
             } else {
                 const d = await res.json();
-                showToast(d.message || 'Error creating job', 'error');
+                const err = d.errors ? Object.values(d.errors).flat().join(' ') : (d.message || 'Error creating job');
+                showToast(err, 'error');
             }
         }
 
@@ -4053,6 +4116,13 @@
             const user = state.currentUser;
             if (!user) {
                 openAuthModal('candidate', 'login');
+                return;
+            }
+
+            const existingApp = (state.applications || []).find(a => (a.job_id == id || (a.job && a.job.id == id)));
+            if (existingApp) {
+                showToast('You have already applied for this job opening.', 'info');
+                switchTab('pipeline');
                 return;
             }
 
@@ -4110,7 +4180,8 @@
                 switchTab('pipeline');
             } else {
                 const d = await res.json();
-                showToast(d.message || 'Application failed', 'error');
+                const err = d.errors ? Object.values(d.errors).flat().join(' ') : (d.message || 'Application failed');
+                showToast(err, 'error');
             }
         }
 
@@ -4140,7 +4211,8 @@
                 await reloadAll();
             } else {
                 const d = await res.json();
-                showToast(d.message || 'Status update failed', 'error');
+                const err = d.errors ? Object.values(d.errors).flat().join(' ') : (d.message || 'Status update failed');
+                showToast(err, 'error');
             }
         }
 
@@ -4166,7 +4238,7 @@
                 await reloadAll();
                 switchTab('interviews');
             } else {
-                const msg = d.errors?.scheduled_at?.[0] || d.message || 'Conflict detected.';
+                const msg = d.errors ? Object.values(d.errors).flat().join(' ') : (d.message || 'Conflict detected.');
                 showToast(msg, 'error');
             }
         }
@@ -4218,7 +4290,8 @@
                 switchTab('tasks');
             } else {
                 const d = await res.json();
-                showToast(d.message || 'Error assigning task', 'error');
+                const err = d.errors ? Object.values(d.errors).flat().join(' ') : (d.message || 'Error assigning task');
+                showToast(err, 'error');
             }
         }
 
@@ -4253,7 +4326,8 @@
                 await reloadAll();
             } else {
                 const d = await res.json();
-                showToast(d.message || 'Submission error', 'error');
+                const err = d.errors ? Object.values(d.errors).flat().join(' ') : (d.message || 'Submission error');
+                showToast(err, 'error');
             }
         }
 
@@ -4281,7 +4355,8 @@
                 await reloadAll();
             } else {
                 const d = await res.json();
-                showToast(d.message || 'Review error', 'error');
+                const err = d.errors ? Object.values(d.errors).flat().join(' ') : (d.message || 'Review error');
+                showToast(err, 'error');
             }
         }
 
