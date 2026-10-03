@@ -18,25 +18,13 @@ class ResumeParserService
 
         $text = '';
         if (file_exists($filePath)) {
-            $content = @file_get_contents($filePath) ?: '';
-
-            // Fast PDF text stream extraction (< 2ms)
-            if (preg_match_all('/(?:\(|\<)[^\)\>]{3,}(?:\)|\>)/', $content, $matches)) {
-                $text = implode(' ', $matches[0]);
-            }
-
-            // Fallback to Smalot parser if stream extraction yielded insufficient text
-            if (mb_strlen($text) < 50) {
-                try {
-                    $parser = new Parser;
-                    $pdf = $parser->parseFile($filePath);
-                    $extractedText = $pdf->getText();
-                    if (! empty($extractedText)) {
-                        $text = $extractedText;
-                    }
-                } catch (\Throwable $e) {
-                    $text = $content;
-                }
+            try {
+                $parser = new Parser;
+                $pdf = $parser->parseFile($filePath);
+                $extractedText = $pdf->getText();
+                $text = ! empty($extractedText) ? $extractedText : (@file_get_contents($filePath) ?: '');
+            } catch (\Throwable $e) {
+                $text = @file_get_contents($filePath) ?: '';
             }
         }
 
@@ -104,7 +92,7 @@ class ResumeParserService
 
         // 5. Skills extraction from skills database
         $foundSkills = [];
-        $skills = Skill::pluck('name')->toArray();
+        $skills = cache()->remember('skills_list_all', 300, fn () => Skill::pluck('name')->toArray());
         foreach ($skills as $skill) {
             // Case-insensitive word boundary match
             $escaped = preg_quote($skill, '/');

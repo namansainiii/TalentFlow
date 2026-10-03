@@ -13,10 +13,10 @@ use App\Models\Job;
 use App\Models\Resume;
 use App\Services\CandidateScoringService;
 use App\Services\ResumeParserService;
-use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
 class ApplicationController extends Controller
 {
@@ -115,8 +115,6 @@ class ApplicationController extends Controller
             'Application submitted'
         ));
 
-        WorkspaceCacheService::invalidateAll();
-
         return response()->json([
             'message' => 'Application submitted successfully',
             'application' => new ApplicationResource($application->load(['job', 'candidate', 'resume'])),
@@ -162,14 +160,7 @@ class ApplicationController extends Controller
      */
     public function show(Request $request, Application $application): JsonResponse
     {
-        $user = $request->user();
-        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
-            if (! $user->candidate || $user->candidate->id !== $application->candidate_id) {
-                return response()->json([
-                    'message' => 'Forbidden: You do not have access to this application.',
-                ], 403);
-            }
-        }
+        Gate::authorize('view', $application);
 
         $application->load([
             'job',
@@ -206,8 +197,6 @@ class ApplicationController extends Controller
             $request->user(),
             $request->comment
         ));
-
-        WorkspaceCacheService::invalidateAll();
 
         return response()->json([
             'message' => "Application status updated to {$newStatus}",

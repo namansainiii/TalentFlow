@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CandidateResource;
 use App\Http\Resources\UserResource;
 use App\Models\Candidate;
-use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -91,8 +90,6 @@ class CandidateController extends Controller
                 'skills_summary' => array_key_exists('skills_summary', $validated) ? $validated['skills_summary'] : $candidate->skills_summary,
             ]);
         }
-
-        WorkspaceCacheService::invalidateAll();
 
         $candidate->refresh()->load(['latestResume', 'resumes']);
 

@@ -7,7 +7,6 @@ use App\Http\Requests\UpdateJobRequest;
 use App\Http\Resources\JobResource;
 use App\Models\Job;
 use App\Models\Skill;
-use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -72,8 +71,6 @@ class JobController extends Controller
             );
         }
 
-        WorkspaceCacheService::invalidateAll();
-
         return response()->json([
             'message' => 'Job created successfully',
             'job' => new JobResource($job->load(['recruiter', 'skills'])),
@@ -115,8 +112,6 @@ class JobController extends Controller
             );
         }
 
-        WorkspaceCacheService::invalidateAll();
-
         return response()->json([
             'message' => 'Job updated successfully',
             'job' => new JobResource($job->load(['recruiter', 'skills'])),
@@ -157,8 +152,6 @@ class JobController extends Controller
     public function destroy(Job $job): JsonResponse
     {
         $job->delete();
-
-        WorkspaceCacheService::invalidateAll();
 
         return response()->json([
             'message' => 'Job deleted successfully',

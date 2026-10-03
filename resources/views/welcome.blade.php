@@ -2760,7 +2760,7 @@
 
         // Global Loading Popup Controller
         let loadingTimeout = null;
-        function showLoading(title = 'Loading...', subtitle = 'Connecting to database & loading workspace...') {
+        function showLoading(title = 'Loading...', subtitle = 'Please wait...') {
             const overlay = document.getElementById('loadingPopupOverlay');
             const titleEl = document.getElementById('loadingPopupTitle');
             const subEl = document.getElementById('loadingPopupSubtitle');
@@ -2772,7 +2772,7 @@
             clearTimeout(loadingTimeout);
             loadingTimeout = setTimeout(() => {
                 hideLoading();
-            }, 4500);
+            }, 2500);
         }
 
         function hideLoading() {
@@ -2875,7 +2875,7 @@
                 role: role
             };
 
-            showLoading('Creating Account...', 'Registering profile & connecting to database...');
+            showLoading('Creating Account...', 'Registering profile...');
             try {
                 const res = await fetch('/api/auth/register', {
                     method: 'POST',
@@ -2969,7 +2969,7 @@
         }
 
         async function performLogin(email, password) {
-            showLoading('Signing In...', 'Verifying credentials & loading workspace...');
+            showLoading('Signing In...', 'Verifying credentials...');
             try {
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
@@ -3010,7 +3010,7 @@
                 role: role
             };
 
-            showLoading('Creating Account...', 'Registering profile & connecting to database...');
+            showLoading('Creating Account...', 'Registering profile...');
             try {
                 const res = await fetch('/api/auth/register', {
                     method: 'POST',
@@ -3818,7 +3818,7 @@
                 return;
             }
 
-            showLoading('Saving Profile...', 'Updating candidate profile in database...');
+            showLoading('Saving Profile...', 'Saving changes...');
 
             try {
                 if (resumeFile) {
@@ -4059,7 +4059,7 @@
             const cand = (state.candidates || []).find(c => c.email === user.email || c.name === user.name) || user.candidate || {};
             const latestResume = cand.latest_resume || (cand.resumes && cand.resumes[0]);
 
-            showLoading('Submitting Application...', `Sending profile details & resume for ${title}...`);
+            showLoading('Submitting Application...', 'Please wait...');
 
             try {
                 const formData = new FormData();

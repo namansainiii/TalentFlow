@@ -11,10 +11,10 @@ use App\Http\Resources\TechnicalTaskResource;
 use App\Models\Application;
 use App\Models\TaskSubmission;
 use App\Models\TechnicalTask;
-use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
 class TechnicalTaskController extends Controller
 {
@@ -66,8 +66,6 @@ class TechnicalTaskController extends Controller
             'status' => TechnicalTask::STATUS_PENDING,
         ]);
 
-        WorkspaceCacheService::invalidateAll();
-
         return response()->json([
             'message' => 'Technical task assigned successfully',
             'task' => new TechnicalTaskResource($task->load(['assignedByUser', 'application.candidate'])),
@@ -79,14 +77,7 @@ class TechnicalTaskController extends Controller
      */
     public function show(Request $request, TechnicalTask $task): JsonResponse
     {
-        $user = $request->user();
-        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
-            if (! $user->candidate || $user->candidate->id !== $task->application?->candidate_id) {
-                return response()->json([
-                    'message' => 'Forbidden: You do not have access to this task.',
-                ], 403);
-            }
-        }
+        Gate::authorize('view', $task);
 
         $task->load(['assignedByUser', 'submissions', 'latestSubmission', 'application.candidate', 'application.job']);
 
@@ -100,20 +91,12 @@ class TechnicalTaskController extends Controller
      */
     public function start(Request $request, TechnicalTask $task): JsonResponse
     {
-        $user = $request->user();
-        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
-            if (! $user->candidate || $user->candidate->id !== $task->application?->candidate_id) {
-                return response()->json([
-                    'message' => 'Forbidden: You do not have access to this task.',
-                ], 403);
-            }
-        }
+        Gate::authorize('view', $task);
 
         if ($task->status === TechnicalTask::STATUS_PENDING) {
             $task->update([
                 'status' => TechnicalTask::STATUS_IN_PROGRESS,
             ]);
-            WorkspaceCacheService::invalidateAll();
         }
 
         return response()->json([
@@ -127,14 +110,7 @@ class TechnicalTaskController extends Controller
      */
     public function submit(SubmitTechnicalTaskRequest $request, TechnicalTask $task): JsonResponse
     {
-        $user = $request->user();
-        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
-            if (! $user->candidate || $user->candidate->id !== $task->application?->candidate_id) {
-                return response()->json([
-                    'message' => 'Forbidden: You do not have access to this task.',
-                ], 403);
-            }
-        }
+        Gate::authorize('submit', $task);
 
         $filePath = null;
         if ($request->hasFile('file')) {
@@ -155,8 +131,6 @@ class TechnicalTaskController extends Controller
 
         // Dispatches event: notifies recruiter of new submission!
         event(new TaskSubmitted($task, $submission));
-
-        WorkspaceCacheService::invalidateAll();
 
         return response()->json([
             'message' => 'Technical task submitted successfully',
@@ -186,8 +160,6 @@ class TechnicalTaskController extends Controller
         $task->update([
             'status' => $request->status ?? TechnicalTask::STATUS_REVIEWED,
         ]);
-
-        WorkspaceCacheService::invalidateAll();
 
         return response()->json([
             'message' => 'Technical task reviewed successfully',

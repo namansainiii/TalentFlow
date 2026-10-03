@@ -3,22 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UploadResumeRequest;
+use App\Http\Resources\CandidateResource;
 use App\Http\Resources\ResumeResource;
 use App\Jobs\ProcessResumeJob;
 use App\Models\Candidate;
 use App\Models\Resume;
 use App\Services\CandidateScoringService;
 use App\Services\ResumeParserService;
-use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ResumeController extends Controller
 {
     /**
      * Upload candidate resume (PDF).
      */
-    public function upload(UploadResumeRequest $request, ResumeParserService $parser): JsonResponse
+    public function upload(UploadResumeRequest $request): JsonResponse
     {
         $user = $request->user();
 
@@ -56,12 +57,10 @@ class ResumeController extends Controller
         // Process via Queue (or inline if sync)
         ProcessResumeJob::dispatch($resume);
 
-        WorkspaceCacheService::invalidateAll();
-
         $candidate->refresh()->load(['latestResume', 'resumes']);
 
         return response()->json([
-            'message' => 'Resume uploaded successfully and processed',
+            'message' => 'Resume uploaded successfully and queued for processing',
             'resume' => new ResumeResource($resume),
             'candidate' => new CandidateResource($candidate),
         ], 201);
@@ -72,14 +71,7 @@ class ResumeController extends Controller
      */
     public function show(Request $request, Resume $resume): JsonResponse
     {
-        $user = $request->user();
-        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
-            if (! $user->candidate || $user->candidate->id !== $resume->candidate_id) {
-                return response()->json([
-                    'message' => 'Forbidden: You do not have access to this resume.',
-                ], 403);
-            }
-        }
+        Gate::authorize('view', $resume);
 
         return response()->json([
             'resume' => new ResumeResource($resume),
@@ -91,14 +83,7 @@ class ResumeController extends Controller
      */
     public function process(Request $request, Resume $resume, ResumeParserService $parser, CandidateScoringService $scorer): JsonResponse
     {
-        $user = $request->user();
-        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
-            if (! $user->candidate || $user->candidate->id !== $resume->candidate_id) {
-                return response()->json([
-                    'message' => 'Forbidden: You do not have access to this resume.',
-                ], 403);
-            }
-        }
+        Gate::authorize('view', $resume);
 
         $parser->parseResume($resume);
 

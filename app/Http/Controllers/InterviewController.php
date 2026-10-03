@@ -8,10 +8,10 @@ use App\Http\Resources\InterviewResource;
 use App\Models\Application;
 use App\Models\Interview;
 use App\Services\InterviewValidationService;
-use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
 class InterviewController extends Controller
@@ -86,8 +86,6 @@ class InterviewController extends Controller
             'feedback' => $request->feedback,
         ]);
 
-        WorkspaceCacheService::invalidateAll();
-
         return response()->json([
             'message' => 'Interview scheduled successfully',
             'interview' => new InterviewResource($interview->load(['interviewer', 'application.candidate', 'application.job'])),
@@ -99,14 +97,7 @@ class InterviewController extends Controller
      */
     public function show(Request $request, Interview $interview): JsonResponse
     {
-        $user = $request->user();
-        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
-            if (! $user->candidate || $user->candidate->id !== $interview->application?->candidate_id) {
-                return response()->json([
-                    'message' => 'Forbidden: You do not have access to this interview.',
-                ], 403);
-            }
-        }
+        Gate::authorize('view', $interview);
 
         $interview->load(['interviewer', 'application.candidate', 'application.job']);
 
@@ -148,8 +139,6 @@ class InterviewController extends Controller
             'feedback',
         ]));
 
-        WorkspaceCacheService::invalidateAll();
-
         return response()->json([
             'message' => 'Interview updated successfully',
             'interview' => new InterviewResource($interview->fresh(['interviewer', 'application.candidate', 'application.job'])),
@@ -165,8 +154,6 @@ class InterviewController extends Controller
             'status' => Interview::STATUS_CANCELLED,
             'feedback' => $request->input('reason', 'Cancelled by recruiter'),
         ]);
-
-        WorkspaceCacheService::invalidateAll();
 
         return response()->json([
             'message' => 'Interview cancelled successfully',
@@ -187,8 +174,6 @@ class InterviewController extends Controller
             'status' => Interview::STATUS_COMPLETED,
             'feedback' => $request->feedback,
         ]);
-
-        WorkspaceCacheService::invalidateAll();
 
         return response()->json([
             'message' => 'Interview marked as completed',
