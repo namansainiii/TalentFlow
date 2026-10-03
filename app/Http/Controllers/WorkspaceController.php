@@ -47,7 +47,7 @@ class WorkspaceController extends Controller
                 ->get();
 
             // 2. Candidates
-            $candidatesQuery = Candidate::query();
+            $candidatesQuery = Candidate::with(['latestResume', 'resumes']);
             if ($isCandidate) {
                 $candidatesQuery->where('id', $candidateId);
             }

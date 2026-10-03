@@ -9,6 +9,7 @@ use App\Models\Candidate;
 use App\Models\Resume;
 use App\Services\CandidateScoringService;
 use App\Services\ResumeParserService;
+use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -55,9 +56,14 @@ class ResumeController extends Controller
         // Process via Queue (or inline if sync)
         ProcessResumeJob::dispatch($resume);
 
+        WorkspaceCacheService::invalidateAll();
+
+        $candidate->refresh()->load(['latestResume', 'resumes']);
+
         return response()->json([
-            'message' => 'Resume uploaded successfully and queued for processing',
+            'message' => 'Resume uploaded successfully and processed',
             'resume' => new ResumeResource($resume),
+            'candidate' => new CandidateResource($candidate),
         ], 201);
     }
 

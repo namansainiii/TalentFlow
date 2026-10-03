@@ -36,11 +36,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // High-speed workspace bootstrap
     Route::get('/workspace/bootstrap', [WorkspaceController::class, 'bootstrap']);
 
-    // Auth endpoints
+    // Auth & Profile endpoints
     Route::prefix('auth')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
         Route::post('/logout', [AuthController::class, 'logout']);
     });
+    Route::put('/profile', [CandidateController::class, 'updateProfile']);
 
     // Resume Management
     Route::post('/resumes/upload', [ResumeController::class, 'upload']);

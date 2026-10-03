@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CandidateResource;
+use App\Http\Resources\UserResource;
 use App\Models\Candidate;
+use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -43,6 +45,60 @@ class CandidateController extends Controller
         $candidate->load(['latestResume', 'resumes', 'applications.job']);
 
         return response()->json([
+            'candidate' => new CandidateResource($candidate),
+        ]);
+    }
+
+    /**
+     * Update current user's candidate profile.
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'phone' => 'nullable|string|max:50',
+            'experience_years' => 'nullable|numeric|min:0|max:50',
+            'education' => 'nullable|string|max:255',
+            'skills_summary' => 'nullable|string|max:2000',
+        ]);
+
+        if (! empty($validated['name']) && $user->name !== $validated['name']) {
+            $user->update(['name' => $validated['name']]);
+        }
+        if (array_key_exists('phone', $validated) && $user->phone !== $validated['phone']) {
+            $user->update(['phone' => $validated['phone']]);
+        }
+
+        $candidate = $user->candidate;
+        if (! $candidate) {
+            $candidate = Candidate::create([
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $validated['phone'] ?? $user->phone,
+                'experience_years' => $validated['experience_years'] ?? 0,
+                'education' => $validated['education'] ?? null,
+                'skills_summary' => $validated['skills_summary'] ?? null,
+            ]);
+        } else {
+            $candidate->update([
+                'name' => $validated['name'] ?? $candidate->name,
+                'phone' => array_key_exists('phone', $validated) ? $validated['phone'] : $candidate->phone,
+                'experience_years' => array_key_exists('experience_years', $validated) ? $validated['experience_years'] : $candidate->experience_years,
+                'education' => array_key_exists('education', $validated) ? $validated['education'] : $candidate->education,
+                'skills_summary' => array_key_exists('skills_summary', $validated) ? $validated['skills_summary'] : $candidate->skills_summary,
+            ]);
+        }
+
+        WorkspaceCacheService::invalidateAll();
+
+        $candidate->refresh()->load(['latestResume', 'resumes']);
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user' => new UserResource($user->fresh()),
             'candidate' => new CandidateResource($candidate),
         ]);
     }
