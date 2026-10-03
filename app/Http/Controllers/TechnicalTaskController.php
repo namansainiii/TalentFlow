@@ -11,6 +11,7 @@ use App\Http\Resources\TechnicalTaskResource;
 use App\Models\Application;
 use App\Models\TaskSubmission;
 use App\Models\TechnicalTask;
+use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -65,6 +66,8 @@ class TechnicalTaskController extends Controller
             'status' => TechnicalTask::STATUS_PENDING,
         ]);
 
+        WorkspaceCacheService::invalidateAll();
+
         return response()->json([
             'message' => 'Technical task assigned successfully',
             'task' => new TechnicalTaskResource($task->load(['assignedByUser', 'application.candidate'])),
@@ -110,6 +113,7 @@ class TechnicalTaskController extends Controller
             $task->update([
                 'status' => TechnicalTask::STATUS_IN_PROGRESS,
             ]);
+            WorkspaceCacheService::invalidateAll();
         }
 
         return response()->json([
@@ -152,6 +156,8 @@ class TechnicalTaskController extends Controller
         // Dispatches event: notifies recruiter of new submission!
         event(new TaskSubmitted($task, $submission));
 
+        WorkspaceCacheService::invalidateAll();
+
         return response()->json([
             'message' => 'Technical task submitted successfully',
             'submission' => new TaskSubmissionResource($submission),
@@ -180,6 +186,8 @@ class TechnicalTaskController extends Controller
         $task->update([
             'status' => $request->status ?? TechnicalTask::STATUS_REVIEWED,
         ]);
+
+        WorkspaceCacheService::invalidateAll();
 
         return response()->json([
             'message' => 'Technical task reviewed successfully',

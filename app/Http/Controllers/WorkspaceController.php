@@ -14,6 +14,7 @@ use App\Models\Interview;
 use App\Models\Job;
 use App\Models\TechnicalTask;
 use App\Services\AnalyticsService;
+use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -25,61 +26,70 @@ class WorkspaceController extends Controller
      */
     public function bootstrap(Request $request, AnalyticsService $analyticsService): JsonResponse
     {
+        @set_time_limit(120);
+
         $user = $request->user()->loadMissing(['role', 'candidate']);
         $isCandidate = $user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin();
         $candidateId = $user->candidate?->id ?? 0;
 
-        $cacheKey = "workspace_bootstrap_{$user->id}";
+        $version = WorkspaceCacheService::getVersion();
+        $cacheKey = "workspace_bootstrap_{$user->id}_v{$version}";
         if ($request->boolean('fresh')) {
+            WorkspaceCacheService::invalidateAll();
             Cache::forget($cacheKey);
         }
 
-        $data = Cache::remember($cacheKey, 15, function () use ($user, $isCandidate, $candidateId, $analyticsService) {
-            // 1. Jobs
-            $jobs = Job::with(['skills', 'recruiter.role'])
+        $data = Cache::remember($cacheKey, 300, function () use ($user, $isCandidate, $candidateId, $analyticsService) {
+            // 1. Jobs with skills
+            $jobs = Job::with('skills')
                 ->withCount('applications')
                 ->latest()
                 ->get();
 
             // 2. Candidates
-            $candidatesQuery = Candidate::with(['latestResume', 'applications.job']);
+            $candidatesQuery = Candidate::query();
             if ($isCandidate) {
                 $candidatesQuery->where('id', $candidateId);
             }
             $candidates = $candidatesQuery->latest()->get();
 
-            // 3. Applications
-            $appsQuery = Application::with([
-                'job.skills',
-                'candidate',
-                'resume',
-            ]);
+            // 3. Applications with candidate, job, and resume
+            $appsQuery = Application::with(['candidate', 'job', 'resume']);
             if ($isCandidate) {
                 $appsQuery->where('candidate_id', $candidateId);
             }
             $applications = $appsQuery->latest()->get();
 
-            // 4. Interviews
-            $intQuery = Interview::with(['interviewer.role', 'application.candidate', 'application.job']);
+            // 4. Interviews with interviewer
+            $intQuery = Interview::with('interviewer');
             if ($isCandidate) {
                 $intQuery->whereHas('application', fn ($q) => $q->where('candidate_id', $candidateId));
             }
             $interviews = $intQuery->latest('scheduled_at')->get();
 
-            // 5. Technical Tasks
-            $taskQuery = TechnicalTask::with([
-                'assignedByUser.role',
-                'latestSubmission',
-                'application.candidate',
-                'application.job',
-            ]);
+            // Link already-loaded application relation in memory (zero extra SQL queries)
+            $interviews->each(function ($interview) use ($applications) {
+                if ($app = $applications->firstWhere('id', $interview->application_id)) {
+                    $interview->setRelation('application', $app);
+                }
+            });
+
+            // 5. Technical Tasks with assignedByUser & latestSubmission
+            $taskQuery = TechnicalTask::with(['assignedByUser', 'latestSubmission']);
             if ($isCandidate) {
                 $taskQuery->whereHas('application', fn ($q) => $q->where('candidate_id', $candidateId));
             }
             $tasks = $taskQuery->latest()->get();
 
-            // 6. Analytics
-            $analytics = $analyticsService->getAnalytics();
+            // Link already-loaded application relation in memory (zero extra SQL queries)
+            $tasks->each(function ($task) use ($applications) {
+                if ($app = $applications->firstWhere('id', $task->application_id)) {
+                    $task->setRelation('application', $app);
+                }
+            });
+
+            // 6. Analytics computed in-memory from loaded collections (0 extra queries, 0ms)
+            $analytics = $analyticsService->getAnalytics($jobs, $applications, $interviews, $tasks);
 
             return [
                 'user' => (new UserResource($user))->resolve(),

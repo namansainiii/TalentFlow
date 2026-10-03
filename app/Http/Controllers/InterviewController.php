@@ -8,6 +8,7 @@ use App\Http\Resources\InterviewResource;
 use App\Models\Application;
 use App\Models\Interview;
 use App\Services\InterviewValidationService;
+use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -85,6 +86,8 @@ class InterviewController extends Controller
             'feedback' => $request->feedback,
         ]);
 
+        WorkspaceCacheService::invalidateAll();
+
         return response()->json([
             'message' => 'Interview scheduled successfully',
             'interview' => new InterviewResource($interview->load(['interviewer', 'application.candidate', 'application.job'])),
@@ -145,6 +148,8 @@ class InterviewController extends Controller
             'feedback',
         ]));
 
+        WorkspaceCacheService::invalidateAll();
+
         return response()->json([
             'message' => 'Interview updated successfully',
             'interview' => new InterviewResource($interview->fresh(['interviewer', 'application.candidate', 'application.job'])),
@@ -160,6 +165,8 @@ class InterviewController extends Controller
             'status' => Interview::STATUS_CANCELLED,
             'feedback' => $request->input('reason', 'Cancelled by recruiter'),
         ]);
+
+        WorkspaceCacheService::invalidateAll();
 
         return response()->json([
             'message' => 'Interview cancelled successfully',
@@ -180,6 +187,8 @@ class InterviewController extends Controller
             'status' => Interview::STATUS_COMPLETED,
             'feedback' => $request->feedback,
         ]);
+
+        WorkspaceCacheService::invalidateAll();
 
         return response()->json([
             'message' => 'Interview marked as completed',

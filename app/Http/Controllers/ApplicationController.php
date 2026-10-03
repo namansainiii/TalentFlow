@@ -13,6 +13,7 @@ use App\Models\Job;
 use App\Models\Resume;
 use App\Services\CandidateScoringService;
 use App\Services\ResumeParserService;
+use App\Services\WorkspaceCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -114,6 +115,8 @@ class ApplicationController extends Controller
             'Application submitted'
         ));
 
+        WorkspaceCacheService::invalidateAll();
+
         return response()->json([
             'message' => 'Application submitted successfully',
             'application' => new ApplicationResource($application->load(['job', 'candidate', 'resume'])),
@@ -203,6 +206,8 @@ class ApplicationController extends Controller
             $request->user(),
             $request->comment
         ));
+
+        WorkspaceCacheService::invalidateAll();
 
         return response()->json([
             'message' => "Application status updated to {$newStatus}",

@@ -149,6 +149,164 @@
         .role-recruiter { background: var(--primary-light); color: var(--primary); }
         .role-candidate { background: var(--success-light); color: var(--success); }
 
+        /* Notification Bell & Dropdown */
+        .notif-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .btn-icon-notif {
+            position: relative;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.05rem;
+            transition: all 0.2s ease;
+            color: var(--text-dark);
+            padding: 0;
+            outline: none;
+        }
+
+        .btn-icon-notif:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .notif-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            min-width: 17px;
+            height: 17px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            border: 2px solid #ffffff;
+            animation: pulseBadge 2.2s infinite;
+        }
+
+        @keyframes pulseBadge {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .notif-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 340px;
+            max-width: 90vw;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            z-index: 10000;
+            overflow: hidden;
+            animation: fadeInOverlay 0.15s ease-out;
+        }
+
+        .notif-dropdown-header {
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .notif-mark-all {
+            background: none;
+            border: none;
+            font-size: 0.75rem;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+            padding: 0;
+        }
+        .notif-mark-all:hover {
+            text-decoration: underline;
+        }
+
+        .notif-dropdown-body {
+            max-height: 340px;
+            overflow-y: auto;
+        }
+
+        .notif-item {
+            padding: 11px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .notif-item:hover {
+            background: #f8fafc;
+        }
+
+        .notif-item.unread {
+            background: #eff6ff;
+            border-left: 3px solid var(--primary);
+        }
+
+        .notif-item.urgent {
+            background: #fff7ed;
+            border-left: 3px solid #f97316;
+        }
+
+        .notif-icon {
+            font-size: 1.15rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .notif-content {
+            flex: 1;
+        }
+
+        .notif-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+        }
+
+        .notif-message {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            line-height: 1.35;
+        }
+
+        .notif-time {
+            font-size: 0.68rem;
+            color: var(--text-light);
+            margin-top: 3px;
+        }
+
+        .notif-empty {
+            padding: 24px 16px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
         /* Container */
         .main-content {
             max-width: 1240px;
@@ -1000,6 +1158,7 @@
         }
 
         .loading-popup-card {
+            position: relative;
             background: #ffffff;
             border-radius: 20px;
             padding: 32px 36px;
@@ -1011,6 +1170,25 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+
+        .loading-popup-close {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            line-height: 1;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: color 0.15s, background 0.15s;
+        }
+        .loading-popup-close:hover {
+            color: #0f172a;
+            background: #f1f5f9;
         }
 
         @keyframes popInCard {
@@ -1314,13 +1492,32 @@
                     <div id="userLoggedInBlock" style="display:none; align-items:center; gap:10px;">
                         <span id="navUserName" style="font-weight:600; font-size:0.88rem;">Alex Miller</span>
                         <span class="role-badge role-recruiter" id="navRoleBadge">recruiter</span>
-                        <button class="btn btn-outline btn-sm" onclick="switchRole()" title="Switch to another role or persona">🔄 Switch Role</button>
+
+                        <!-- Notification Bell (with 24h task deadline reminders & status updates) -->
+                        <div class="notif-wrapper" id="notifWrapper">
+                            <button type="button" class="btn-icon-notif" id="btnNotifToggle" onclick="toggleNotifications(event)" title="Notifications (Deadline reminders & updates)" aria-label="Notifications">
+                                <span class="bell-icon">🔔</span>
+                                <span class="notif-badge" id="notifBadge" style="display: none;">0</span>
+                            </button>
+                            <div class="notif-dropdown" id="notifDropdown" style="display: none;">
+                                <div class="notif-dropdown-header">
+                                    <span style="font-weight:700; font-size:0.88rem; color:var(--text-dark);">Notifications</span>
+                                    <button type="button" class="notif-mark-all" onclick="markAllNotificationsRead(event)">Mark all as read</button>
+                                </div>
+                                <div class="notif-dropdown-body" id="notifList">
+                                    <div class="notif-empty">No notifications yet</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Switch role button (hidden for candidate login!) -->
+                        <button id="btnSwitchRole" class="btn btn-outline btn-sm" onclick="switchRole()" title="Switch to another role or persona">🔄 Switch Role</button>
+                        
                         <button class="btn btn-outline btn-sm" onclick="logout()" title="Logout">🚪 Logout</button>
                     </div>
                     <div id="userGuestBlock">
                         <button class="btn btn-primary btn-sm" onclick="showAuthGateway()">Sign In / Register</button>
                     </div>
-                    <button class="btn btn-outline btn-sm" onclick="runDeadlineCheck()" title="Check task deadlines">⏱️ Check Deadlines</button>
                 </div>
             </div>
         </header>
@@ -1332,39 +1529,39 @@
         <section class="tab-panel active" id="panel-dashboard">
             <div class="section-header">
                 <div>
-                    <h2 class="section-title">Overview & Analytics</h2>
-                    <p class="section-desc">Key metrics and hiring funnel status across all active jobs.</p>
+                    <h2 class="section-title" id="dashboardSectionTitle">Overview & Analytics</h2>
+                    <p class="section-desc" id="dashboardSectionDesc">Key metrics and hiring funnel status across all active jobs.</p>
                 </div>
                 <div id="recruiterDashboardActions">
                     <button class="btn btn-primary btn-sm" onclick="openModal('modalJob')">+ Post Job</button>
                 </div>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Total Jobs</div>
+            <div class="stats-grid" id="dashboardStatsGrid">
+                <div class="stat-card" id="cardStatJobs">
+                    <div class="stat-label" id="labelStatJobs">Total Jobs</div>
                     <div class="stat-value" id="statJobs">0</div>
                     <div class="stat-sub" id="statActiveJobs">0 open positions</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Active Candidates</div>
+                <div class="stat-card" id="cardStatCandidates">
+                    <div class="stat-label" id="labelStatCandidates">Active Candidates</div>
                     <div class="stat-value" id="statCandidates" style="color:var(--primary);">0</div>
-                    <div class="stat-sub">Screened & in pipeline</div>
+                    <div class="stat-sub" id="subStatCandidates">Screened & in pipeline</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Interviews This Week</div>
+                <div class="stat-card" id="cardStatInterviews">
+                    <div class="stat-label" id="labelStatInterviews">Interviews This Week</div>
                     <div class="stat-value" id="statInterviews">0</div>
-                    <div class="stat-sub">Scheduled sessions</div>
+                    <div class="stat-sub" id="subStatInterviews">Scheduled sessions</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Avg Candidate Score</div>
+                <div class="stat-card" id="cardStatAvgScore">
+                    <div class="stat-label" id="labelStatAvgScore">Avg Candidate Score</div>
                     <div class="stat-value" id="statAvgScore" style="color:var(--success);">0%</div>
-                    <div class="stat-sub">Resume skill match</div>
+                    <div class="stat-sub" id="subStatAvgScore">Resume skill match</div>
                 </div>
             </div>
 
             <div class="card">
-                <h3 class="card-title">Hiring Pipeline Funnel</h3>
+                <h3 class="card-title" id="pipelineFunnelTitle">Hiring Pipeline Funnel</h3>
                 <div class="funnel-container" id="funnelContainer"></div>
             </div>
         </section>
@@ -1886,8 +2083,9 @@
     </div>
 
     <!-- Global Loading Popup Overlay -->
-    <div id="loadingPopupOverlay" class="loading-popup-overlay" style="display: none;">
-        <div class="loading-popup-card">
+    <div id="loadingPopupOverlay" class="loading-popup-overlay" style="display: none;" onclick="if(event.target===this) hideLoading();">
+        <div class="loading-popup-card" onclick="event.stopPropagation();">
+            <button type="button" class="loading-popup-close" onclick="hideLoading()" aria-label="Dismiss" title="Dismiss loading screen">&times;</button>
             <div class="loading-spinner-wrapper">
                 <div class="loading-spinner-ring"></div>
                 <div class="loading-spinner-core">⚡</div>
@@ -1916,6 +2114,7 @@
         };
 
         // Global Loading Popup Controller
+        let loadingTimeout = null;
         function showLoading(title = 'Loading...', subtitle = 'Connecting to database & loading workspace...') {
             const overlay = document.getElementById('loadingPopupOverlay');
             const titleEl = document.getElementById('loadingPopupTitle');
@@ -1923,9 +2122,16 @@
             if (titleEl) titleEl.textContent = title;
             if (subEl) subEl.textContent = subtitle;
             if (overlay) overlay.style.display = 'flex';
+
+            // Auto-dismiss safety timeout: never block the user indefinitely
+            clearTimeout(loadingTimeout);
+            loadingTimeout = setTimeout(() => {
+                hideLoading();
+            }, 4500);
         }
 
         function hideLoading() {
+            clearTimeout(loadingTimeout);
             const overlay = document.getElementById('loadingPopupOverlay');
             if (overlay) overlay.style.display = 'none';
         }
@@ -1942,6 +2148,7 @@
                     hideLoading();
                 }
             } else {
+                hideLoading();
                 showAuthGateway();
             }
         });
@@ -2217,6 +2424,46 @@
 
             // Adapt navigation elements based on role
             const isRecruiterOrAdmin = role === 'recruiter' || role === 'admin';
+            const isCandidate = role === 'candidate';
+
+            // Candidate Login: remove Switch Role button
+            const switchRoleBtn = document.getElementById('btnSwitchRole');
+            if (switchRoleBtn) {
+                switchRoleBtn.style.display = isCandidate ? 'none' : 'inline-flex';
+            }
+
+            // Stat card adaptation for Candidate vs Recruiter/Admin
+            const cardStatScore = document.getElementById('cardStatAvgScore');
+            const labelStatCandidates = document.getElementById('labelStatCandidates');
+            const subStatCandidates = document.getElementById('subStatCandidates');
+            const labelStatJobs = document.getElementById('labelStatJobs');
+            const subStatInterviews = document.getElementById('subStatInterviews');
+            const dashTitle = document.getElementById('dashboardSectionTitle');
+            const dashDesc = document.getElementById('dashboardSectionDesc');
+            const funnelTitle = document.getElementById('pipelineFunnelTitle');
+
+            if (isCandidate) {
+                // Remove avg candidate score
+                if (cardStatScore) cardStatScore.style.display = 'none';
+                // Remove active candidates -> change to Tasks This Week
+                if (labelStatCandidates) labelStatCandidates.textContent = 'Tasks This Week';
+                if (subStatCandidates) subStatCandidates.textContent = 'Active & upcoming deadlines';
+                if (labelStatJobs) labelStatJobs.textContent = 'Available Jobs';
+                if (subStatInterviews) subStatInterviews.textContent = 'Scheduled for you';
+                if (dashTitle) dashTitle.textContent = 'Candidate Portal & Overview';
+                if (dashDesc) dashDesc.textContent = 'Track your job applications, scheduled interviews, and technical tasks.';
+                if (funnelTitle) funnelTitle.textContent = 'My Application Progress';
+            } else {
+                if (cardStatScore) cardStatScore.style.display = 'block';
+                if (labelStatCandidates) labelStatCandidates.textContent = 'Active Candidates';
+                if (subStatCandidates) subStatCandidates.textContent = 'Screened & in pipeline';
+                if (labelStatJobs) labelStatJobs.textContent = 'Total Jobs';
+                if (subStatInterviews) subStatInterviews.textContent = 'Scheduled sessions';
+                if (dashTitle) dashTitle.textContent = 'Overview & Analytics';
+                if (dashDesc) dashDesc.textContent = 'Key metrics and hiring funnel status across all active jobs.';
+                if (funnelTitle) funnelTitle.textContent = 'Hiring Pipeline Funnel';
+            }
+
             document.getElementById('recruiterDashboardActions').style.display = isRecruiterOrAdmin ? 'block' : 'none';
             document.getElementById('recruiterJobActions').style.display = isRecruiterOrAdmin ? 'block' : 'none';
             document.getElementById('recruiterInterviewActions').style.display = isRecruiterOrAdmin ? 'block' : 'none';
@@ -2230,6 +2477,9 @@
                 applyName.value = user.name;
                 applyEmail.value = user.email;
             }
+
+            // Fetch in-app notifications & 24h deadline reminders
+            loadNotifications();
         }
 
         async function logout() {
@@ -2288,53 +2538,66 @@
 
                     if (data.user) {
                         state.currentUser = data.user;
-                        updateRoleUI();
+                        try { updateRoleUI(); } catch (e) { console.error('Error updating role UI:', e); }
                     }
 
                     if (data.analytics) {
-                        renderAnalytics(data.analytics);
+                        try { renderAnalytics(data.analytics); } catch (e) { console.error('Error rendering analytics:', e); }
                     }
 
                     if (data.jobs) {
                         state.jobs = data.jobs;
-                        renderJobs(data.jobs);
+                        try { renderJobs(data.jobs); } catch (e) { console.error('Error rendering jobs:', e); }
                     }
+
+                    // Workspace is populated - dismiss loading popup immediately!
+                    hideLoading();
 
                     if (data.applications) {
                         state.applications = data.applications;
-                        renderPipeline(data.applications);
-                        populateSelects(data.applications);
+                        try {
+                            renderPipeline(data.applications);
+                            populateSelects(data.applications);
+                        } catch (e) { console.error('Error rendering pipeline:', e); }
                     }
 
                     if (data.interviews) {
                         state.interviews = data.interviews;
-                        renderInterviews(data.interviews);
+                        try { renderInterviews(data.interviews); } catch (e) { console.error('Error rendering interviews:', e); }
                     }
 
                     if (data.tasks) {
                         state.tasks = data.tasks;
-                        renderTasks(data.tasks);
+                        try { renderTasks(data.tasks); } catch (e) { console.error('Error rendering tasks:', e); }
                     }
 
                     if (data.candidates) {
                         state.candidates = data.candidates;
-                        renderCandidates(data.candidates);
+                        try { renderCandidates(data.candidates); } catch (e) { console.error('Error rendering candidates:', e); }
                     }
                     return;
                 }
             } catch (err) {
                 console.warn('Bootstrap endpoint unavailable, falling back:', err);
+            } finally {
+                hideLoading();
             }
 
             // Fallback to individual requests if needed
-            await Promise.all([
-                loadAnalytics(),
-                loadJobs(),
-                loadApplications(),
-                loadInterviews(),
-                loadTasks(),
-                loadCandidates()
-            ]);
+            try {
+                await Promise.all([
+                    loadAnalytics(),
+                    loadJobs(),
+                    loadApplications(),
+                    loadInterviews(),
+                    loadTasks(),
+                    loadCandidates()
+                ]);
+            } catch (err) {
+                console.error('Error in fallback load:', err);
+            } finally {
+                hideLoading();
+            }
         }
 
         function renderAnalytics(analytics) {
@@ -2344,11 +2607,28 @@
             const sc = document.getElementById('statCandidates');
             const si = document.getElementById('statInterviews');
             const sa = document.getElementById('statAvgScore');
+            const cardScore = document.getElementById('cardStatAvgScore');
+
+            const isCandidate = state.currentUser?.role?.name === 'candidate';
+
             if (sj) sj.textContent = analytics.total_jobs ?? 0;
             if (saj) saj.textContent = `${analytics.active_jobs ?? 0} open positions`;
-            if (sc) sc.textContent = analytics.active_candidates ?? 0;
+
+            if (isCandidate) {
+                // For candidate: "Tasks This Week"
+                const myTasks = state.tasks || [];
+                const activeTasksCount = analytics.tasks_this_week !== undefined
+                    ? analytics.tasks_this_week
+                    : myTasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length;
+                if (sc) sc.textContent = activeTasksCount;
+                if (cardScore) cardScore.style.display = 'none';
+            } else {
+                if (sc) sc.textContent = analytics.active_candidates ?? 0;
+                if (sa) sa.textContent = `${analytics.average_candidate_score ?? 0}%`;
+                if (cardScore) cardScore.style.display = 'block';
+            }
+
             if (si) si.textContent = analytics.interviews_this_week ?? 0;
-            if (sa) sa.textContent = `${analytics.average_candidate_score ?? 0}%`;
 
             const container = document.getElementById('funnelContainer');
             if (!container) return;
@@ -2892,12 +3172,120 @@
             }
         }
 
-        async function runDeadlineCheck() {
-            showToast('Checking deadlines & overdue tasks...', 'success');
-            await api('/api/dashboard/analytics');
-            await reloadAll();
-            showToast('Deadline check finished!', 'success');
+        // In-app Notifications & 24h Deadline Alerts
+        let notificationsState = [];
+
+        async function loadNotifications() {
+            if (!state.token) return;
+            try {
+                const res = await api('/api/notifications');
+                if (res.ok) {
+                    const data = await res.json();
+                    notificationsState = data.notifications?.data || data.notifications || [];
+                    const unread = data.unread_count ?? notificationsState.filter(n => !n.read_at).length;
+                    updateNotificationUI(unread, notificationsState);
+                }
+            } catch (err) {
+                console.error('Error fetching notifications:', err);
+            }
         }
+
+        function updateNotificationUI(unreadCount, notifs) {
+            const badge = document.getElementById('notifBadge');
+            const list = document.getElementById('notifList');
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+
+            if (list) {
+                if (!notifs || notifs.length === 0) {
+                    list.innerHTML = '<div class="notif-empty">No notifications yet.<br><small style="color:var(--text-light); margin-top:4px; display:inline-block;">You will receive alerts here 24 hours before any task deadline.</small></div>';
+                    return;
+                }
+
+                let html = '';
+                notifs.forEach(n => {
+                    const isUnread = !n.read_at;
+                    const data = n.data || {};
+                    const isDeadline = data.type === 'task_deadline_reminder';
+                    const icon = isDeadline ? '⏰' : (data.type === 'task_submitted' ? '📬' : (data.type === 'interview' ? '💼' : '🔔'));
+                    const title = data.title || (isDeadline ? 'Task Deadline Reminder' : 'Notification');
+                    const message = data.message || 'You have an update regarding your application.';
+                    const dateStr = n.created_at ? new Date(n.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+
+                    html += `
+                        <div class="notif-item ${isUnread ? 'unread' : ''} ${isDeadline ? 'urgent' : ''}" onclick="handleNotificationClick('${n.id}', '${data.type || ''}', event)">
+                            <div class="notif-icon">${icon}</div>
+                            <div class="notif-content">
+                                <div class="notif-title">${escapeHtml(title)}</div>
+                                <div class="notif-message">${escapeHtml(message)}</div>
+                                <div class="notif-time">${dateStr}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+            }
+        }
+
+        function toggleNotifications(e) {
+            if (e) e.stopPropagation();
+            const dropdown = document.getElementById('notifDropdown');
+            if (!dropdown) return;
+            const isVisible = dropdown.style.display === 'block';
+            dropdown.style.display = isVisible ? 'none' : 'block';
+            if (!isVisible) {
+                loadNotifications();
+            }
+        }
+
+        async function markAllNotificationsRead(e) {
+            if (e) e.stopPropagation();
+            try {
+                const res = await api('/api/notifications/read-all', { method: 'POST' });
+                if (res.ok) {
+                    const badge = document.getElementById('notifBadge');
+                    if (badge) badge.style.display = 'none';
+                    document.querySelectorAll('.notif-item').forEach(el => el.classList.remove('unread'));
+                    showToast('All notifications marked as read', 'success');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function handleNotificationClick(id, type, e) {
+            if (e) e.stopPropagation();
+            try {
+                await api(`/api/notifications/${id}/read`, { method: 'PATCH' });
+                await loadNotifications();
+            } catch (err) {}
+
+            const dropdown = document.getElementById('notifDropdown');
+            if (dropdown) dropdown.style.display = 'none';
+
+            if (type === 'task_deadline_reminder' || type === 'task_submitted') {
+                switchTab('tasks');
+            } else if (type === 'interview') {
+                switchTab('interviews');
+            } else {
+                switchTab('pipeline');
+            }
+        }
+
+        // Close notification dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const wrapper = document.getElementById('notifWrapper');
+            const dropdown = document.getElementById('notifDropdown');
+            if (wrapper && dropdown && !wrapper.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
 
         function showToast(msg, type = 'success') {
             const box = document.getElementById('toastBox');
