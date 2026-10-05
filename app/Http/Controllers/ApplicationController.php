@@ -93,6 +93,14 @@ class ApplicationController extends Controller
             $resumeId = $candidate->latestResume->id;
         }
 
+        // Enforce: without a resume, no jobs can be applied
+        if (! $resumeId) {
+            return response()->json([
+                'message' => 'Please go to Profile Settings to add your resume to apply. Without a resume, no jobs can be applied!',
+                'error' => 'no_resume',
+            ], 422);
+        }
+
         // 4. Create Application
         $application = Application::create([
             'job_id' => $job->id,

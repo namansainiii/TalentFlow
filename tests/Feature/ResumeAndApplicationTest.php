@@ -145,6 +145,28 @@ class ResumeAndApplicationTest extends TestCase
         $response->assertStatus(422);
     }
 
+    public function test_candidate_cannot_apply_without_resume_and_gets_error_to_go_to_profile_settings(): void
+    {
+        $newJob = Job::create([
+            'recruiter_id' => $this->recruiter->id,
+            'title' => 'DevOps Engineer',
+            'department' => 'Infrastructure',
+            'description' => 'Manage Kubernetes clusters',
+            'experience' => '3 years',
+            'application_deadline' => now()->addDays(20),
+            'status' => 'open',
+        ]);
+
+        $response = $this->actingAs($this->candidateUser, 'sanctum')
+            ->postJson("/api/jobs/{$newJob->id}/apply", [
+                'notes' => 'Attempting to apply without any resume',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error', 'no_resume')
+            ->assertJsonPath('message', 'Please go to Profile Settings to add your resume to apply. Without a resume, no jobs can be applied!');
+    }
+
     public function test_recruiter_can_advance_hiring_pipeline_and_records_history(): void
     {
         $application = Application::create([

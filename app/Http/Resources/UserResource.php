@@ -19,6 +19,7 @@ class UserResource extends JsonResource
                 'name' => $this->role->name,
                 'label' => $this->role->label,
             ] : null,
+            'candidate' => new CandidateResource($this->whenLoaded('candidate')),
             'created_at' => $this->created_at?->toISOString(),
         ];
     }

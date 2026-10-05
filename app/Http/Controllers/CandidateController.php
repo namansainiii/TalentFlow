@@ -95,7 +95,7 @@ class CandidateController extends Controller
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'user' => new UserResource($user->fresh()),
+            'user' => new UserResource($user->fresh()->loadMissing(['role', 'candidate.latestResume', 'candidate.resumes'])),
             'candidate' => new CandidateResource($candidate),
         ]);
     }

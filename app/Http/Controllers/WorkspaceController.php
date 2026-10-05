@@ -26,7 +26,7 @@ class WorkspaceController extends Controller
      */
     public function bootstrap(Request $request, AnalyticsService $analyticsService): JsonResponse
     {
-        $user = $request->user()->loadMissing(['role', 'candidate']);
+        $user = $request->user()->loadMissing(['role', 'candidate.latestResume', 'candidate.resumes']);
         $isCandidate = $user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin();
         $candidateId = $user->candidate?->id ?? 0;
 

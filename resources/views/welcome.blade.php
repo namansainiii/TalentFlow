@@ -2382,6 +2382,7 @@
                 </select>
             </div>
 
+            <div id="jobsResumeAlert"></div>
             <div class="jobs-grid" id="jobsGrid"></div>
         </section>
 
@@ -2577,6 +2578,29 @@
             </div>
             <div class="modal-body" id="recruiterDetailBody">
                 <!-- Populated dynamically via openRecruiterDetailModal(id) -->
+            </div>
+        </div>
+    </div>
+
+    <!-- NO RESUME WARNING MODAL -->
+    <div class="modal-backdrop" id="modalNoResume">
+        <div class="modal-content" style="max-width: 480px; text-align: center; padding: 28px 24px;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 16px;">
+                📄
+            </div>
+            <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-dark); margin-bottom: 8px;">Resume Required to Apply</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px;">
+                No resume was found on your profile. <strong style="color: #dc2626;">Please go to Profile Settings to add your resume to apply. Without a resume, no jobs can be applied!</strong>
+            </p>
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px; margin-bottom: 24px; font-size: 0.85rem; color: #92400e; text-align: left; display: flex; gap: 10px; align-items: center;">
+                <span style="font-size: 1.25rem;">💡</span>
+                <span>Upload your PDF resume once in Profile Settings, and it will automatically be attached to all jobs you apply for.</span>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 12px;">
+                <button type="button" class="btn btn-outline" onclick="closeModal('modalNoResume')">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="closeModal('modalNoResume'); openCurrentUserProfile(true);" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <span>⚙️</span> Go to Profile Settings
+                </button>
             </div>
         </div>
     </div>
@@ -3723,8 +3747,15 @@
                 if (res.ok) {
                     const data = await res.json();
 
+                    if (data.candidates) {
+                        state.candidates = data.candidates;
+                    }
+
                     if (data.user) {
                         state.currentUser = data.user;
+                        if (!state.currentUser.candidate && state.candidates) {
+                            state.currentUser.candidate = state.candidates.find(c => c.email === state.currentUser.email || c.user_id === state.currentUser.id);
+                        }
                         try { updateRoleUI(); } catch (e) { console.error('Error updating role UI:', e); }
                     }
 
@@ -3890,6 +3921,35 @@
             const isCandidate = state.currentUser?.role?.name === 'candidate';
             const isRecruiter = state.currentUser?.role?.name === 'recruiter' || state.currentUser?.role?.name === 'admin';
             const userApplications = Array.isArray(state.applications) ? state.applications : [];
+
+            let candidateHasResume = true;
+            if (isCandidate) {
+                const user = state.currentUser;
+                const cand = (state.candidates || []).find(c => c.email === user.email || c.name === user.name) || user.candidate || {};
+                candidateHasResume = !!(cand.latest_resume || (cand.resumes && cand.resumes.length > 0));
+            }
+
+            const alertContainer = document.getElementById('jobsResumeAlert');
+            if (alertContainer) {
+                if (isCandidate && !candidateHasResume) {
+                    alertContainer.innerHTML = `
+                        <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:12px; padding:14px 18px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <div style="width:40px; height:40px; border-radius:50%; background:#fef3c7; display:flex; align-items:center; justify-content:center; font-size:1.3rem;">📄</div>
+                                <div>
+                                    <div style="font-weight:800; color:#92400e; font-size:0.95rem;">Resume Required to Apply</div>
+                                    <div style="color:#b45309; font-size:0.85rem;">You haven't uploaded a resume yet. <strong>Please go to Profile Settings to add your resume to apply. Without a resume, no jobs can be applied!</strong></div>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-primary" onclick="openCurrentUserProfile(true)" style="background:#d97706; border-color:#d97706; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                                <span>⚙️</span> Add Resume in Profile Settings
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    alertContainer.innerHTML = '';
+                }
+            }
 
             jobs.forEach(job => {
                 let skillsHtml = '';
@@ -4285,10 +4345,12 @@
                                 <input type="text" id="editProfEdu" class="input-text" value="${escapeHtml(cand.education || '')}" placeholder="Degree, University">
                             </div>
 
-                            <div style="margin-bottom:16px;">
-                                <label class="form-label" style="font-weight:700; margin-bottom:4px;">Upload / Update Profile Resume (PDF)</label>
+                            <div style="margin-bottom:16px; background:${latestResume ? '#f8fafc' : '#fffbeb'}; padding:14px; border-radius:10px; border:1px solid ${latestResume ? 'var(--border)' : '#fde68a'};">
+                                <label class="form-label" style="font-weight:700; margin-bottom:4px; color:${latestResume ? 'var(--text-dark)' : '#92400e'};">
+                                    Upload / Update Profile Resume (PDF) ${latestResume ? '' : '<span style="color:#dc2626;">* (Required to apply)</span>'}
+                                </label>
                                 <input type="file" id="editProfResume" class="input-text" accept="application/pdf">
-                                ${latestResume ? `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;">Currently saved: <strong>${escapeHtml(latestResume.file_name)}</strong></div>` : ''}
+                                ${latestResume ? `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;">Currently saved: <strong>${escapeHtml(latestResume.file_name)}</strong></div>` : `<div style="font-size:0.8rem; color:#b45309; margin-top:4px; font-weight:600;">⚠️ Without a resume, no jobs can be applied. Please upload a PDF resume here and click <strong>Save Changes</strong>.</div>`}
                             </div>
 
                             <div style="margin-bottom:20px;">
@@ -4325,12 +4387,17 @@
                             </div>
                         </div>
 
-                        <div style="margin-bottom:16px; background:#f8fafc; padding:14px; border-radius:10px; border:1px solid var(--border);">
-                            <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Profile Resume</div>
-                            <div style="font-size:0.95rem; font-weight:700; color:var(--text-dark); margin-top:4px;">
-                                ${latestResume ? `📄 ${escapeHtml(latestResume.file_name)}` : 'No resume uploaded yet'}
+                        <div style="margin-bottom:16px; background:${latestResume ? '#f8fafc' : '#fef2f2'}; padding:14px; border-radius:10px; border:1px solid ${latestResume ? 'var(--border)' : '#fecaca'};">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div style="font-size:0.75rem; font-weight:700; color:${latestResume ? 'var(--text-muted)' : '#dc2626'}; text-transform:uppercase;">Profile Resume</div>
+                                ${!latestResume ? '<span class="status-badge" style="background:#fee2e2; color:#dc2626; font-size:0.7rem; font-weight:700;">Action Required</span>' : ''}
                             </div>
-                            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;">Automatically sent to recruiter when applying for jobs. You can upload/update your PDF resume in Edit Profile.</div>
+                            <div style="font-size:0.95rem; font-weight:700; color:var(--text-dark); margin-top:4px;">
+                                ${latestResume ? `📄 ${escapeHtml(latestResume.file_name)}` : '<span style="color:#dc2626; font-weight:700;">No resume uploaded yet</span>'}
+                            </div>
+                            <div style="font-size:0.8rem; color:${latestResume ? 'var(--text-muted)' : '#b91c1c'}; margin-top:4px; line-height:1.4;">
+                                ${latestResume ? 'Automatically sent to recruiter when applying for jobs. You can upload/update your PDF resume in Edit Profile.' : '⚠️ <strong>Without a resume, no jobs can be applied.</strong> Please click <strong>Edit Profile</strong> below to upload your resume.'}
+                            </div>
                         </div>
 
                         <div style="margin-bottom:22px;">
@@ -5143,11 +5210,24 @@
             footer.innerHTML = '';
 
             if (isCandidate) {
+                const user = state.currentUser;
+                const cand = (state.candidates || []).find(c => c.email === user.email || c.name === user.name) || user.candidate || {};
+                const candidateHasResume = !!(cand.latest_resume || (cand.resumes && cand.resumes.length > 0));
+
                 if (appliedApp) {
                     footer.innerHTML = `
                         <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                             <button class="btn btn-sm btn-applied" onclick="closeModal('modalJobView'); switchTab('pipeline');" style="background:#ecfdf5; color:#059669; border:1px solid #10b981; font-weight:700; padding:7px 16px; border-radius:var(--radius-sm); cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
                                 <span style="font-size:1.15em; font-weight:800;">✓</span> Applied (${escapeHtml(appliedApp.status || 'Applied')})
+                            </button>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modalJobView')">Close</button>
+                        </div>
+                    `;
+                } else if (!candidateHasResume) {
+                    footer.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:12px;">
+                            <button class="btn btn-sm" onclick="closeModal('modalJobView'); openModal('modalNoResume');" style="background:#fee2e2; color:#dc2626; border:1px solid #fecaca; font-weight:700; padding:8px 16px; border-radius:var(--radius-sm); cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                                <span>📄⚠️</span> Resume Required to Apply
                             </button>
                             <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modalJobView')">Close</button>
                         </div>
@@ -5206,6 +5286,13 @@
             const cand = (state.candidates || []).find(c => c.email === user.email || c.name === user.name) || user.candidate || {};
             const latestResume = cand.latest_resume || (cand.resumes && cand.resumes[0]);
 
+            // Without a resume, no jobs can be applied!
+            if (!latestResume) {
+                showToast('Please go to Profile Settings to add your resume to apply. Without a resume, no jobs can be applied!', 'error', 6000);
+                openModal('modalNoResume');
+                return;
+            }
+
             showLoading('Submitting Application...', 'Please wait...');
 
             try {
@@ -5216,7 +5303,7 @@
                 if (cand.phone || user.phone) formData.append('phone', cand.phone || user.phone);
                 if (cand.experience_years) formData.append('experience_years', cand.experience_years);
                 if (cand.skills_summary) formData.append('skills_summary', cand.skills_summary);
-                if (latestResume) formData.append('resume_id', latestResume.id);
+                formData.append('resume_id', latestResume.id);
 
                 const res = await api(`/api/jobs/${id}/apply`, {
                     method: 'POST',
@@ -5230,6 +5317,9 @@
                 } else {
                     const d = await res.json();
                     showToast(d.message || 'Application failed', 'error');
+                    if (d.error === 'no_resume') {
+                        openModal('modalNoResume');
+                    }
                 }
             } catch (err) {
                 showToast('Application error: ' + err.message, 'error');
@@ -5259,6 +5349,10 @@
                 const d = await res.json();
                 const err = d.errors ? Object.values(d.errors).flat().join(' ') : (d.message || 'Application failed');
                 showToast(err, 'error');
+                if (d.error === 'no_resume') {
+                    closeModal('modalApply');
+                    openModal('modalNoResume');
+                }
             }
         }
 
