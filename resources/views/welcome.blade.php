@@ -13,6 +13,17 @@
         // Instant check to avoid gateway flash and optimize LCP
         if (localStorage.getItem('tf_in_workspace') === 'true' && localStorage.getItem('tf_token')) {
             document.documentElement.classList.add('in-workspace');
+            try {
+                const hashTab = window.location.hash ? window.location.hash.replace('#', '') : '';
+                const savedTab = hashTab || localStorage.getItem('tf_active_tab') || 'dashboard';
+                const validTabs = ['dashboard', 'jobs', 'pipeline', 'interviews', 'tasks', 'candidates', 'recruiters'];
+                if (validTabs.includes(savedTab) && savedTab !== 'dashboard') {
+                    const earlyStyle = document.createElement('style');
+                    earlyStyle.id = 'earlyActiveTabStyle';
+                    earlyStyle.textContent = `#panel-dashboard { display: none !important; } #panel-${savedTab} { display: block !important; }`;
+                    document.head.appendChild(earlyStyle);
+                }
+            } catch (e) {}
         }
     </script>
     <style>
@@ -3182,15 +3193,32 @@
                 if (state.currentUser) {
                     try { updateRoleUI(); } catch (e) {}
                 }
+
+                // Restore active tab from hash or localStorage
+                const hashTab = window.location.hash ? window.location.hash.replace('#', '') : '';
+                const savedTab = hashTab || localStorage.getItem('tf_active_tab') || 'dashboard';
+                switchTab(savedTab);
+
                 // Silent workspace restore on refresh without blocking loading popup
                 try {
                     await reloadAll();
                 } catch (e) {
                     console.error('Silent reload error:', e);
                 }
+
+                // Re-affirm active tab after reloadAll
+                const currentSavedTab = window.location.hash ? window.location.hash.replace('#', '') : (localStorage.getItem('tf_active_tab') || savedTab);
+                switchTab(currentSavedTab);
             } else {
                 hideLoading();
                 showAuthGateway();
+            }
+        });
+
+        window.addEventListener('hashchange', () => {
+            if (localStorage.getItem('tf_in_workspace') === 'true' && state.token) {
+                const hashTab = window.location.hash ? window.location.hash.replace('#', '') : '';
+                if (hashTab) switchTab(hashTab);
             }
         });
 
@@ -3381,6 +3409,7 @@
                     showToast(`Registration successful! Welcome ${data.user.name}`, 'success');
                     showAppWorkspace();
                     updateRoleUI();
+                    switchTab('dashboard');
                     await reloadAll();
                 } else {
                     const errorMsg = data.errors ? Object.values(data.errors).flat().join(' ') : (data.message || 'Registration failed');
@@ -3403,14 +3432,34 @@
 
         // Tab Switching
         function switchTab(name) {
+            document.getElementById('earlyActiveTabStyle')?.remove();
+
+            const validTabs = ['dashboard', 'jobs', 'pipeline', 'interviews', 'tasks', 'candidates', 'recruiters'];
+            if (!validTabs.includes(name)) {
+                name = 'dashboard';
+            }
+
+            // Role access check
+            const role = state.currentUser?.role?.name;
+            if (role === 'candidate' && (name === 'candidates' || name === 'recruiters')) {
+                name = 'dashboard';
+            }
+
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-links button, .nav-tabs button').forEach(b => b.classList.remove('active'));
 
             const panel = document.getElementById(`panel-${name}`);
-            const btn = Array.from(document.querySelectorAll('.nav-links button, .nav-tabs button')).find(b => b.getAttribute('onclick')?.includes(name));
+            const btn = Array.from(document.querySelectorAll('.nav-links button, .nav-tabs button')).find(b => b.getAttribute('onclick')?.includes(`'${name}'`));
 
             if (panel) panel.classList.add('active');
             if (btn) btn.classList.add('active');
+
+            try {
+                localStorage.setItem('tf_active_tab', name);
+                if (window.location.hash !== `#${name}`) {
+                    history.replaceState(null, '', `#${name}`);
+                }
+            } catch (e) {}
         }
 
         // Auth Modal Portals
@@ -3490,6 +3539,9 @@
                     closeModal('modalAuth');
                     showAppWorkspace();
                     updateRoleUI();
+                    const hashTab = window.location.hash ? window.location.hash.replace('#', '') : '';
+                    const savedTab = hashTab || localStorage.getItem('tf_active_tab') || 'dashboard';
+                    switchTab(savedTab);
                     await reloadAll();
                 } else {
                     let errorMsg = 'Username/Password Does not match. Please try again!';
@@ -3699,6 +3751,10 @@
             state.currentUser = null;
             localStorage.removeItem('tf_token');
             localStorage.removeItem('tf_in_workspace');
+            localStorage.removeItem('tf_active_tab');
+            if (window.location.hash) {
+                history.replaceState(null, '', window.location.pathname);
+            }
             updateRoleUI();
             showToast('Logged out successfully', 'success');
             showAuthGateway();
