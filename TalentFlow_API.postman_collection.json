@@ -1,0 +1,1104 @@
+{
+  "info": {
+    "_postman_id": "talentflow-api-collection-v1",
+    "name": "TalentFlow API Collection",
+    "description": "Complete Postman API Collection for TalentFlow Recruitment & Hiring Platform with authentication, workspace bootstrap, jobs, applications pipeline, interviews, technical tasks with attachments, candidates, recruiters, skills, and notifications.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Authentication & Profile",
+      "item": [
+        {
+          "name": "Register New User",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Developer\",\n  \"email\": \"jane.dev@example.com\",\n  \"phone\": \"+1-555-8899\",\n  \"password\": \"Secret123!\",\n  \"password_confirmation\": \"Secret123!\",\n  \"role\": \"candidate\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/register",
+            "description": "Register a new user account (candidate, recruiter, or admin)."
+          }
+        },
+        {
+          "name": "Login - Candidate (Parampreet Singh)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "    console.log('Token saved:', jsonData.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"Parampreet Singh\",\n  \"password\": \"Namanpreet!7\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login",
+            "description": "Quick login as Candidate. Automatically saves Bearer Token to {{token}}."
+          }
+        },
+        {
+          "name": "Login - Recruiter (Chandan Kumar)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "    console.log('Token saved:', jsonData.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"Chandan Kumar\",\n  \"password\": \"Namanpreet!7\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login",
+            "description": "Quick login as Lead Recruiter. Automatically saves Bearer Token to {{token}}."
+          }
+        },
+        {
+          "name": "Login - Admin (Namanpreet Kaur)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "    console.log('Token saved:', jsonData.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"Namanpreet Kaur\",\n  \"password\": \"Namanpreet!7\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login",
+            "description": "Quick login as Admin. Automatically saves Bearer Token to {{token}}."
+          }
+        },
+        {
+          "name": "Get Current Authenticated User (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/auth/me",
+            "description": "Returns details of the currently authenticated user with role and candidate info."
+          }
+        },
+        {
+          "name": "Update Candidate Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"+1-555-0201\",\n  \"experience_years\": 6.5,\n  \"education\": \"Master of Science in Software Engineering\",\n  \"skills_summary\": \"PHP, Laravel, MySQL, REST API, Docker, Vue.js, Redis, AWS\"\n}"
+            },
+            "url": "{{base_url}}/api/profile",
+            "description": "Update candidate profile information (experience, education, skills, phone)."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/auth/logout",
+            "description": "Revokes current API access token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Workspace & Dashboard",
+      "item": [
+        {
+          "name": "Bootstrap Workspace",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/workspace/bootstrap",
+            "description": "High-performance single-request bootstrap returning user, analytics, jobs, applications, interviews, tasks, candidates, and recruiters."
+          }
+        },
+        {
+          "name": "Get Dashboard Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/dashboard/analytics",
+            "description": "Returns recruitment analytics (pipeline stages count, avg score, task counts, time to hire)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Jobs Management",
+      "item": [
+        {
+          "name": "List All Jobs",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/jobs?search=&department=&status=open",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "jobs"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by title, department, description"
+                },
+                {
+                  "key": "department",
+                  "value": "",
+                  "description": "Filter by department"
+                },
+                {
+                  "key": "status",
+                  "value": "open",
+                  "description": "Filter by status (open, closed)"
+                }
+              ]
+            },
+            "description": "List all job postings with skills and application counts."
+          }
+        },
+        {
+          "name": "Get Single Job Details",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/jobs/1",
+            "description": "Get detailed information about a specific job opening."
+          }
+        },
+        {
+          "name": "Create Job Opening (Recruiter/Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Full-Stack Engineer\",\n  \"department\": \"Engineering\",\n  \"description\": \"Lead development on modern web platforms using Laravel and Vue.js.\",\n  \"experience\": \"4+ years\",\n  \"application_deadline\": \"2026-11-30\",\n  \"status\": \"open\",\n  \"skills\": [\n    \"PHP\",\n    \"Laravel\",\n    \"MySQL\",\n    \"Vue.js\",\n    \"Docker\"\n  ]\n}"
+            },
+            "url": "{{base_url}}/api/jobs",
+            "description": "Create a new job posting with required skills."
+          }
+        },
+        {
+          "name": "Update Job Opening (Recruiter/Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Lead Full-Stack Engineer\",\n  \"department\": \"Core Tech\",\n  \"description\": \"Updated job description.\",\n  \"experience\": \"5+ years\",\n  \"application_deadline\": \"2026-12-15\",\n  \"status\": \"open\",\n  \"skills\": [\n    \"PHP\",\n    \"Laravel\",\n    \"MySQL\",\n    \"Vue.js\",\n    \"AWS\"\n  ]\n}"
+            },
+            "url": "{{base_url}}/api/jobs/1",
+            "description": "Update an existing job posting."
+          }
+        },
+        {
+          "name": "Delete Job Opening (Recruiter/Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/jobs/1",
+            "description": "Delete a job opening."
+          }
+        },
+        {
+          "name": "Apply for Job (Candidate)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "John Doe",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "john.doe@talentflow.test",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "+1-555-0201",
+                  "type": "text"
+                },
+                {
+                  "key": "resume",
+                  "description": "Select PDF/DOC resume file (optional)",
+                  "type": "file"
+                }
+              ]
+            },
+            "url": "{{base_url}}/api/jobs/1/apply",
+            "description": "Submit a job application with optional resume file."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Resumes Management",
+      "item": [
+        {
+          "name": "Upload Resume",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "resume",
+                  "description": "PDF or Word document",
+                  "type": "file"
+                }
+              ]
+            },
+            "url": "{{base_url}}/api/resumes/upload",
+            "description": "Upload a candidate resume (PDF, DOCX, DOC, TXT)."
+          }
+        },
+        {
+          "name": "Get Resume Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/resumes/1",
+            "description": "View resume details, parsed skills, and extraction status."
+          }
+        },
+        {
+          "name": "Process / Re-parse Resume",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/resumes/1/process",
+            "description": "Trigger skill extraction and resume parsing algorithm."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Applications & Pipeline",
+      "item": [
+        {
+          "name": "List Applications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/applications?status=&job_id=&candidate_id=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: Applied, Screening, Interview, Technical Task, Offer, Hired, Rejected"
+                },
+                {
+                  "key": "job_id",
+                  "value": "",
+                  "description": "Filter by job ID"
+                },
+                {
+                  "key": "candidate_id",
+                  "value": "",
+                  "description": "Filter by candidate ID"
+                }
+              ]
+            },
+            "description": "List applications with filters for stage, job, or candidate."
+          }
+        },
+        {
+          "name": "Get Application Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/1",
+            "description": "Get detailed application view including job, candidate, and resume."
+          }
+        },
+        {
+          "name": "Get Application Status History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/1/history",
+            "description": "Audit trail of stage transitions for an application."
+          }
+        },
+        {
+          "name": "Move Application Stage / Update Status (Recruiter/Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Interview\",\n  \"notes\": \"Candidate passed initial screening. Moving to technical interview.\"\n}"
+            },
+            "url": "{{base_url}}/api/applications/1/status",
+            "description": "Progress application to next stage: Applied, Screening, Interview, Technical Task, Offer, Hired, Rejected."
+          }
+        },
+        {
+          "name": "Recalculate Skill Match Score",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/applications/1/score",
+            "description": "Recalculate automated skill matching score between job requirements and candidate profile."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Interviews Management",
+      "item": [
+        {
+          "name": "List Interviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/interviews?status=&type=&application_id=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "interviews"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: Scheduled, Completed, Cancelled"
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "Filter by type: Technical, HR, Managerial, Cultural"
+                },
+                {
+                  "key": "application_id",
+                  "value": "",
+                  "description": "Filter by application ID"
+                }
+              ]
+            },
+            "description": "List scheduled interviews."
+          }
+        },
+        {
+          "name": "Get Single Interview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/interviews/1",
+            "description": "View details of an interview session."
+          }
+        },
+        {
+          "name": "Schedule Interview from Application (Recruiter/Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"Technical\",\n  \"scheduled_at\": \"2026-10-15 14:00:00\",\n  \"meeting_link\": \"https://meet.google.com/abc-defg-hij\",\n  \"notes\": \"System design and coding discussion.\"\n}"
+            },
+            "url": "{{base_url}}/api/applications/1/interviews",
+            "description": "Schedule an interview for an applicant."
+          }
+        },
+        {
+          "name": "Update Interview (Recruiter/Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"Technical\",\n  \"scheduled_at\": \"2026-10-16 15:30:00\",\n  \"meeting_link\": \"https://meet.google.com/updated-link\",\n  \"notes\": \"Rescheduled per candidate request.\"\n}"
+            },
+            "url": "{{base_url}}/api/interviews/1",
+            "description": "Update interview schedule or meeting details."
+          }
+        },
+        {
+          "name": "Cancel Interview (Recruiter/Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Candidate requested postponement.\"\n}"
+            },
+            "url": "{{base_url}}/api/interviews/1/cancel",
+            "description": "Mark an interview as cancelled with a reason."
+          }
+        },
+        {
+          "name": "Complete Interview & Submit Feedback (Recruiter/Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"feedback\": \"Strong architecture knowledge and great problem-solving skills.\"\n}"
+            },
+            "url": "{{base_url}}/api/interviews/1/complete",
+            "description": "Mark interview complete and submit score rating (1-5) and notes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Technical Tasks",
+      "item": [
+        {
+          "name": "List Technical Tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/technical-tasks?status=&application_id=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "technical-tasks"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by status: Pending, In Progress, Submitted, Reviewed"
+                },
+                {
+                  "key": "application_id",
+                  "value": "",
+                  "description": "Filter by application ID"
+                }
+              ]
+            },
+            "description": "List technical coding tasks."
+          }
+        },
+        {
+          "name": "Get Single Task Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/technical-tasks/1",
+            "description": "View task instructions, deadline, attachments, and latest submission."
+          }
+        },
+        {
+          "name": "Assign Task with Attachments (up to 5 files: images, pdf, docs)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Build REST API Module",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Implement clean Sanctum authentication and token tests matching the attached requirements.",
+                  "type": "text"
+                },
+                {
+                  "key": "deadline",
+                  "value": "2026-10-20 18:00:00",
+                  "type": "text"
+                },
+                {
+                  "key": "files[]",
+                  "description": "Attach file 1 (JPG/PNG/WEBP/PDF/DOCX/TXT)",
+                  "type": "file"
+                },
+                {
+                  "key": "files[]",
+                  "description": "Attach file 2 (optional, up to 5 max)",
+                  "type": "file"
+                }
+              ]
+            },
+            "url": "{{base_url}}/api/applications/1/technical-tasks",
+            "description": "Assign technical challenge to candidate. Supports up to 5 attachments (images, PDF, Word docs)."
+          }
+        },
+        {
+          "name": "Download Task Attachment",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/technical-tasks/1/attachments/0",
+            "description": "Download or view attached brief/file by index (0-indexed)."
+          }
+        },
+        {
+          "name": "Start Task (Candidate marks In Progress)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/technical-tasks/1/start",
+            "description": "Candidate marks the task status as 'In Progress'."
+          }
+        },
+        {
+          "name": "Submit Task Solution (Candidate)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"repository_url\": \"https://github.com/developer/talentflow-api-solution\",\n  \"notes\": \"Implemented with 10 unit and feature tests, Swagger docs, and clean MVC structure.\"\n}"
+            },
+            "url": "{{base_url}}/api/technical-tasks/1/submit",
+            "description": "Candidate submits GitHub repository link and notes."
+          }
+        },
+        {
+          "name": "Review / Grade Task Submission (Recruiter/Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 95,\n  \"feedback\": \"Outstanding solution! Code is well structured, tested, and follows Laravel conventions.\",\n  \"status\": \"Reviewed\"\n}"
+            },
+            "url": "{{base_url}}/api/technical-tasks/1/review",
+            "description": "Grade candidate submission (score 0-100) and provide feedback."
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Candidates Directory",
+      "item": [
+        {
+          "name": "List Candidates (Recruiter/Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/candidates?search=&min_experience=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "candidates"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by name, email, skills"
+                },
+                {
+                  "key": "min_experience",
+                  "value": "",
+                  "description": "Filter by minimum years of experience"
+                }
+              ]
+            },
+            "description": "Candidate directory with search and experience filtering."
+          }
+        },
+        {
+          "name": "Get Candidate Profile (Recruiter/Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/candidates/1",
+            "description": "View candidate profile, extracted skills, resumes, and application history."
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Recruiters Directory (Admin)",
+      "item": [
+        {
+          "name": "List Recruiters & Hiring Managers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/recruiters?search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recruiters"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by name, email, phone"
+                }
+              ]
+            },
+            "description": "List recruiters and hiring team members with metrics."
+          }
+        },
+        {
+          "name": "Get Recruiter Profile & Activity",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/recruiters/2",
+            "description": "View recruiter details, posted jobs, and conducted interviews."
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Skills Dictionary",
+      "item": [
+        {
+          "name": "List Skills",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/skills",
+            "description": "List standard skills dictionary."
+          }
+        },
+        {
+          "name": "Create Skill (Recruiter/Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"PostgreSQL\"\n}"
+            },
+            "url": "{{base_url}}/api/skills",
+            "description": "Add new skill to the platform dictionary."
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Notifications",
+      "item": [
+        {
+          "name": "List In-App Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/notifications",
+            "description": "Get user notifications including 24-hour deadline reminders and task submission alerts."
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/notifications/1/read",
+            "description": "Mark a single notification as read."
+          }
+        },
+        {
+          "name": "Mark All Notifications as Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/notifications/read-all",
+            "description": "Mark all notifications as read."
+          }
+        }
+      ]
+    }
+  ]
+}
