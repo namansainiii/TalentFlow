@@ -4097,7 +4097,7 @@
                     `;
                 }
 
-                const deadlineText = job.application_deadline ? `📅 ${job.application_deadline.substring(0, 10)}` : '';
+                const deadlineText = job.application_deadline ? `📅 ${formatDate(job.application_deadline)}` : '';
 
                 const card = document.createElement('div');
                 card.className = 'job-card';
@@ -4299,7 +4299,7 @@
                                 <div class="candidate-row-role">
                                     <span>Role: <strong>${escapeHtml(a.job?.title || 'Position')}</strong></span>
                                     <span>•</span>
-                                    <span>Applied ${new Date(a.created_at || Date.now()).toLocaleDateString()}</span>
+                                    <span>Applied ${formatDate(a.created_at || Date.now())}</span>
                                 </div>
                                 <div class="candidate-meta-chips">
                                     <div class="match-bar-container" title="Resume match score for required job skills">
@@ -4335,7 +4335,7 @@
                                     <span>•</span>
                                     <span>Dept: ${escapeHtml(a.job?.department || 'General')}</span>
                                     <span>•</span>
-                                    <span>Applied ${new Date(a.created_at || Date.now()).toLocaleDateString()}</span>
+                                    <span>Applied ${formatDate(a.created_at || Date.now())}</span>
                                 </div>
                                 <div class="candidate-meta-chips">
                                     <div class="match-bar-container" title="Your skill match score for this job">
@@ -4346,7 +4346,7 @@
                                     </div>
                                     <span class="exp-badge">Required: ${escapeHtml(a.job?.experience || 'Not specified')}</span>
                                     ${a.job?.salary_range ? `<span class="exp-badge">💰 ${escapeHtml(a.job.salary_range)}</span>` : ''}
-                                    ${a.job?.application_deadline ? `<span class="exp-badge">Deadline: ${new Date(a.job.application_deadline).toLocaleDateString()}</span>` : ''}
+                                    ${a.job?.application_deadline ? `<span class="exp-badge">Deadline: ${formatDate(a.job.application_deadline)}</span>` : ''}
                                 </div>
                             </div>
                         </div>
@@ -4503,7 +4503,7 @@
 
                         <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:16px;">
                             <div style="font-size:0.8rem; color:var(--text-muted);">
-                                Applied on ${new Date(app.created_at || Date.now()).toLocaleDateString()}
+                                Applied on ${formatDate(app.created_at || Date.now())}
                             </div>
                             <div style="display:flex; gap:10px;">
                                 ${app.status === 'Interview' ? `
@@ -4563,9 +4563,14 @@
                             </div>
                         </div>
 
-                        <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border); padding-top:16px;">
-                            <button class="btn btn-outline" onclick="closeModal('modalCandidateDetail')">Close</button>
-                            <button class="btn btn-primary" onclick="closeModal('modalCandidateDetail'); openMove(${app.id}, '${escapeHtml(app.candidate?.name || 'Applicant')}', '${app.status}')">Move Stage</button>
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:16px;">
+                            <div style="font-size:0.8rem; color:var(--text-muted);">
+                                Applied on ${formatDate(app.created_at || Date.now())}
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn btn-outline" onclick="closeModal('modalCandidateDetail')">Close</button>
+                                <button class="btn btn-primary" onclick="closeModal('modalCandidateDetail'); openMove(${app.id}, '${escapeHtml(app.candidate?.name || 'Applicant')}', '${app.status}')">Move Stage</button>
+                            </div>
                         </div>
                     `;
                 }
@@ -4853,7 +4858,7 @@
                     <td style="font-weight:600;">${i.candidate?.name || 'Candidate'}</td>
                     <td>${i.job?.title || 'Position'}</td>
                     <td>${i.interviewer?.name || 'Recruiter'}</td>
-                    <td>${new Date(i.scheduled_at).toLocaleString()}</td>
+                    <td>${formatDateTime(i.scheduled_at)}</td>
                     <td><span class="badge badge-${i.status}">${i.status}</span></td>
                     <td><a href="${i.meeting_link}" target="_blank" style="color:var(--primary); text-decoration:none;">Open Link</a></td>
                     <td>
@@ -4917,7 +4922,7 @@
                         ${attachmentsHtml}
                     </td>
                     <td>${escapeHtml(t.assigned_by?.name || 'Candidate')}</td>
-                    <td>${new Date(t.deadline).toLocaleDateString()}</td>
+                    <td>${formatDateTime(t.deadline)}</td>
                     <td><span class="badge badge-${t.status.toLowerCase().replace(' ', '_')}">${t.status}</span></td>
                     <td>${sub?.repository_url ? `<a href="${sub.repository_url}" target="_blank" style="color:var(--primary);">View Solution</a>` : '<span style="color:var(--text-light);">None</span>'}</td>
                     <td>${sub?.score !== null && sub?.score !== undefined ? `<strong>${sub.score}/100</strong>` : '-'}</td>
@@ -5014,7 +5019,7 @@
                                 <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px 14px;">
                                     <div>
                                         <div style="font-weight:700; color:var(--text-dark); font-size:0.92rem;">${escapeHtml(a.job?.title || 'Job Position')}</div>
-                                        <div style="font-size:0.78rem; color:var(--text-muted);">${escapeHtml(a.job?.department || '')} • Match Score: <strong style="color:var(--primary);">${Math.round(a.skill_score || 0)}%</strong></div>
+                                        <div style="font-size:0.78rem; color:var(--text-muted);">${escapeHtml(a.job?.department || '')} • Match Score: <strong style="color:var(--primary);">${Math.round(a.skill_score || 0)}%</strong>${a.created_at ? ' • Applied: ' + formatDate(a.created_at) : ''}</div>
                                     </div>
                                     <div style="display:flex; align-items:center; gap:8px;">
                                         <span class="badge badge-${(a.status || 'applied').toLowerCase().replace(' ', '_')}">${a.status || 'Applied'}</span>
@@ -5192,7 +5197,7 @@
                                 <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px 14px;">
                                     <div>
                                         <div style="font-weight:700; color:var(--text-dark); font-size:0.92rem;">${escapeHtml(j.title)}</div>
-                                        <div style="font-size:0.78rem; color:var(--text-muted);">${escapeHtml(j.department || '')} • Deadline: ${new Date(j.application_deadline).toLocaleDateString()}</div>
+                                        <div style="font-size:0.78rem; color:var(--text-muted);">${escapeHtml(j.department || '')} • Deadline: ${formatDate(j.application_deadline)}</div>
                                     </div>
                                     <div style="display:flex; align-items:center; gap:8px;">
                                         <span class="badge badge-${j.status === 'open' ? 'interview' : 'rejected'}">${j.status}</span>
@@ -5470,7 +5475,7 @@
             document.getElementById('viewJobDept').textContent = job.department || 'General';
             document.getElementById('viewJobExp').textContent = job.experience || 'Not specified';
             document.getElementById('viewJobSalary').textContent = job.salary_range || 'Competitive';
-            document.getElementById('viewJobDeadline').textContent = job.application_deadline ? job.application_deadline.substring(0, 10) : 'Open until filled';
+            document.getElementById('viewJobDeadline').textContent = job.application_deadline ? formatDate(job.application_deadline) : 'Open until filled';
             document.getElementById('viewJobRecruiter').textContent = job.recruiter?.name || 'Talent Acquisition';
             document.getElementById('viewJobApplicants').textContent = `${job.applications_count ?? 0} applied`;
             document.getElementById('viewJobDescription').textContent = job.description || 'No description provided for this opening.';
@@ -6003,7 +6008,7 @@
                     const icon = isDeadline ? '⏰' : (data.type === 'task_submitted' ? '📬' : (data.type === 'interview' ? '💼' : '🔔'));
                     const title = data.title || (isDeadline ? 'Task Deadline Reminder' : 'Notification');
                     const message = data.message || 'You have an update regarding your application.';
-                    const dateStr = n.created_at ? new Date(n.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                    const dateStr = n.created_at ? formatDateTime(n.created_at) : '';
 
                     html += `
                         <div class="notif-item ${isUnread ? 'unread' : ''} ${isDeadline ? 'urgent' : ''}" onclick="handleNotificationClick('${n.id}', '${data.type || ''}', event)">
@@ -6105,6 +6110,42 @@
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
             return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function formatDate(val) {
+            if (!val) return '';
+            if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val.trim())) {
+                const parts = val.trim().split('-');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            const d = new Date(val);
+            if (isNaN(d.getTime())) {
+                if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}/.test(val.trim())) {
+                    const datePart = val.trim().substring(0, 10).split('-');
+                    return `${datePart[2]}-${datePart[1]}-${datePart[0]}`;
+                }
+                return String(val);
+            }
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        function formatDateTime(val) {
+            if (!val) return '';
+            const d = new Date(val);
+            if (isNaN(d.getTime())) return formatDate(val);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            let hours = d.getHours();
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            const padHours = String(hours).padStart(2, '0');
+            return `${day}-${month}-${year} ${padHours}:${minutes} ${ampm}`;
         }
 
         function viewResume(resumeId) {
