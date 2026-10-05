@@ -46,7 +46,7 @@ class WorkspaceController extends Controller
         $candidates = $candidatesQuery->latest()->get();
 
         // 3. Applications with candidate, job, and resume
-        $appsQuery = Application::with(['candidate.latestResume', 'job', 'resume']);
+        $appsQuery = Application::with(['candidate.latestResume', 'job.recruiter', 'job.skills', 'resume']);
         if ($isCandidate) {
             $appsQuery->where('candidate_id', $candidateId);
         } elseif ($isRecruiterOnly) {

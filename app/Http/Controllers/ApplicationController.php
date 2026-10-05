@@ -134,7 +134,7 @@ class ApplicationController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $user = $request->user();
-        $query = Application::with(['job', 'candidate', 'resume']);
+        $query = Application::with(['job.recruiter', 'job.skills', 'candidate.latestResume', 'resume']);
 
         // Candidates only see their own applications; Recruiters only see applications for their own jobs
         if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
@@ -178,8 +178,9 @@ class ApplicationController extends Controller
         }
 
         $application->load([
-            'job',
-            'candidate',
+            'job.recruiter',
+            'job.skills',
+            'candidate.latestResume',
             'resume',
             'statusHistories.changedByUser',
             'interviews.interviewer',

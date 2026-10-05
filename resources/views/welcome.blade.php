@@ -15,7 +15,15 @@
             document.documentElement.classList.add('in-workspace');
             try {
                 const hashTab = window.location.hash ? window.location.hash.replace('#', '') : '';
-                const savedTab = hashTab || localStorage.getItem('tf_active_tab') || 'dashboard';
+                let savedTab = hashTab || localStorage.getItem('tf_active_tab') || 'dashboard';
+                const savedUser = JSON.parse(localStorage.getItem('tf_user') || '{}');
+                const role = savedUser.role?.name;
+                if (savedTab === 'recruiters' && role !== 'admin') {
+                    savedTab = 'dashboard';
+                }
+                if (savedTab === 'candidates' && role === 'candidate') {
+                    savedTab = 'dashboard';
+                }
                 const validTabs = ['dashboard', 'jobs', 'pipeline', 'interviews', 'tasks', 'candidates', 'recruiters'];
                 if (validTabs.includes(savedTab) && savedTab !== 'dashboard') {
                     const earlyStyle = document.createElement('style');
@@ -2279,7 +2287,7 @@
                         <li id="tabNavItemPipeline"><button onclick="switchTab('pipeline')">Pipeline</button></li>
                         <li><button onclick="switchTab('interviews')">Interviews</button></li>
                         <li><button onclick="switchTab('tasks')">Tasks</button></li>
-                        <li id="tabNavItemCandidates"><button onclick="switchTab('candidates')">Candidates</button></li>
+                        <li id="tabNavItemCandidates" style="display:none;"><button onclick="switchTab('candidates')">Candidates</button></li>
                         <li id="tabNavItemRecruiters" style="display:none;"><button onclick="switchTab('recruiters')">Recruiters</button></li>
                     </ul>
                 </div>
@@ -3439,9 +3447,12 @@
                 name = 'dashboard';
             }
 
-            // Role access check
+            // Role access check: Recruiters list is for Admin only, Candidates list is for Recruiters & Admin
             const role = state.currentUser?.role?.name;
-            if (role === 'candidate' && (name === 'candidates' || name === 'recruiters')) {
+            if (name === 'recruiters' && role !== 'admin') {
+                name = 'dashboard';
+            }
+            if (name === 'candidates' && role === 'candidate') {
                 name = 'dashboard';
             }
 
@@ -3729,9 +3740,11 @@
             document.getElementById('recruiterJobActions').style.display = isRecruiterOrAdmin ? 'block' : 'none';
             document.getElementById('recruiterInterviewActions').style.display = isRecruiterOrAdmin ? 'block' : 'none';
             document.getElementById('recruiterTaskActions').style.display = isRecruiterOrAdmin ? 'block' : 'none';
-            document.getElementById('tabNavItemCandidates').style.display = isRecruiterOrAdmin ? 'block' : 'none';
+            const isAdmin = user.role?.name === 'admin';
+            const navCandidates = document.getElementById('tabNavItemCandidates');
+            if (navCandidates) navCandidates.style.display = isRecruiterOrAdmin ? 'block' : 'none';
             const navRecruiters = document.getElementById('tabNavItemRecruiters');
-            if (navRecruiters) navRecruiters.style.display = isRecruiterOrAdmin ? 'block' : 'none';
+            if (navRecruiters) navRecruiters.style.display = isAdmin ? 'block' : 'none';
 
             // Auto-fill apply form
             const applyName = document.getElementById('applyName');
@@ -4268,48 +4281,81 @@
 
             apps.forEach(a => {
                 const score = Math.round(a.skill_score || 0);
-                const initials = getInitials(a.candidate?.name);
                 const stageColor = stageConfig[a.status]?.color || '#4f46e5';
 
                 const card = document.createElement('div');
                 card.className = 'candidate-card-row';
                 card.onclick = () => openCandidateDetail(a.id);
 
-                card.innerHTML = `
-                    <div class="candidate-info-group">
-                        <div class="candidate-large-avatar" style="background:${stageColor};">${initials}</div>
-                        <div class="candidate-text-details">
-                            <div class="candidate-row-name">
-                                <span>${escapeHtml(a.candidate?.name || 'Candidate')}</span>
-                                <span class="badge badge-${a.status.toLowerCase().replace(' ', '_')}">${a.status}</span>
-                            </div>
-                            <div class="candidate-row-role">
-                                <span>Role: <strong>${escapeHtml(a.job?.title || 'Position')}</strong></span>
-                                <span>•</span>
-                                <span>Applied ${new Date(a.created_at || Date.now()).toLocaleDateString()}</span>
-                            </div>
-                            <div class="candidate-meta-chips">
-                                <div class="match-bar-container" title="Resume match score for required job skills">
-                                    <span style="font-size:0.75rem; font-weight:700; color:${score >= 80 ? 'var(--success)' : 'var(--primary)'};">${score}% match</span>
-                                    <div class="match-mini-track">
-                                        <div class="match-mini-fill" style="width:${Math.max(6, score)}%; background:${score >= 80 ? 'var(--success)' : 'var(--primary)'};"></div>
-                                    </div>
+                if (isRecruiterOrAdmin) {
+                    const initials = getInitials(a.candidate?.name);
+                    card.innerHTML = `
+                        <div class="candidate-info-group">
+                            <div class="candidate-large-avatar" style="background:${stageColor};">${initials}</div>
+                            <div class="candidate-text-details">
+                                <div class="candidate-row-name">
+                                    <span>${escapeHtml(a.candidate?.name || 'Candidate')}</span>
+                                    <span class="badge badge-${a.status.toLowerCase().replace(' ', '_')}">${a.status}</span>
                                 </div>
-                                <span class="exp-badge">${a.candidate?.experience_years || 0} yrs exp</span>
-                                ${a.candidate?.education ? `<span class="exp-badge">${escapeHtml(a.candidate.education)}</span>` : ''}
-                                ${a.candidate?.skills_summary ? `<span class="exp-badge" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Skills: ${escapeHtml(a.candidate.skills_summary)}</span>` : ''}
+                                <div class="candidate-row-role">
+                                    <span>Role: <strong>${escapeHtml(a.job?.title || 'Position')}</strong></span>
+                                    <span>•</span>
+                                    <span>Applied ${new Date(a.created_at || Date.now()).toLocaleDateString()}</span>
+                                </div>
+                                <div class="candidate-meta-chips">
+                                    <div class="match-bar-container" title="Resume match score for required job skills">
+                                        <span style="font-size:0.75rem; font-weight:700; color:${score >= 80 ? 'var(--success)' : 'var(--primary)'};">${score}% match</span>
+                                        <div class="match-mini-track">
+                                            <div class="match-mini-fill" style="width:${Math.max(6, score)}%; background:${score >= 80 ? 'var(--success)' : 'var(--primary)'};"></div>
+                                        </div>
+                                    </div>
+                                    <span class="exp-badge">${a.candidate?.experience_years || 0} yrs exp</span>
+                                    ${a.candidate?.education ? `<span class="exp-badge">${escapeHtml(a.candidate.education)}</span>` : ''}
+                                    ${a.candidate?.skills_summary ? `<span class="exp-badge" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Skills: ${escapeHtml(a.candidate.skills_summary)}</span>` : ''}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="candidate-actions-group" onclick="event.stopPropagation();">
-                        ${isRecruiterOrAdmin ? `
+                        <div class="candidate-actions-group" onclick="event.stopPropagation();">
                             <button class="btn btn-outline btn-sm" onclick="openMove(${a.id}, '${escapeHtml(a.candidate?.name || 'Applicant')}', '${a.status}')">Move Stage</button>
                             <button class="btn btn-primary btn-sm" onclick="openCandidateDetail(${a.id})">View Profile</button>
-                        ` : `
-                            <button class="btn btn-outline btn-sm" onclick="openCandidateDetail(${a.id})">View Profile</button>
-                        `}
-                    </div>
-                `;
+                        </div>
+                    `;
+                } else {
+                    const companyName = a.job?.recruiter?.name || 'Hiring Company';
+                    const companyInitials = getInitials(companyName);
+                    card.innerHTML = `
+                        <div class="candidate-info-group">
+                            <div class="candidate-large-avatar" style="background:${stageColor}; font-size:1.1rem;" title="${escapeHtml(companyName)}">${companyInitials}</div>
+                            <div class="candidate-text-details">
+                                <div class="candidate-row-name">
+                                    <span>${escapeHtml(a.job?.title || 'Position')}</span>
+                                    <span class="badge badge-${a.status.toLowerCase().replace(' ', '_')}">${a.status}</span>
+                                </div>
+                                <div class="candidate-row-role">
+                                    <span>🏢 Company: <strong>${escapeHtml(companyName)}</strong></span>
+                                    <span>•</span>
+                                    <span>Dept: ${escapeHtml(a.job?.department || 'General')}</span>
+                                    <span>•</span>
+                                    <span>Applied ${new Date(a.created_at || Date.now()).toLocaleDateString()}</span>
+                                </div>
+                                <div class="candidate-meta-chips">
+                                    <div class="match-bar-container" title="Your skill match score for this job">
+                                        <span style="font-size:0.75rem; font-weight:700; color:${score >= 80 ? 'var(--success)' : 'var(--primary)'};">${score}% match</span>
+                                        <div class="match-mini-track">
+                                            <div class="match-mini-fill" style="width:${Math.max(6, score)}%; background:${score >= 80 ? 'var(--success)' : 'var(--primary)'};"></div>
+                                        </div>
+                                    </div>
+                                    <span class="exp-badge">Required: ${escapeHtml(a.job?.experience || 'Not specified')}</span>
+                                    ${a.job?.salary_range ? `<span class="exp-badge">💰 ${escapeHtml(a.job.salary_range)}</span>` : ''}
+                                    ${a.job?.application_deadline ? `<span class="exp-badge">Deadline: ${new Date(a.job.application_deadline).toLocaleDateString()}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="candidate-actions-group" onclick="event.stopPropagation();">
+                            <button class="btn btn-primary btn-sm" onclick="openCandidateDetail(${a.id})">View Job & Company</button>
+                        </div>
+                    `;
+                }
                 listContainer.appendChild(card);
             });
         }
@@ -4327,18 +4373,18 @@
             const app = (state.applications || []).find(a => a.id === appId);
             if (!app) return;
 
+            const isRecruiterOrAdmin = state.currentUser?.role?.name === 'recruiter' || state.currentUser?.role?.name === 'admin';
             const nameEl = document.getElementById('candidateDetailName');
             const bodyEl = document.getElementById('candidateDetailBody');
-            if (nameEl) nameEl.textContent = `${app.candidate?.name || 'Candidate'} – Profile Details`;
-
             const score = Math.round(app.skill_score || 0);
-            const initials = getInitials(app.candidate?.name);
             const resume = app.resume || app.candidate?.latest_resume || (app.candidate?.resumes && app.candidate.resumes[0]);
 
             const resumeHtml = `
                 <div style="margin-bottom:20px; background:#f8fafc; padding:14px; border-radius:10px; border:1px solid var(--border);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Candidate Resume</div>
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">
+                            ${isRecruiterOrAdmin ? 'Candidate Resume' : 'Your Submitted Resume'}
+                        </div>
                         ${resume ? `<span class="badge badge-info" style="font-size:0.72rem; padding:2px 8px;">${resume.status ? resume.status.toUpperCase() : 'PDF'}</span>` : ''}
                     </div>
                     ${resume ? `
@@ -4367,55 +4413,165 @@
                 </div>
             `;
 
-            if (bodyEl) {
-                bodyEl.innerHTML = `
-                    <div style="display:flex; gap:16px; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
-                        <div class="candidate-large-avatar" style="background:var(--primary); width:56px; height:56px; font-size:1.3rem;">${initials}</div>
-                        <div style="flex:1;">
-                            <h4 style="font-size:1.2rem; font-weight:800; color:var(--text-dark); margin-bottom:2px;">${escapeHtml(app.candidate?.name || 'Applicant')}</h4>
-                            <div style="font-size:0.86rem; color:var(--text-muted);">Email: ${escapeHtml(app.candidate?.email || 'N/A')} • Phone: ${escapeHtml(app.candidate?.phone || 'N/A')}</div>
-                        </div>
-                        <span class="badge badge-${app.status.toLowerCase().replace(' ', '_')}" style="font-size:0.82rem; padding:4px 12px;">${app.status}</span>
-                    </div>
+            if (!isRecruiterOrAdmin) {
+                // CANDIDATE VIEW: Display Company, Job Description, Status Stage details & submitted resume
+                const companyName = app.job?.recruiter?.name || 'TalentFlow Hiring Company';
+                const companyInitials = getInitials(companyName);
 
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px;">
-                        <div style="background:#f8fafc; padding:14px; border-radius:10px; border:1px solid var(--border);">
-                            <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Applied Position</div>
-                            <div style="font-size:1rem; font-weight:700; color:var(--text-dark); margin-top:4px;">${escapeHtml(app.job?.title || 'Job Position')}</div>
-                            <div style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(app.job?.department || '')}</div>
-                        </div>
-                        <div style="background:#f8fafc; padding:14px; border-radius:10px; border:1px solid var(--border);">
-                            <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Match Score</div>
-                            <div style="font-size:1.3rem; font-weight:800; color:${score >= 80 ? 'var(--success)' : 'var(--primary)'}; margin-top:2px;">${score}% Match</div>
-                            <div style="font-size:0.78rem; color:var(--text-muted);">Automated resume skill parser</div>
-                        </div>
-                    </div>
+                if (nameEl) nameEl.textContent = `${app.job?.title || 'Job'} – Company & Application Details`;
 
-                    <div style="margin-bottom:18px;">
-                        <h5 style="font-size:0.88rem; font-weight:700; color:var(--text-dark); margin-bottom:8px;">Experience & Education</h5>
-                        <div style="font-size:0.88rem; color:var(--text-muted); line-height:1.5;">
-                            • <strong>Work Experience:</strong> ${app.candidate?.experience_years || 0} Years<br>
-                            • <strong>Education:</strong> ${escapeHtml(app.candidate?.education || 'Not specified')}
+                const stageMessages = {
+                    'Applied': 'Your application has been received and is waiting for recruiter review.',
+                    'Screening': 'Your resume and qualifications are currently being reviewed by the hiring team.',
+                    'Shortlisted': 'Great news! Your profile has been shortlisted for this position.',
+                    'Interview': 'You have advanced to the Interview stage! An interview has been scheduled or will be set up soon. Check your Interviews tab.',
+                    'Technical Task': 'A technical assessment has been assigned to you. Head over to the Tasks tab to view instructions and submit your work.',
+                    'Hired': '🎉 Congratulations! You have received a job offer and been hired for this role!',
+                    'Rejected': 'Thank you for your interest. The company has decided to proceed with other candidates at this time.'
+                };
+                const statusNotice = stageMessages[app.status] || 'Your application is currently active in the hiring pipeline.';
+
+                let skillsHtml = '';
+                if (app.job?.skills && app.job.skills.length > 0) {
+                    skillsHtml = `
+                        <div style="margin-bottom:20px;">
+                            <h5 style="font-size:0.88rem; font-weight:700; color:var(--text-dark); margin-bottom:8px;">Required Job Skills</h5>
+                            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                                ${app.job.skills.map(s => `
+                                    <span style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px; padding:4px 10px; font-size:0.82rem; font-weight:600; color:#334155; display:inline-flex; align-items:center; gap:6px;">
+                                        ${escapeHtml(s.name)}
+                                        ${s.pivot?.is_mandatory ? '<span style="color:#dc2626; font-size:0.7rem; font-weight:700;">*Required</span>' : '<span style="color:#64748b; font-size:0.7rem;">Optional</span>'}
+                                    </span>
+                                `).join('')}
+                            </div>
                         </div>
-                    </div>
+                    `;
+                }
 
-                    ${resumeHtml}
-
-                    <div style="margin-bottom:22px;">
-                        <h5 style="font-size:0.88rem; font-weight:700; color:var(--text-dark); margin-bottom:8px;">Extracted Skills Summary</h5>
-                        <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--border); font-size:0.85rem; color:var(--text-dark);">
-                            ${escapeHtml(app.candidate?.skills_summary || 'No skills extracted')}
+                if (bodyEl) {
+                    bodyEl.innerHTML = `
+                        <div style="display:flex; gap:16px; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+                            <div class="candidate-large-avatar" style="background:var(--primary); width:56px; height:56px; font-size:1.3rem;">${companyInitials}</div>
+                            <div style="flex:1;">
+                                <h4 style="font-size:1.25rem; font-weight:800; color:var(--text-dark); margin-bottom:4px;">${escapeHtml(app.job?.title || 'Job Position')}</h4>
+                                <div style="font-size:0.88rem; color:var(--text-dark); font-weight:600;">
+                                    🏢 <strong>${escapeHtml(companyName)}</strong>
+                                    ${app.job?.department ? `<span style="font-weight:400; color:var(--text-muted);"> • Dept: ${escapeHtml(app.job.department)}</span>` : ''}
+                                </div>
+                                ${app.job?.recruiter?.email ? `
+                                    <div style="font-size:0.82rem; color:var(--text-muted); margin-top:2px;">
+                                        ✉️ Recruiter Contact: <a href="mailto:${escapeHtml(app.job.recruiter.email)}" style="color:var(--primary); text-decoration:none;">${escapeHtml(app.job.recruiter.email)}</a>
+                                        ${app.job?.recruiter?.phone ? ` • 📞 ${escapeHtml(app.job.recruiter.phone)}` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <span class="badge badge-${app.status.toLowerCase().replace(' ', '_')}" style="font-size:0.82rem; padding:4px 12px;">${app.status}</span>
                         </div>
-                    </div>
 
-                    <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border); padding-top:16px;">
-                        <button class="btn btn-outline" onclick="closeModal('modalCandidateDetail')">Close</button>
-                        ${(state.currentUser?.role?.name === 'recruiter' || state.currentUser?.role?.name === 'admin') ? `
+                        <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:12px 16px; margin-bottom:20px; display:flex; align-items:center; gap:12px;">
+                            <span style="font-size:1.3rem;">ℹ️</span>
+                            <div style="flex:1; font-size:0.86rem; color:#1e40af; line-height:1.4;">
+                                <strong>Application Stage: ${app.status}</strong><br>
+                                ${statusNotice}
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:20px;">
+                            <div style="background:#f8fafc; padding:12px; border-radius:10px; border:1px solid var(--border);">
+                                <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Experience Req.</div>
+                                <div style="font-size:0.95rem; font-weight:700; color:var(--text-dark); margin-top:2px;">${escapeHtml(app.job?.experience || 'Not specified')}</div>
+                            </div>
+                            <div style="background:#f8fafc; padding:12px; border-radius:10px; border:1px solid var(--border);">
+                                <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Salary Range</div>
+                                <div style="font-size:0.95rem; font-weight:700; color:var(--text-dark); margin-top:2px;">${escapeHtml(app.job?.salary_range || 'Competitive')}</div>
+                            </div>
+                            <div style="background:#f8fafc; padding:12px; border-radius:10px; border:1px solid var(--border);">
+                                <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Skill Match</div>
+                                <div style="font-size:1.1rem; font-weight:800; color:${score >= 80 ? 'var(--success)' : 'var(--primary)'}; margin-top:2px;">${score}% Match</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:20px;">
+                            <h5 style="font-size:0.88rem; font-weight:700; color:var(--text-dark); margin-bottom:8px;">Job Description</h5>
+                            <div style="background:#f8fafc; padding:14px; border-radius:8px; border:1px solid var(--border); font-size:0.88rem; color:var(--text-dark); line-height:1.6; max-height:220px; overflow-y:auto; white-space:pre-line;">
+                                ${escapeHtml(app.job?.description || 'No job description provided by the company.')}
+                            </div>
+                        </div>
+
+                        ${skillsHtml}
+
+                        ${resumeHtml}
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:16px;">
+                            <div style="font-size:0.8rem; color:var(--text-muted);">
+                                Applied on ${new Date(app.created_at || Date.now()).toLocaleDateString()}
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                ${app.status === 'Interview' ? `
+                                    <button class="btn btn-primary" onclick="closeModal('modalCandidateDetail'); switchTab('interviews');">Go to Interviews 📅</button>
+                                ` : ''}
+                                ${app.status === 'Technical Task' ? `
+                                    <button class="btn btn-primary" onclick="closeModal('modalCandidateDetail'); switchTab('tasks');">Go to Tasks 💻</button>
+                                ` : ''}
+                                <button class="btn btn-outline" onclick="closeModal('modalCandidateDetail')">Close</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                // RECRUITER / ADMIN VIEW: Display Candidate Profile Details
+                const initials = getInitials(app.candidate?.name);
+                if (nameEl) nameEl.textContent = `${app.candidate?.name || 'Candidate'} – Profile Details`;
+
+                if (bodyEl) {
+                    bodyEl.innerHTML = `
+                        <div style="display:flex; gap:16px; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+                            <div class="candidate-large-avatar" style="background:var(--primary); width:56px; height:56px; font-size:1.3rem;">${initials}</div>
+                            <div style="flex:1;">
+                                <h4 style="font-size:1.2rem; font-weight:800; color:var(--text-dark); margin-bottom:2px;">${escapeHtml(app.candidate?.name || 'Applicant')}</h4>
+                                <div style="font-size:0.86rem; color:var(--text-muted);">Email: ${escapeHtml(app.candidate?.email || 'N/A')} • Phone: ${escapeHtml(app.candidate?.phone || 'N/A')}</div>
+                            </div>
+                            <span class="badge badge-${app.status.toLowerCase().replace(' ', '_')}" style="font-size:0.82rem; padding:4px 12px;">${app.status}</span>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px;">
+                            <div style="background:#f8fafc; padding:14px; border-radius:10px; border:1px solid var(--border);">
+                                <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Applied Position</div>
+                                <div style="font-size:1rem; font-weight:700; color:var(--text-dark); margin-top:4px;">${escapeHtml(app.job?.title || 'Job Position')}</div>
+                                <div style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(app.job?.department || '')}</div>
+                            </div>
+                            <div style="background:#f8fafc; padding:14px; border-radius:10px; border:1px solid var(--border);">
+                                <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Match Score</div>
+                                <div style="font-size:1.3rem; font-weight:800; color:${score >= 80 ? 'var(--success)' : 'var(--primary)'}; margin-top:2px;">${score}% Match</div>
+                                <div style="font-size:0.78rem; color:var(--text-muted);">Automated resume skill parser</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:18px;">
+                            <h5 style="font-size:0.88rem; font-weight:700; color:var(--text-dark); margin-bottom:8px;">Experience & Education</h5>
+                            <div style="font-size:0.88rem; color:var(--text-muted); line-height:1.5;">
+                                • <strong>Work Experience:</strong> ${app.candidate?.experience_years || 0} Years<br>
+                                • <strong>Education:</strong> ${escapeHtml(app.candidate?.education || 'Not specified')}
+                            </div>
+                        </div>
+
+                        ${resumeHtml}
+
+                        <div style="margin-bottom:22px;">
+                            <h5 style="font-size:0.88rem; font-weight:700; color:var(--text-dark); margin-bottom:8px;">Extracted Skills Summary</h5>
+                            <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--border); font-size:0.85rem; color:var(--text-dark);">
+                                ${escapeHtml(app.candidate?.skills_summary || 'No skills extracted')}
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border); padding-top:16px;">
+                            <button class="btn btn-outline" onclick="closeModal('modalCandidateDetail')">Close</button>
                             <button class="btn btn-primary" onclick="closeModal('modalCandidateDetail'); openMove(${app.id}, '${escapeHtml(app.candidate?.name || 'Applicant')}', '${app.status}')">Move Stage</button>
-                        ` : ''}
-                    </div>
-                `;
+                        </div>
+                    `;
+                }
             }
+
             openModal('modalCandidateDetail');
         }
 
