@@ -11,6 +11,7 @@ use App\Http\Resources\TechnicalTaskResource;
 use App\Models\Application;
 use App\Models\TaskSubmission;
 use App\Models\TechnicalTask;
+use App\Notifications\TaskReviewedNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -186,6 +187,12 @@ class TechnicalTaskController extends Controller
         $task->update([
             'status' => $request->status ?? TechnicalTask::STATUS_REVIEWED,
         ]);
+
+        // Notify candidate when recruiter submits review and feedback
+        $candidateUser = $task->application?->candidate?->user;
+        if ($candidateUser) {
+            $candidateUser->notify(new TaskReviewedNotification($task, $request->score, $request->feedback));
+        }
 
         return response()->json([
             'message' => 'Technical task reviewed successfully',

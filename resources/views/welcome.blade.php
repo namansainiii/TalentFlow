@@ -2474,6 +2474,7 @@
                                 <th>Interviewer</th>
                                 <th>Date & Time</th>
                                 <th>Status</th>
+                                <th>Feedback / Notes</th>
                                 <th>Link</th>
                                 <th>Actions</th>
                             </tr>
@@ -2507,6 +2508,7 @@
                                 <th>Status</th>
                                 <th>Submission</th>
                                 <th>Score</th>
+                                <th>Feedback / Review</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -4496,6 +4498,39 @@
                     `;
                 }
 
+                // Collect any feedback from interviews or technical tasks for this application
+                const appInterviews = (state.interviews || []).filter(i => (i.application_id === app.id || i.application?.id === app.id) && i.feedback);
+                const appTasks = (state.tasks || []).filter(t => (t.application_id === app.id || t.application?.id === app.id) && t.latest_submission?.feedback);
+
+                let feedbackSectionHtml = '';
+                if (appInterviews.length > 0 || appTasks.length > 0) {
+                    feedbackSectionHtml = `
+                        <div style="margin-bottom:20px; background:#f0fdf4; border:1px solid #86efac; border-radius:10px; padding:16px;">
+                            <h5 style="font-size:0.92rem; font-weight:800; color:#166534; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                                <span>💬</span> Recruiter Feedback & Reviews
+                            </h5>
+                            ${appInterviews.map(i => `
+                                <div style="background:#fff; border:1px solid #bbf7d0; border-radius:8px; padding:12px; margin-bottom:8px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                        <span style="font-weight:700; font-size:0.85rem; color:#15803d;">Interview Feedback (${escapeHtml(i.status)})</span>
+                                        <span style="font-size:0.75rem; color:var(--text-muted);">${formatDateTime(i.scheduled_at)}</span>
+                                    </div>
+                                    <div style="font-size:0.88rem; color:var(--text-dark); line-height:1.5;">${escapeHtml(i.feedback)}</div>
+                                </div>
+                            `).join('')}
+                            ${appTasks.map(t => `
+                                <div style="background:#fff; border:1px solid #bbf7d0; border-radius:8px; padding:12px; margin-bottom:8px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                        <span style="font-weight:700; font-size:0.85rem; color:#15803d;">Technical Task: ${escapeHtml(t.title)} (Score: ${t.latest_submission?.score ?? 'N/A'}/100)</span>
+                                        <span style="font-size:0.75rem; color:var(--text-muted);">${formatDateTime(t.latest_submission?.submitted_at || t.deadline)}</span>
+                                    </div>
+                                    <div style="font-size:0.88rem; color:var(--text-dark); line-height:1.5;">${escapeHtml(t.latest_submission?.feedback || '')}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
                 if (bodyEl) {
                     bodyEl.innerHTML = `
                         <div style="display:flex; gap:16px; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
@@ -4547,6 +4582,8 @@
                         </div>
 
                         ${skillsHtml}
+
+                        ${feedbackSectionHtml}
 
                         ${resumeHtml}
 
@@ -4904,11 +4941,18 @@
             interviews.forEach(i => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="font-weight:600;">${i.candidate?.name || 'Candidate'}</td>
-                    <td>${i.job?.title || 'Position'}</td>
-                    <td>${i.interviewer?.name || 'Recruiter'}</td>
+                    <td style="font-weight:600;">${escapeHtml(i.candidate?.name || 'Candidate')}</td>
+                    <td>${escapeHtml(i.job?.title || 'Position')}</td>
+                    <td>${escapeHtml(i.interviewer?.name || 'Recruiter')}</td>
                     <td>${formatDateTime(i.scheduled_at)}</td>
                     <td><span class="badge badge-${i.status}">${i.status}</span></td>
+                    <td>
+                        ${i.feedback ? `
+                            <div style="font-size:0.88rem; color:var(--text-dark); max-width:260px; line-height:1.4;">
+                                ${escapeHtml(i.feedback)}
+                            </div>
+                        ` : '<span style="color:var(--text-light); font-size:0.85rem;">-</span>'}
+                    </td>
                     <td><a href="${i.meeting_link}" target="_blank" style="color:var(--primary); text-decoration:none;">Open Link</a></td>
                     <td>
                         ${(isRecruiterOrAdmin && (i.status === 'scheduled' || i.status === 'rescheduled')) ? `
@@ -4943,7 +4987,7 @@
             tbody.innerHTML = '';
 
             if (tasks.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">No tasks assigned yet.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted);">No tasks assigned yet.</td></tr>';
                 return;
             }
 
@@ -4979,6 +5023,13 @@
                     <td>${sub?.repository_url ? `<a href="${sub.repository_url}" target="_blank" style="color:var(--primary);">View Solution</a>` : '<span style="color:var(--text-light);">None</span>'}</td>
                     <td>${sub?.score !== null && sub?.score !== undefined ? `<strong>${sub.score}/100</strong>` : '-'}</td>
                     <td>
+                        ${sub?.feedback ? `
+                            <div style="font-size:0.88rem; color:var(--text-dark); max-width:260px; line-height:1.4;">
+                                ${escapeHtml(sub.feedback)}
+                            </div>
+                        ` : '<span style="color:var(--text-light); font-size:0.85rem;">-</span>'}
+                    </td>
+                    <td>
                         ${t.status === 'Pending' ? `
                             <button class="btn btn-outline btn-sm" onclick="startTask(${t.id})">Start</button>
                             <button class="btn btn-primary btn-sm" onclick="openSubmitTask(${t.id})">Submit</button>
@@ -4988,6 +5039,9 @@
                         ` : ''}
                         ${(t.status === 'Submitted' && isRecruiterOrAdmin) ? `
                             <button class="btn btn-success btn-sm" onclick="openReviewTask(${t.id})">Grade</button>
+                        ` : ''}
+                        ${(t.status === 'Reviewed' && isRecruiterOrAdmin) ? `
+                            <button class="btn btn-outline btn-sm" onclick="openReviewTask(${t.id})" style="color:var(--primary); border-color:var(--primary);">Re-grade</button>
                         ` : ''}
                     </td>
                 `;

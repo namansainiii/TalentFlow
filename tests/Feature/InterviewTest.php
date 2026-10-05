@@ -8,8 +8,10 @@ use App\Models\Interview;
 use App\Models\Job;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\InterviewFeedbackNotification;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class InterviewTest extends TestCase
@@ -116,6 +118,8 @@ class InterviewTest extends TestCase
 
     public function test_recruiter_can_complete_interview_with_feedback(): void
     {
+        Notification::fake();
+
         $interview = Interview::create([
             'application_id' => $this->application->id,
             'interviewer_id' => $this->recruiter->id,
@@ -137,6 +141,11 @@ class InterviewTest extends TestCase
             'status' => 'completed',
             'feedback' => 'Strong communication and problem solving skills.',
         ]);
+
+        Notification::assertSentTo(
+            $this->candidateUser,
+            InterviewFeedbackNotification::class
+        );
     }
 
     public function test_recruiter_can_cancel_interview(): void

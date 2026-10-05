@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateInterviewRequest;
 use App\Http\Resources\InterviewResource;
 use App\Models\Application;
 use App\Models\Interview;
+use App\Notifications\InterviewFeedbackNotification;
 use App\Services\InterviewValidationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -141,6 +142,13 @@ class InterviewController extends Controller
             'feedback',
         ]));
 
+        if ($request->filled('feedback')) {
+            $candidateUser = $interview->application?->candidate?->user;
+            if ($candidateUser) {
+                $candidateUser->notify(new InterviewFeedbackNotification($interview, $request->feedback));
+            }
+        }
+
         return response()->json([
             'message' => 'Interview updated successfully',
             'interview' => new InterviewResource($interview->fresh(['interviewer', 'application.candidate', 'application.job'])),
@@ -176,6 +184,11 @@ class InterviewController extends Controller
             'status' => Interview::STATUS_COMPLETED,
             'feedback' => $request->feedback,
         ]);
+
+        $candidateUser = $interview->application?->candidate?->user;
+        if ($candidateUser) {
+            $candidateUser->notify(new InterviewFeedbackNotification($interview, $request->feedback));
+        }
 
         return response()->json([
             'message' => 'Interview marked as completed',

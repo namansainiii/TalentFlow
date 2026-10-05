@@ -8,6 +8,7 @@ use App\Models\Job;
 use App\Models\Role;
 use App\Models\TechnicalTask;
 use App\Models\User;
+use App\Notifications\TaskReviewedNotification;
 use App\Notifications\TaskSubmittedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -162,6 +163,8 @@ class TechnicalTaskTest extends TestCase
             'score' => 95,
             'feedback' => 'Exceptional code quality and test coverage.',
         ]);
+
+        Notification::assertSentTo($this->candidateUser, TaskReviewedNotification::class);
     }
 
     public function test_candidate_cannot_view_or_submit_another_candidates_technical_task(): void
