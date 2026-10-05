@@ -477,6 +477,31 @@
             "url": "{{base_url}}/api/resumes/1/process",
             "description": "Trigger skill extraction and resume parsing algorithm."
           }
+        },
+        {
+          "name": "View or Download Resume PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/pdf"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/resumes/1/download?inline=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "resumes", "1", "download"],
+              "query": [
+                {
+                  "key": "inline",
+                  "value": "1",
+                  "description": "1 for browser stream, 0 for attachment download"
+                }
+              ]
+            },
+            "description": "Stream or download candidate PDF resume directly."
+          }
         }
       ]
     },

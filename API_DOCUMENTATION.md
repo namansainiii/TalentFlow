@@ -169,6 +169,15 @@ Accept: application/json
 - **Path:** `/resumes/{id}/process`
 - **Access:** Authenticated
 
+### 4.4 View or Download Resume PDF
+- **Method:** `GET`
+- **Path:** `/resumes/{id}/download`
+- **Access:** Authenticated (Recruiter/Admin or Owner Candidate)
+- **Query Params:**
+  - `inline` (optional, boolean: `1` or `0`): Set `1` to stream PDF inline in browser; `0` to download as attachment.
+  - `token` (optional, string): Sanctum bearer token supported in query string for direct browser new-tab opening.
+- **Response:** PDF binary stream with `Content-Type: application/pdf`.
+
 ---
 
 ## 5. Applications & Hiring Pipeline Endpoints

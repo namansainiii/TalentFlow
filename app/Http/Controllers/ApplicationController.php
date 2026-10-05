@@ -7,6 +7,7 @@ use App\Http\Requests\ApplyJobRequest;
 use App\Http\Requests\UpdateApplicationStatusRequest;
 use App\Http\Resources\ApplicationResource;
 use App\Http\Resources\ApplicationStatusHistoryResource;
+use App\Jobs\ProcessResumeJob;
 use App\Models\Application;
 use App\Models\Candidate;
 use App\Models\Job;
@@ -86,8 +87,9 @@ class ApplicationController extends Controller
                 'status' => 'uploaded',
             ]);
 
-            // Parse immediately to extract details
+            // Parse immediately to extract details and dispatch background processing job
             $parser->parseResume($newResume);
+            ProcessResumeJob::dispatch($newResume);
             $resumeId = $newResume->id;
         } elseif (! $resumeId && $candidate->latestResume) {
             $resumeId = $candidate->latestResume->id;

@@ -146,7 +146,7 @@ All seed accounts use the password: `Namanpreet!7` (Supports login by Username o
 
 ## 🧪 Running Automated Tests
 
-Run the full automated test suite (43 feature tests, 188 assertions):
+Run the full automated test suite (48 feature tests, 201 assertions):
 
 ```bash
 php artisan test
@@ -154,8 +154,8 @@ php artisan test
 
 Test coverage includes:
 - `AuthTest`: Registration with password complexity enforcement, dual login (username or email), Sanctum token issuance, profile retrieval, logout.
-- `JobTest`: Public job listings, recruiter CRUD, role-based restriction, status toggling.
-- `ResumeAndApplicationTest`: PDF resume upload, candidate application, scoring calculation, duplicate prevention, status history.
+- `JobTest`: Public job listings, recruiter CRUD, recruiter-scoped ownership, role-based restriction, status toggling.
+- `ResumeAndApplicationTest`: PDF resume upload, queue processing, candidate application, scoring calculation, duplicate prevention, status history, candidate & recruiter resume PDF view/download.
 - `InterviewTest`: Scheduling, double-booking conflict validation, completion, cancellation.
 - `TechnicalTaskTest`: Assignment, start, multi-file submission, recruiter review and grading.
 - `RecruiterDirectoryTest`: Admin recruiter & candidate management, directory listing and profiles.
@@ -179,6 +179,6 @@ Import `TalentFlow_API.postman_collection.json` into Postman.
 - Pre-configured environment variables:
   - `base_url`: `http://127.0.0.1:8000/api`
   - `token`: automatically populated when running **Login (Recruiter)**, **Login (Candidate)**, or **Login (Admin)**.
-- Organized folders covering all 43 REST endpoints.
+- Organized folders covering all 44 REST endpoints.
 
 For detailed endpoint documentation and payloads, refer to [API_DOCUMENTATION.md](file:///Applications/MAMP/htdocs/Laravel_Hiring_Project/API_DOCUMENTATION.md).
