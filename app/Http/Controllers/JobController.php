@@ -21,6 +21,12 @@ class JobController extends Controller
         // 1. Start querying jobs with recruiter and skill tags
         $query = Job::with(['recruiter', 'skills'])->withCount('applications');
 
+        // Scope to recruiter's own jobs if a non-admin recruiter requests
+        $user = $request->user('sanctum') ?? $request->user();
+        if ($user && $user->isRecruiter() && ! $user->isAdmin()) {
+            $query->where('recruiter_id', $user->id);
+        }
+
         // 2. Filter by department if provided
         if ($request->filled('department')) {
             $query->where('department', $request->department);
@@ -126,8 +132,13 @@ class JobController extends Controller
     /**
      * Delete a job opening.
      */
-    public function destroy(Job $job): JsonResponse
+    public function destroy(Request $request, Job $job): JsonResponse
     {
+        $user = $request->user();
+        if (! $user || (! $user->isAdmin() && (! $user->isRecruiter() || (int) $job->recruiter_id !== (int) $user->id))) {
+            return response()->json(['message' => 'Unauthorized to delete this job opening.'], 403);
+        }
+
         // Delete job from database (cascades to related records)
         $job->delete();
 

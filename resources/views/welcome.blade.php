@@ -3969,14 +3969,26 @@
             if (!container) return;
             container.innerHTML = '';
 
-            if (!Array.isArray(jobs) || jobs.length === 0) {
+            const isCandidate = state.currentUser?.role?.name === 'candidate';
+            const isRecruiter = state.currentUser?.role?.name === 'recruiter' || state.currentUser?.role?.name === 'admin';
+            const isAdmin = state.currentUser?.role?.name === 'admin';
+            const isRecruiterOnly = state.currentUser?.role?.name === 'recruiter';
+            const currentUserId = state.currentUser?.id;
+            const userApplications = Array.isArray(state.applications) ? state.applications : [];
+
+            // A recruiter only sees jobs posted by their specific account
+            let displayJobs = jobs;
+            if (isRecruiterOnly && currentUserId) {
+                displayJobs = jobs.filter(j => {
+                    const recId = j.recruiter_id ?? j.recruiter?.id;
+                    return recId === currentUserId;
+                });
+            }
+
+            if (!Array.isArray(displayJobs) || displayJobs.length === 0) {
                 container.innerHTML = '<div style="color:var(--text-muted); padding:20px;">No job openings found.</div>';
                 return;
             }
-
-            const isCandidate = state.currentUser?.role?.name === 'candidate';
-            const isRecruiter = state.currentUser?.role?.name === 'recruiter' || state.currentUser?.role?.name === 'admin';
-            const userApplications = Array.isArray(state.applications) ? state.applications : [];
 
             let candidateHasResume = true;
             if (isCandidate) {
@@ -4007,7 +4019,7 @@
                 }
             }
 
-            jobs.forEach(job => {
+            displayJobs.forEach(job => {
                 let skillsHtml = '';
                 let skillsArr = [];
                 if (Array.isArray(job.skills)) {
@@ -4051,11 +4063,16 @@
                         `;
                     }
                 } else if (isRecruiter) {
+                    const isOwner = (job.recruiter_id === currentUserId || job.recruiter?.id === currentUserId);
+                    const canEditDelete = isAdmin || isOwner;
+
                     actionButtonsHtml = `
                         <div class="job-actions-row recruiter">
                             <button class="btn btn-outline btn-sm" onclick="viewJob(${job.id})" title="View Job Details">View</button>
-                            <button class="btn btn-outline btn-sm" onclick="openEditJob(${job.id})" style="color:var(--primary); border-color:var(--primary);" title="Edit Job Opening">Edit</button>
-                            <button class="btn btn-outline btn-sm" onclick="deleteJob(${job.id}, '${escapeJs(job.title)}')" style="color:var(--danger); border-color:var(--danger);" title="Delete Job Opening">Delete</button>
+                            ${canEditDelete ? `
+                                <button class="btn btn-outline btn-sm" onclick="openEditJob(${job.id})" style="color:var(--primary); border-color:var(--primary);" title="Edit Job Opening">Edit</button>
+                                <button class="btn btn-outline btn-sm" onclick="deleteJob(${job.id}, '${escapeJs(job.title)}')" style="color:var(--danger); border-color:var(--danger);" title="Delete Job Opening">Delete</button>
+                            ` : ''}
                             <button class="btn btn-primary btn-sm" onclick="switchTab('pipeline')" title="View applicants in pipeline">Pipeline</button>
                         </div>
                     `;
@@ -4099,8 +4116,15 @@
         function filterJobs() {
             const search = document.getElementById('jobSearch').value.toLowerCase();
             const status = document.getElementById('jobStatus').value;
+            const isRecruiterOnly = state.currentUser?.role?.name === 'recruiter';
+            const currentUserId = state.currentUser?.id;
 
-            const filtered = state.jobs.filter(j => {
+            let baseJobs = state.jobs || [];
+            if (isRecruiterOnly && currentUserId) {
+                baseJobs = baseJobs.filter(j => (j.recruiter_id === currentUserId || j.recruiter?.id === currentUserId));
+            }
+
+            const filtered = baseJobs.filter(j => {
                 const matchSearch = !search || j.title.toLowerCase().includes(search) || j.department.toLowerCase().includes(search);
                 const matchStatus = !status || j.status === status;
                 return matchSearch && matchStatus;
@@ -5053,6 +5077,14 @@
                 return;
             }
 
+            const currentUserId = state.currentUser?.id;
+            const isAdmin = state.currentUser?.role?.name === 'admin';
+            const isOwner = (job.recruiter_id === currentUserId || job.recruiter?.id === currentUserId);
+            if (!isAdmin && !isOwner) {
+                showToast('You cannot edit a job opening posted by another recruiter.', 'error');
+                return;
+            }
+
             const f = document.getElementById('formJob');
             if (!f) return;
             f.reset();
@@ -5161,6 +5193,14 @@
         async function deleteJob(id, title) {
             const job = (state.jobs || []).find(j => j.id == id);
             const jobTitle = title || job?.title || 'this job';
+
+            const currentUserId = state.currentUser?.id;
+            const isAdmin = state.currentUser?.role?.name === 'admin';
+            const isOwner = !job || (job.recruiter_id === currentUserId || job.recruiter?.id === currentUserId);
+            if (!isAdmin && !isOwner) {
+                showToast('You cannot delete a job opening posted by another recruiter.', 'error');
+                return;
+            }
 
             if (!confirm(`Are you sure you want to delete the job opening "${jobTitle}"? This will also remove any related applications.`)) {
                 return;
@@ -5297,15 +5337,22 @@
                     `;
                 }
             } else if (isRecruiter) {
+                const isAdmin = state.currentUser?.role?.name === 'admin';
+                const currentUserId = state.currentUser?.id;
+                const isOwner = (job.recruiter_id === currentUserId || job.recruiter?.id === currentUserId);
+                const canEditDelete = isAdmin || isOwner;
+
                 footer.innerHTML = `
                     <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; width:100%; justify-content:space-between;">
                         <div style="display:flex; gap:8px;">
-                            <button class="btn btn-outline btn-sm" onclick="openEditJob(${job.id})" style="color:var(--primary); border-color:var(--primary); font-weight:600;">
-                                <span style="margin-right:4px;">✏️</span> Edit Job
-                            </button>
-                            <button class="btn btn-outline btn-sm" onclick="deleteJob(${job.id}, '${escapeJs(job.title)}')" style="color:var(--danger); border-color:var(--danger); font-weight:600;">
-                                <span style="margin-right:4px;">🗑️</span> Delete Job
-                            </button>
+                            ${canEditDelete ? `
+                                <button class="btn btn-outline btn-sm" onclick="openEditJob(${job.id})" style="color:var(--primary); border-color:var(--primary); font-weight:600;">
+                                    <span style="margin-right:4px;">✏️</span> Edit Job
+                                </button>
+                                <button class="btn btn-outline btn-sm" onclick="deleteJob(${job.id}, '${escapeJs(job.title)}')" style="color:var(--danger); border-color:var(--danger); font-weight:600;">
+                                    <span style="margin-right:4px;">🗑️</span> Delete Job
+                                </button>
+                            ` : ''}
                         </div>
                         <div style="display:flex; gap:8px;">
                             <button class="btn btn-primary btn-sm" onclick="closeModal('modalJobView'); switchTab('pipeline');">View Pipeline (${job.applications_count ?? 0})</button>

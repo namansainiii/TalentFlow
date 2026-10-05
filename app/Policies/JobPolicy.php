@@ -24,11 +24,11 @@ class JobPolicy
 
     public function update(User $user, Job $job): bool
     {
-        return $user->isAdmin() || $user->isRecruiter();
+        return $user->isAdmin() || ($user->isRecruiter() && (int) $job->recruiter_id === (int) $user->id);
     }
 
     public function delete(User $user, Job $job): bool
     {
-        return $user->isAdmin() || $user->isRecruiter();
+        return $user->isAdmin() || ($user->isRecruiter() && (int) $job->recruiter_id === (int) $user->id);
     }
 }

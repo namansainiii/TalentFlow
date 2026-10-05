@@ -8,7 +8,14 @@ class UpdateJobRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $user = $this->user();
+        $job = $this->route('job');
+
+        if (! $user) {
+            return false;
+        }
+
+        return $user->isAdmin() || ($user->isRecruiter() && (int) $job?->recruiter_id === (int) $user->id);
     }
 
     public function rules(): array

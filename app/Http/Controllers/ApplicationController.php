@@ -136,13 +136,15 @@ class ApplicationController extends Controller
         $user = $request->user();
         $query = Application::with(['job', 'candidate', 'resume']);
 
-        // Candidates only see their own applications
-        if ($user->isCandidate() && ! $user->isRecruiter()) {
+        // Candidates only see their own applications; Recruiters only see applications for their own jobs
+        if ($user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
             if ($user->candidate) {
                 $query->where('candidate_id', $user->candidate->id);
             } else {
                 $query->whereRaw('1 = 0');
             }
+        } elseif ($user->isRecruiter() && ! $user->isAdmin()) {
+            $query->whereHas('job', fn ($q) => $q->where('recruiter_id', $user->id));
         }
 
         if ($request->filled('job_id')) {
@@ -171,6 +173,9 @@ class ApplicationController extends Controller
         if ($user && $user->isCandidate() && $application->candidate_id !== $user->candidate?->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
+        if ($user && $user->isRecruiter() && ! $user->isAdmin() && (int) $application->job?->recruiter_id !== (int) $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
         $application->load([
             'job',
@@ -192,6 +197,11 @@ class ApplicationController extends Controller
      */
     public function updateStatus(UpdateApplicationStatusRequest $request, Application $application): JsonResponse
     {
+        $user = $request->user();
+        if ($user && $user->isRecruiter() && ! $user->isAdmin() && (int) $application->job?->recruiter_id !== (int) $user->id) {
+            return response()->json(['message' => 'Unauthorized to update applications for jobs posted by another recruiter.'], 403);
+        }
+
         $oldStatus = $application->status;
         $newStatus = $request->status;
 

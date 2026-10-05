@@ -28,13 +28,15 @@ class WorkspaceController extends Controller
     {
         $user = $request->user()->loadMissing(['role', 'candidate.latestResume', 'candidate.resumes']);
         $isCandidate = $user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin();
+        $isRecruiterOnly = $user->isRecruiter() && ! $user->isAdmin();
         $candidateId = $user->candidate?->id ?? 0;
 
-        // 1. Jobs with skills and application count
-        $jobs = Job::with('skills')
-            ->withCount('applications')
-            ->latest()
-            ->get();
+        // 1. Jobs with skills and application count (scoped to specific recruiter)
+        $jobsQuery = Job::with(['recruiter', 'skills'])->withCount('applications');
+        if ($isRecruiterOnly) {
+            $jobsQuery->where('recruiter_id', $user->id);
+        }
+        $jobs = $jobsQuery->latest()->get();
 
         // 2. Candidates
         $candidatesQuery = Candidate::with(['latestResume', 'resumes']);
@@ -47,6 +49,8 @@ class WorkspaceController extends Controller
         $appsQuery = Application::with(['candidate', 'job', 'resume']);
         if ($isCandidate) {
             $appsQuery->where('candidate_id', $candidateId);
+        } elseif ($isRecruiterOnly) {
+            $appsQuery->whereHas('job', fn ($q) => $q->where('recruiter_id', $user->id));
         }
         $applications = $appsQuery->latest()->get();
 
@@ -54,6 +58,11 @@ class WorkspaceController extends Controller
         $intQuery = Interview::with(['interviewer', 'application.candidate', 'application.job']);
         if ($isCandidate) {
             $intQuery->whereHas('application', fn ($q) => $q->where('candidate_id', $candidateId));
+        } elseif ($isRecruiterOnly) {
+            $intQuery->where(function ($q) use ($user) {
+                $q->where('interviewer_id', $user->id)
+                    ->orWhereHas('application.job', fn ($jq) => $jq->where('recruiter_id', $user->id));
+            });
         }
         $interviews = $intQuery->latest('scheduled_at')->get();
 
@@ -61,6 +70,11 @@ class WorkspaceController extends Controller
         $taskQuery = TechnicalTask::with(['assignedByUser', 'latestSubmission', 'application.candidate', 'application.job']);
         if ($isCandidate) {
             $taskQuery->whereHas('application', fn ($q) => $q->where('candidate_id', $candidateId));
+        } elseif ($isRecruiterOnly) {
+            $taskQuery->where(function ($q) use ($user) {
+                $q->where('assigned_by', $user->id)
+                    ->orWhereHas('application.job', fn ($jq) => $jq->where('recruiter_id', $user->id));
+            });
         }
         $tasks = $taskQuery->latest()->get();
 

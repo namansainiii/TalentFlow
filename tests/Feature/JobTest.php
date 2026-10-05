@@ -177,4 +177,59 @@ class JobTest extends TestCase
         $response->assertStatus(403);
         $this->assertDatabaseHas('jobs', ['id' => $job->id]);
     }
+
+    public function test_recruiter_cannot_update_another_recruiters_job(): void
+    {
+        $recruiterRole = Role::where('name', 'recruiter')->first();
+        $anotherRecruiter = User::create([
+            'role_id' => $recruiterRole->id,
+            'name' => 'Other Recruiter',
+            'email' => 'other@recruiter.com',
+            'password' => 'secret123',
+        ]);
+
+        $job = Job::create([
+            'recruiter_id' => $this->recruiter->id,
+            'title' => 'Original Job',
+            'department' => 'Eng',
+            'description' => 'Desc',
+            'experience' => '1 year',
+            'application_deadline' => now()->addDays(15),
+            'status' => 'open',
+        ]);
+
+        $response = $this->actingAs($anotherRecruiter, 'sanctum')
+            ->putJson("/api/jobs/{$job->id}", [
+                'title' => 'Unauthorized Title Change',
+            ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_recruiter_cannot_delete_another_recruiters_job(): void
+    {
+        $recruiterRole = Role::where('name', 'recruiter')->first();
+        $anotherRecruiter = User::create([
+            'role_id' => $recruiterRole->id,
+            'name' => 'Other Recruiter',
+            'email' => 'other2@recruiter.com',
+            'password' => 'secret123',
+        ]);
+
+        $job = Job::create([
+            'recruiter_id' => $this->recruiter->id,
+            'title' => 'Protected Job',
+            'department' => 'Eng',
+            'description' => 'Desc',
+            'experience' => '1 year',
+            'application_deadline' => now()->addDays(15),
+            'status' => 'open',
+        ]);
+
+        $response = $this->actingAs($anotherRecruiter, 'sanctum')
+            ->deleteJson("/api/jobs/{$job->id}");
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('jobs', ['id' => $job->id]);
+    }
 }
