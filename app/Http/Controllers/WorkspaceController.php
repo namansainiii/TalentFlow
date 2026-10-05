@@ -72,7 +72,7 @@ class WorkspaceController extends Controller
             $taskQuery->whereHas('application', fn ($q) => $q->where('candidate_id', $candidateId));
         } elseif ($isRecruiterOnly) {
             $taskQuery->where(function ($q) use ($user) {
-                $q->where('assigned_by', $user->id)
+                $q->where('assigned_by_user_id', $user->id)
                     ->orWhereHas('application.job', fn ($jq) => $jq->where('recruiter_id', $user->id));
             });
         }
