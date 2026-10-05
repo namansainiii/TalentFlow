@@ -2367,7 +2367,6 @@
                 <div class="stat-card" id="cardStatAvgScore">
                     <div class="stat-header">
                         <span class="stat-label" id="labelStatAvgScore">Avg Candidate Score</span>
-                        <div class="stat-icon icon-emerald" style="font-size:0.75rem; font-weight:700;">SCR</div>
                     </div>
                     <div class="stat-value" id="statAvgScore" style="color:var(--success);">0%</div>
                     <div class="stat-sub" id="subStatAvgScore">Resume skill match</div>
