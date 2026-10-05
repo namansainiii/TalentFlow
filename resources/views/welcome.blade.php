@@ -3032,6 +3032,55 @@
         </div>
     </div>
 
+    <!-- Update Interview Modal -->
+    <div class="modal-backdrop" id="modalUpdateInterview">
+        <div class="modal-content">
+            <div class="modal-head">
+                <h3>Update Interview</h3>
+                <button class="btn-close" onclick="closeModal('modalUpdateInterview')">&times;</button>
+            </div>
+            <form id="formUpdateInterview" onsubmit="submitUpdateInterview(event)">
+                <input type="hidden" name="interview_id" id="updateInterviewId">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Candidate & Position</label>
+                        <input type="text" class="form-control" id="updateInterviewCandidateInfo" readonly style="background:#f1f5f9; cursor:not-allowed;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date & Time *</label>
+                        <input type="datetime-local" class="form-control" name="scheduled_at" id="updateInterviewScheduledAt" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Meeting Link *</label>
+                        <input type="url" class="form-control" name="meeting_link" id="updateInterviewMeetingLink" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status *</label>
+                        <select class="form-control" name="status" id="updateInterviewStatus" required>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="rescheduled">Rescheduled</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Interviewer</label>
+                        <select class="form-control" name="interviewer_id" id="updateInterviewInterviewer">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes / Feedback</label>
+                        <textarea class="form-control" name="feedback" id="updateInterviewFeedback" placeholder="Interview feedback, notes, or reschedule reason..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modalUpdateInterview')">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Update Interview</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Assign Task Modal -->
     <div class="modal-backdrop" id="modalTask">
         <div class="modal-content">
@@ -4862,10 +4911,13 @@
                     <td><span class="badge badge-${i.status}">${i.status}</span></td>
                     <td><a href="${i.meeting_link}" target="_blank" style="color:var(--primary); text-decoration:none;">Open Link</a></td>
                     <td>
-                        ${(i.status === 'scheduled' && isRecruiterOrAdmin) ? `
-                            <button class="btn btn-outline btn-sm" onclick="completeInterview(${i.id})">Done</button>
+                        ${(isRecruiterOrAdmin && (i.status === 'scheduled' || i.status === 'rescheduled')) ? `
+                            <button class="btn btn-outline btn-sm" onclick="openUpdateInterview(${i.id})" style="color:var(--primary); border-color:var(--primary); margin-right:4px;">Update</button>
+                            <button class="btn btn-outline btn-sm" onclick="completeInterview(${i.id})" style="margin-right:4px;">Done</button>
                             <button class="btn btn-outline btn-sm" style="color:var(--danger);" onclick="cancelInterview(${i.id})">Cancel</button>
-                        ` : '<span style="color:var(--text-light);">-</span>'}
+                        ` : (isRecruiterOrAdmin ? `
+                            <button class="btn btn-outline btn-sm" onclick="openUpdateInterview(${i.id})" style="color:var(--primary); border-color:var(--primary);">Update</button>
+                        ` : '<span style="color:var(--text-light);">-</span>')}
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -5716,11 +5768,12 @@
             e.preventDefault();
             const f = e.target;
             const id = f.application_id.value;
+            const interviewerId = state.currentUser?.id || 2;
 
             const res = await api(`/api/applications/${id}/interviews`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    interviewer_id: 2,
+                    interviewer_id: interviewerId,
                     scheduled_at: f.scheduled_at.value.replace('T', ' ') + ':00',
                     meeting_link: f.meeting_link.value
                 })
@@ -5736,6 +5789,100 @@
             } else {
                 const msg = d.errors ? Object.values(d.errors).flat().join(' ') : (d.message || 'Conflict detected.');
                 showToast(msg, 'error');
+            }
+        }
+
+        function openUpdateInterview(id) {
+            const interview = (state.interviews || []).find(i => i.id == id);
+            if (!interview) {
+                showToast('Interview not found', 'error');
+                return;
+            }
+
+            document.getElementById('updateInterviewId').value = interview.id;
+
+            const candName = interview.candidate?.name || interview.application?.candidate?.name || 'Candidate';
+            const jobTitle = interview.job?.title || interview.application?.job?.title || 'Position';
+            document.getElementById('updateInterviewCandidateInfo').value = `${candName} — ${jobTitle}`;
+
+            if (interview.scheduled_at) {
+                const dt = new Date(interview.scheduled_at);
+                const pad = n => String(n).padStart(2, '0');
+                const localIso = `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+                document.getElementById('updateInterviewScheduledAt').value = localIso;
+            }
+
+            document.getElementById('updateInterviewMeetingLink').value = interview.meeting_link || '';
+            document.getElementById('updateInterviewStatus').value = interview.status || 'scheduled';
+            document.getElementById('updateInterviewFeedback').value = interview.feedback || '';
+
+            const interviewerSelect = document.getElementById('updateInterviewInterviewer');
+            interviewerSelect.innerHTML = '';
+            const currentRecruiterId = interview.interviewer_id || interview.interviewer?.id || state.currentUser?.id;
+            const currentInterviewerName = interview.interviewer?.name || state.currentUser?.name || 'Recruiter';
+
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = currentRecruiterId;
+            defaultOpt.textContent = `${currentInterviewerName} (Current)`;
+            interviewerSelect.appendChild(defaultOpt);
+
+            if (Array.isArray(state.recruiters)) {
+                state.recruiters.forEach(r => {
+                    if (r.id != currentRecruiterId) {
+                        const opt = document.createElement('option');
+                        opt.value = r.id;
+                        opt.textContent = `${r.name} (${r.role?.name || 'Recruiter'})`;
+                        interviewerSelect.appendChild(opt);
+                    }
+                });
+            }
+
+            openModal('modalUpdateInterview');
+        }
+
+        async function submitUpdateInterview(e) {
+            e.preventDefault();
+            const f = e.target;
+            const interviewId = document.getElementById('updateInterviewId').value;
+
+            const scheduledVal = f.scheduled_at.value;
+            let formattedDate = scheduledVal.replace('T', ' ');
+            if (formattedDate.length === 16) {
+                formattedDate += ':00';
+            }
+
+            const payload = {
+                scheduled_at: formattedDate,
+                meeting_link: f.meeting_link.value,
+                status: f.status.value,
+                feedback: f.feedback.value || null,
+            };
+
+            if (f.interviewer_id && f.interviewer_id.value) {
+                payload.interviewer_id = parseInt(f.interviewer_id.value, 10);
+            }
+
+            try {
+                const res = await api(`/api/interviews/${interviewId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+
+                const d = await res.json();
+                if (res.ok) {
+                    showToast('Interview updated successfully!', 'success');
+                    closeModal('modalUpdateInterview');
+                    await loadInterviews();
+                    if (typeof reloadAll === 'function') {
+                        await reloadAll();
+                    }
+                } else {
+                    const msg = d.errors ? Object.values(d.errors).flat().join(' ') : (d.message || 'Failed to update interview.');
+                    showToast(msg, 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('An error occurred while updating the interview.', 'error');
             }
         }
 

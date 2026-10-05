@@ -158,6 +158,38 @@ class InterviewTest extends TestCase
             ->assertJsonPath('interview.status', 'cancelled');
     }
 
+    public function test_recruiter_can_update_interview(): void
+    {
+        $interview = Interview::create([
+            'application_id' => $this->application->id,
+            'interviewer_id' => $this->recruiter->id,
+            'scheduled_at' => Carbon::tomorrow()->setTime(14, 0),
+            'meeting_link' => 'https://meet.google.com/initial',
+            'status' => 'scheduled',
+        ]);
+
+        $newTime = Carbon::tomorrow()->setTime(17, 30);
+
+        $response = $this->actingAs($this->recruiter, 'sanctum')
+            ->putJson("/api/interviews/{$interview->id}", [
+                'scheduled_at' => $newTime->toDateTimeString(),
+                'meeting_link' => 'https://meet.google.com/updated-room',
+                'status' => 'rescheduled',
+                'feedback' => 'Rescheduled per recruiter request',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('interview.meeting_link', 'https://meet.google.com/updated-room')
+            ->assertJsonPath('interview.status', 'rescheduled');
+
+        $this->assertDatabaseHas('interviews', [
+            'id' => $interview->id,
+            'meeting_link' => 'https://meet.google.com/updated-room',
+            'status' => 'rescheduled',
+            'feedback' => 'Rescheduled per recruiter request',
+        ]);
+    }
+
     public function test_candidate_cannot_view_another_candidates_interview(): void
     {
         $otherRole = Role::where('name', 'candidate')->first();
