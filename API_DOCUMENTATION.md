@@ -75,6 +75,21 @@ Accept: application/json
 - **Path:** `/auth/logout`
 - **Access:** Authenticated
 
+### 1.5 Update Current Candidate Profile
+- **Method:** `PUT`
+- **Path:** `/profile`
+- **Access:** Authenticated (Candidate)
+- **Body:**
+```json
+{
+  "name": "Jane Doe",
+  "phone": "+1-555-0199",
+  "experience_years": 4.5,
+  "education": "Master of Science in Software Engineering",
+  "skills_summary": "PHP, Laravel, MySQL, REST API, Docker"
+}
+```
+
 ---
 
 ## 2. Job Openings Endpoints
@@ -349,6 +364,12 @@ Accept: application/json
 }
 ```
 
+### 7.7 Download Task Attachment
+- **Method:** `GET`
+- **Path:** `/technical-tasks/{id}/attachments/{index}`
+- **Access:** Authenticated
+- **Behavior:** Downloads or streams project specification/reference files attached by the recruiter.
+
 ---
 
 ## 8. Candidate Directory Endpoints
@@ -414,3 +435,30 @@ Accept: application/json
 - **Method:** `POST`
 - **Path:** `/notifications/read-all`
 - **Access:** Authenticated
+
+---
+
+## 11. Workspace Bootstrap Endpoint
+
+### 11.1 Bootstrap Workspace
+- **Method:** `GET`
+- **Path:** `/workspace/bootstrap`
+- **Access:** Authenticated
+- **Behavior:** High-speed unified bootstrap endpoint that pre-loads role-scoped jobs, candidates, applications, interviews, tasks, and notifications in a single request for the SPA workspace.
+
+---
+
+## 12. Recruiter Directory Endpoints
+
+### 12.1 List Recruiters
+- **Method:** `GET`
+- **Path:** `/recruiters`
+- **Access:** Admin
+- **Behavior:** Lists all hiring managers, recruiters, and administrators along with their posting and interview statistics.
+
+### 12.2 View Recruiter Profile
+- **Method:** `GET`
+- **Path:** `/recruiters/{id}`
+- **Access:** Admin
+- **Behavior:** Returns detailed recruiter activity, including posted jobs and conducted interviews.
+

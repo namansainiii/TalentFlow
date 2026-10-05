@@ -175,7 +175,7 @@ php artisan app:check-deadlines
 
 ## 📬 Postman Collection
 
-Import `TalentFlow_API.postman_collection.json` into Postman.
+Import `TalentFlow API Collection.postman_collection.json` into Postman.
 - Pre-configured environment variables:
   - `base_url`: `http://127.0.0.1:8000/api`
   - `token`: automatically populated when running **Login (Recruiter)**, **Login (Candidate)**, or **Login (Admin)**.
