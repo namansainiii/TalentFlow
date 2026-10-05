@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\ProcessResumeJob;
 use App\Models\Application;
 use App\Models\Candidate;
 use App\Models\Job;
@@ -11,6 +12,7 @@ use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -81,6 +83,8 @@ class ResumeAndApplicationTest extends TestCase
 
     public function test_candidate_can_upload_pdf_resume(): void
     {
+        Queue::fake();
+
         $file = UploadedFile::fake()->create('resume.pdf', 500, 'application/pdf');
 
         $response = $this->actingAs($this->candidateUser, 'sanctum')
@@ -95,6 +99,8 @@ class ResumeAndApplicationTest extends TestCase
             'candidate_id' => $this->candidate->id,
             'file_name' => 'resume.pdf',
         ]);
+
+        Queue::assertPushed(ProcessResumeJob::class);
     }
 
     public function test_candidate_can_apply_for_job_and_system_calculates_score(): void

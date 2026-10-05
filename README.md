@@ -45,11 +45,11 @@ TalentFlow allows recruiters to create and manage job openings, screen candidate
 - Every stage change automatically emits `ApplicationStatusChanged` event, creating an immutable audit log entry in `application_status_histories` and sending a notification to the candidate.
 
 ### 6. Interview Scheduler with Conflict Validation
-- Recruiters can schedule interviews with `scheduled_at`, `interviewer_id`, and `meeting_link`.
+- Recruiters can schedule and update/reschedule interviews with `scheduled_at`, `interviewer_id`, and `meeting_link`.
 - `InterviewValidationService` enforces **Conflict Validation**:
   - Prevents an interviewer from being double-booked within a 45-minute window.
   - Prevents a candidate from having overlapping interviews.
-- Status management: `scheduled`, `completed`, `cancelled`, `rescheduled` with interviewer feedback.
+- Status management: `scheduled`, `rescheduled`, `completed`, `cancelled` with interviewer feedback.
 
 ### 7. Technical Task Management
 - Recruiters assign coding tasks with titles, descriptions, and deadlines.
@@ -146,7 +146,7 @@ All seed accounts use the password: `Namanpreet!7` (Supports login by Username o
 
 ## 🧪 Running Automated Tests
 
-Run the full automated test suite (48 feature tests, 201 assertions):
+Run the full automated test suite (49 feature tests, 208 assertions):
 
 ```bash
 php artisan test
@@ -156,7 +156,7 @@ Test coverage includes:
 - `AuthTest`: Registration with password complexity enforcement, dual login (username or email), Sanctum token issuance, profile retrieval, logout.
 - `JobTest`: Public job listings, recruiter CRUD, recruiter-scoped ownership, role-based restriction, status toggling.
 - `ResumeAndApplicationTest`: PDF resume upload, queue processing, candidate application, scoring calculation, duplicate prevention, status history, candidate & recruiter resume PDF view/download.
-- `InterviewTest`: Scheduling, double-booking conflict validation, completion, cancellation.
+- `InterviewTest`: Scheduling, updating/rescheduling, double-booking conflict validation, completion, cancellation.
 - `TechnicalTaskTest`: Assignment, start, multi-file submission, recruiter review and grading.
 - `RecruiterDirectoryTest`: Admin recruiter & candidate management, directory listing and profiles.
 - `DashboardAndDeadlineTest`: Analytics calculation, overdue task updates, 24h reminder queue.

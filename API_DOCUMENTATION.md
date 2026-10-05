@@ -58,7 +58,7 @@ Accept: application/json
   "token": "2|XYZ789...",
   "user": {
     "id": 2,
-    "name": "Alex Miller",
+    "name": "Chandan Kumar",
     "email": "recruiter@talentflow.test",
     "role": { "id": 2, "name": "recruiter" }
   }
@@ -282,6 +282,34 @@ Accept: application/json
 - **Method:** `PUT`
 - **Path:** `/interviews/{id}`
 - **Access:** Recruiter / Admin
+- **Body:**
+```json
+{
+  "scheduled_at": "2026-10-16 15:30:00",
+  "meeting_link": "https://meet.google.com/updated-link",
+  "status": "rescheduled",
+  "interviewer_id": 2,
+  "feedback": "Rescheduled per candidate request."
+}
+```
+- **Response (200 OK):**
+```json
+{
+  "message": "Interview updated successfully",
+  "interview": {
+    "id": 1,
+    "application_id": 1,
+    "interviewer": {
+      "id": 2,
+      "name": "Chandan Kumar"
+    },
+    "scheduled_at": "2026-10-16T15:30:00.000000Z",
+    "meeting_link": "https://meet.google.com/updated-link",
+    "status": "rescheduled",
+    "feedback": "Rescheduled per candidate request."
+  }
+}
+```
 
 ### 6.5 Complete Interview
 - **Method:** `PATCH`

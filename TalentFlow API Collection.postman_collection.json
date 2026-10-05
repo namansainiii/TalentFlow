@@ -959,7 +959,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"Technical\",\n  \"scheduled_at\": \"2026-10-16 15:30:00\",\n  \"meeting_link\": \"https://meet.google.com/updated-link\",\n  \"notes\": \"Rescheduled per candidate request.\"\n}"
+              "raw": "{\n  \"scheduled_at\": \"2026-10-16 15:30:00\",\n  \"meeting_link\": \"https://meet.google.com/updated-link\",\n  \"status\": \"rescheduled\",\n  \"interviewer_id\": 2,\n  \"feedback\": \"Rescheduled per candidate request.\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/interviews/1",
