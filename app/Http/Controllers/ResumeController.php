@@ -12,6 +12,7 @@ use App\Services\CandidateScoringService;
 use App\Services\ResumeParserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ResumeController extends Controller
 {
@@ -103,5 +104,35 @@ class ResumeController extends Controller
             'message' => 'Resume processed successfully',
             'resume' => new ResumeResource($resume->fresh()),
         ]);
+    }
+
+    /**
+     * Download or view a resume file.
+     */
+    public function download(Request $request, Resume $resume)
+    {
+        $user = $request->user();
+
+        // Candidates can only download/view their own resume
+        if ($user && $user->isCandidate() && ! $user->isRecruiter() && ! $user->isAdmin()) {
+            if ($resume->candidate_id !== $user->candidate?->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+        }
+
+        if (! Storage::disk('local')->exists($resume->file_path)) {
+            return response()->json(['message' => 'Resume file not found on server'], 404);
+        }
+
+        $inline = $request->boolean('inline', false);
+        $headers = [
+            'Content-Type' => 'application/pdf',
+        ];
+
+        if ($inline) {
+            return Storage::disk('local')->response($resume->file_path, $resume->file_name, $headers);
+        }
+
+        return Storage::disk('local')->download($resume->file_path, $resume->file_name);
     }
 }

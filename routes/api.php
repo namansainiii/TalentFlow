@@ -47,6 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Resume Management
     Route::post('/resumes/upload', [ResumeController::class, 'upload']);
     Route::get('/resumes/{resume}', [ResumeController::class, 'show']);
+    Route::get('/resumes/{resume}/download', [ResumeController::class, 'download']);
     Route::post('/resumes/{resume}/process', [ResumeController::class, 'process']);
 
     // Job Application

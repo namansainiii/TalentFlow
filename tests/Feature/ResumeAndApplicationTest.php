@@ -256,4 +256,61 @@ class ResumeAndApplicationTest extends TestCase
             ->getJson("/api/resumes/{$otherResume->id}");
         $recruiterResumeResponse->assertStatus(200);
     }
+
+    public function test_recruiter_and_candidate_can_view_and_download_resume(): void
+    {
+        Storage::disk('local')->put('resumes/jane_resume.pdf', '%PDF-1.4 sample resume content');
+
+        $resume = Resume::create([
+            'candidate_id' => $this->candidate->id,
+            'file_path' => 'resumes/jane_resume.pdf',
+            'file_name' => 'Jane_Doe_Resume.pdf',
+            'file_size' => 1024,
+            'status' => 'uploaded',
+        ]);
+
+        // Recruiter downloads candidate resume
+        $recruiterDownload = $this->actingAs($this->recruiter, 'sanctum')
+            ->get("/api/resumes/{$resume->id}/download");
+        $recruiterDownload->assertStatus(200);
+
+        // Recruiter views candidate resume inline
+        $recruiterView = $this->actingAs($this->recruiter, 'sanctum')
+            ->get("/api/resumes/{$resume->id}/download?inline=1");
+        $recruiterView->assertStatus(200)
+            ->assertHeader('Content-Type', 'application/pdf');
+
+        // Candidate can view/download their own resume
+        $candidateDownload = $this->actingAs($this->candidateUser, 'sanctum')
+            ->get("/api/resumes/{$resume->id}/download");
+        $candidateDownload->assertStatus(200);
+
+        // Query token authentication works for direct browser links
+        $token = $this->recruiter->createToken('browser-token')->plainTextToken;
+        $directLinkResponse = $this->get("/api/resumes/{$resume->id}/download?inline=1&token={$token}");
+        $directLinkResponse->assertStatus(200);
+    }
+
+    public function test_candidate_cannot_download_another_candidates_resume(): void
+    {
+        Storage::disk('local')->put('resumes/other.pdf', '%PDF-1.4 secret');
+
+        $otherCandidate = Candidate::create([
+            'name' => 'Other Person',
+            'email' => 'other_secret@test.com',
+        ]);
+
+        $otherResume = Resume::create([
+            'candidate_id' => $otherCandidate->id,
+            'file_path' => 'resumes/other.pdf',
+            'file_name' => 'other.pdf',
+            'file_size' => 500,
+            'status' => 'uploaded',
+        ]);
+
+        $response = $this->actingAs($this->candidateUser, 'sanctum')
+            ->get("/api/resumes/{$otherResume->id}/download");
+
+        $response->assertStatus(403);
+    }
 }

@@ -4333,6 +4333,39 @@
 
             const score = Math.round(app.skill_score || 0);
             const initials = getInitials(app.candidate?.name);
+            const resume = app.resume || app.candidate?.latest_resume || (app.candidate?.resumes && app.candidate.resumes[0]);
+
+            const resumeHtml = `
+                <div style="margin-bottom:20px; background:#f8fafc; padding:14px; border-radius:10px; border:1px solid var(--border);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Candidate Resume</div>
+                        ${resume ? `<span class="badge badge-info" style="font-size:0.72rem; padding:2px 8px;">${resume.status ? resume.status.toUpperCase() : 'PDF'}</span>` : ''}
+                    </div>
+                    ${resume ? `
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px 14px;">
+                            <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                                <span style="font-size:1.8rem; line-height:1;">📄</span>
+                                <div style="min-width:0;">
+                                    <div style="font-weight:700; font-size:0.92rem; color:var(--text-dark); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${escapeHtml(resume.file_name || 'Resume.pdf')}</div>
+                                    <div style="font-size:0.78rem; color:var(--text-muted);">PDF Document ${resume.file_size ? '• ' + formatFileSize(resume.file_size) : ''}</div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:8px; flex-shrink:0;">
+                                <button type="button" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:6px; font-weight:600;" onclick="viewResume(${resume.id})">
+                                    <span>👁️</span> <span>View PDF</span>
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px; font-weight:600;" onclick="downloadResume(${resume.id}, '${escapeJs(resume.file_name || 'Resume.pdf')}')">
+                                    <span>⬇️</span> <span>Download</span>
+                                </button>
+                            </div>
+                        </div>
+                    ` : `
+                        <div style="font-size:0.85rem; color:var(--text-muted); font-style:italic; padding:4px 0;">
+                            No resume attached to this application.
+                        </div>
+                    `}
+                </div>
+            `;
 
             if (bodyEl) {
                 bodyEl.innerHTML = `
@@ -4365,6 +4398,8 @@
                             • <strong>Education:</strong> ${escapeHtml(app.candidate?.education || 'Not specified')}
                         </div>
                     </div>
+
+                    ${resumeHtml}
 
                     <div style="margin-bottom:22px;">
                         <h5 style="font-size:0.88rem; font-weight:700; color:var(--text-dark); margin-bottom:8px;">Extracted Skills Summary</h5>
@@ -4470,12 +4505,20 @@
                         <div style="margin-bottom:16px; background:${latestResume ? '#f8fafc' : '#fef2f2'}; padding:14px; border-radius:10px; border:1px solid ${latestResume ? 'var(--border)' : '#fecaca'};">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <div style="font-size:0.75rem; font-weight:700; color:${latestResume ? 'var(--text-muted)' : '#dc2626'}; text-transform:uppercase;">Profile Resume</div>
-                                ${!latestResume ? '<span class="status-badge" style="background:#fee2e2; color:#dc2626; font-size:0.7rem; font-weight:700;">Action Required</span>' : ''}
+                                ${!latestResume ? '<span class="status-badge" style="background:#fee2e2; color:#dc2626; font-size:0.7rem; font-weight:700;">Action Required</span>' : `<span style="font-size:0.75rem; color:var(--text-muted);">${formatFileSize(latestResume.file_size)}</span>`}
                             </div>
-                            <div style="font-size:0.95rem; font-weight:700; color:var(--text-dark); margin-top:4px;">
-                                ${latestResume ? `📄 ${escapeHtml(latestResume.file_name)}` : '<span style="color:#dc2626; font-weight:700;">No resume uploaded yet</span>'}
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; flex-wrap:wrap; gap:8px;">
+                                <div style="font-size:0.95rem; font-weight:700; color:var(--text-dark);">
+                                    ${latestResume ? `📄 ${escapeHtml(latestResume.file_name)}` : '<span style="color:#dc2626; font-weight:700;">No resume uploaded yet</span>'}
+                                </div>
+                                ${latestResume ? `
+                                    <div style="display:flex; gap:6px;">
+                                        <button type="button" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:0.78rem;" onclick="viewResume(${latestResume.id})">👁️ View</button>
+                                        <button type="button" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:0.78rem;" onclick="downloadResume(${latestResume.id}, '${escapeJs(latestResume.file_name)}')">⬇️ Download</button>
+                                    </div>
+                                ` : ''}
                             </div>
-                            <div style="font-size:0.8rem; color:${latestResume ? 'var(--text-muted)' : '#b91c1c'}; margin-top:4px; line-height:1.4;">
+                            <div style="font-size:0.8rem; color:${latestResume ? 'var(--text-muted)' : '#b91c1c'}; margin-top:6px; line-height:1.4;">
                                 ${latestResume ? 'Automatically sent to recruiter when applying for jobs. You can upload/update your PDF resume in Edit Profile.' : '⚠️ <strong>Without a resume, no jobs can be applied.</strong> Please click <strong>Edit Profile</strong> below to upload your resume.'}
                             </div>
                         </div>
@@ -4839,16 +4882,35 @@
             }
 
             const resume = candidate.latest_resume || (candidate.resumes && candidate.resumes[0]);
-            const resumeHtml = resume ? `
-                <div style="margin-top:14px;">
-                    <h5 style="font-size:0.88rem; font-weight:700; color:var(--text-dark); margin-bottom:6px;">Uploaded Resume</h5>
-                    <div style="display:inline-flex; align-items:center; gap:8px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; padding:6px 12px; font-size:0.82rem;">
-                        <span>📄</span>
-                        <span style="font-weight:600; color:#1e40af;">${escapeHtml(resume.file_name || 'Resume Document')}</span>
-                        <span style="color:#60a5fa; font-size:0.75rem;">(${resume.parsed_status || 'Processed'})</span>
+            const resumeHtml = `
+                <div style="margin-top:16px; margin-bottom:16px; background:#f8fafc; padding:14px; border-radius:10px; border:1px solid var(--border);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Candidate Resume</div>
+                        ${resume ? `<span class="badge badge-info" style="font-size:0.72rem; padding:2px 8px;">${resume.status ? resume.status.toUpperCase() : 'PDF'}</span>` : ''}
                     </div>
+                    ${resume ? `
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px 14px;">
+                            <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                                <span style="font-size:1.8rem; line-height:1;">📄</span>
+                                <div style="min-width:0;">
+                                    <div style="font-weight:700; font-size:0.92rem; color:var(--text-dark); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${escapeHtml(resume.file_name || 'Resume.pdf')}</div>
+                                    <div style="font-size:0.78rem; color:var(--text-muted);">PDF Document ${resume.file_size ? '• ' + formatFileSize(resume.file_size) : ''}</div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:8px; flex-shrink:0;">
+                                <button type="button" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:6px; font-weight:600;" onclick="viewResume(${resume.id})">
+                                    <span>👁️</span> <span>View PDF</span>
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px; font-weight:600;" onclick="downloadResume(${resume.id}, '${escapeJs(resume.file_name || 'Resume.pdf')}')">
+                                    <span>⬇️</span> <span>Download</span>
+                                </button>
+                            </div>
+                        </div>
+                    ` : `
+                        <div style="font-size:0.85rem; color:var(--text-muted); font-style:italic; padding:4px 0;">No resume uploaded for this candidate.</div>
+                    `}
                 </div>
-            ` : '';
+            `;
 
             if (bodyEl) {
                 bodyEl.innerHTML = `
@@ -5881,6 +5943,53 @@
         function escapeJs(s) {
             if (!s) return '';
             return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        function formatFileSize(bytes) {
+            if (!bytes || isNaN(bytes)) return '';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function viewResume(resumeId) {
+            if (!resumeId) {
+                showToast('No resume file associated with this profile', 'error');
+                return;
+            }
+            const token = state.token || localStorage.getItem('tf_token') || '';
+            const url = `/api/resumes/${resumeId}/download?inline=1${token ? `&token=${encodeURIComponent(token)}` : ''}`;
+            window.open(url, '_blank');
+        }
+
+        async function downloadResume(resumeId, fileName = 'resume.pdf') {
+            if (!resumeId) {
+                showToast('No resume file associated with this profile', 'error');
+                return;
+            }
+            const token = state.token || localStorage.getItem('tf_token') || '';
+
+            try {
+                const res = await api(`/api/resumes/${resumeId}/download`);
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    showToast(err.message || 'Failed to download resume', 'error');
+                    return;
+                }
+                const blob = await res.blob();
+                const fileUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = fileUrl;
+                a.download = fileName || 'resume.pdf';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => window.URL.revokeObjectURL(fileUrl), 10000);
+            } catch (e) {
+                console.error('Error downloading resume:', e);
+                const directUrl = `/api/resumes/${resumeId}/download${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+                window.location.href = directUrl;
+            }
         }
     </script>
 </body>

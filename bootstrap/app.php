@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\QueryTokenAuthentication;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => RoleMiddleware::class,
+        ]);
+        $middleware->api(prepend: [
+            QueryTokenAuthentication::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
